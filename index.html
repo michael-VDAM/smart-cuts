@@ -4543,8 +4543,8 @@ function renderWoodLibrary() {
 // ═════════════════════════════ CLOUD SYNC (Supabase) ════════════════════════
 // Optional cross-device sync. The app works fully offline via localStorage even
 // when these are blank — sync just stays disabled until real credentials exist.
-const SUPABASE_URL = 'PASTE_PROJECT_URL_HERE';      // e.g. https://abcd1234.supabase.co
-const SUPABASE_ANON_KEY = 'PASTE_ANON_KEY_HERE';    // the "anon public" key (safe in client)
+const SUPABASE_URL = 'https://brrtfvfilcaoktykrijt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJycnRmdmZpbGNhb2t0eWtyaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTM3NzQsImV4cCI6MjA5NTQ4OTc3NH0.PbSkc8H6cML4s6FBbw3nPU72U_ZzAh5vWPAXtA9PbBQ';
 const CLOUD_ENABLED = /^https:\/\/[a-z0-9-]+\.supabase\.co/i.test(SUPABASE_URL)
   && SUPABASE_ANON_KEY.startsWith('ey')
   && typeof supabase !== 'undefined';
