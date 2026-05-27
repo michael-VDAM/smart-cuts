@@ -14,8 +14,12 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Smart Cuts">
+  <!-- Cloud sync (optional): Supabase JS client. App works fully without it. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    button, .tab { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     :root {
       --bg: #141414; --panel: #1c1c1c; --panel2: #232323; --panel3: #2a2a2a;
       --border: #323232; --border2: #3d3d3d;
@@ -510,16 +514,19 @@
 
     /* ═══════════════════════ MOBILE RESPONSIVE ═══════════════════════ */
     @media (max-width: 820px) {
-      /* Header stacks: brand on top, tabs scroll horizontally below */
-      header { flex-wrap: wrap; padding: 8px 12px; gap: 8px; }
+      /* Sticky header so tab nav stays reachable; honor iOS notch/status-bar safe areas */
+      header { flex-wrap: wrap; gap: 8px; position: sticky; top: 0; z-index: 50;
+        padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); }
+      body { padding-bottom: env(safe-area-inset-bottom); }
       .brand { flex: 1 1 auto; }
       .brand-text h1 { font-size: 13px; }
       .brand-sub { font-size: 8px; }
       .tab-row { order: 3; flex: 1 1 100%; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-      .tab-row .tab { white-space: nowrap; flex-shrink: 0; }
+      /* Bigger finger-friendly tap targets on touch screens */
+      .tab-row .tab { white-space: nowrap; flex-shrink: 0; padding: 9px 14px; font-size: 13px; }
       .header-spacer { display: none; }
-      .header-action { font-size: 10px; padding: 4px 8px; }
-      header > span:has(.live-indicator) { font-size: 10px; }
+      .header-action { font-size: 11px; padding: 8px 11px; }
+      header > span:has(.live-indicator) { display: none; }
 
       /* Workspace stacks: input on top, output below */
       .workspace { grid-template-columns: 1fr; height: auto; min-height: calc(100vh - 88px); }
@@ -636,6 +643,7 @@
   </div>
   <div class="header-spacer"></div>
   <span style="font-size:11px;color:var(--muted)"><span class="live-indicator"></span>Live preview</span>
+  <button class="header-action" onclick="cloudAccountClick()" id="cloud-btn" title="Sync your projects across devices" style="display:none">☁ Sign in</button>
   <button class="header-action" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙 Dark</button>
   <button class="header-action" onclick="window.print()">Print</button>
   <button class="header-action" onclick="resetDefaults()">Reset</button>
@@ -1898,7 +1906,12 @@ function resetDefaults() {
 
 // ═════════════════════════════ MODE & PATTERN ══════════════════════════════
 // Theme (light/dark)
-let theme = localStorage.getItem('woodshop-theme') || 'dark';
+// Default: light on mobile/phone, dark on desktop. A saved choice always wins.
+let theme = localStorage.getItem('woodshop-theme');
+if (!theme) {
+  const isMobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
+  theme = isMobile ? 'light' : 'dark';
+}
 function applyTheme() {
   if (theme === 'light') {
     document.body.setAttribute('data-theme', 'light');
@@ -3311,6 +3324,7 @@ function saveProjects() {
     alert('Could not save — localStorage may be full. Try removing some projects or photos.');
     console.error(e);
   }
+  cloudPush('projects');
 }
 function newProjectDraft() {
   const today = new Date().toISOString().slice(0, 10);
@@ -3883,6 +3897,7 @@ function loadSupplies() {
 function saveSupplies() {
   try { localStorage.setItem(SUPPLIES_KEY, JSON.stringify(supplies)); }
   catch (e) { alert('Could not save — localStorage may be full.'); console.error(e); }
+  cloudPush('supplies');
 }
 function newSupplyDraft() {
   return {
@@ -4060,6 +4075,7 @@ function loadShopPhotos() {
 function saveShopPhotos() {
   try { localStorage.setItem(SHOP_PHOTOS_KEY, JSON.stringify(userShopPhotos)); }
   catch (e) { alert('Could not save photo — localStorage may be full.'); }
+  cloudPush('shop_photos');
 }
 function handleShopItemPhotoUpload(itemName, input) {
   if (!input.files || !input.files[0]) return;
@@ -4524,6 +4540,131 @@ function renderWoodLibrary() {
   }).join('');
 }
 
+// ═════════════════════════════ CLOUD SYNC (Supabase) ════════════════════════
+// Optional cross-device sync. The app works fully offline via localStorage even
+// when these are blank — sync just stays disabled until real credentials exist.
+const SUPABASE_URL = 'PASTE_PROJECT_URL_HERE';      // e.g. https://abcd1234.supabase.co
+const SUPABASE_ANON_KEY = 'PASTE_ANON_KEY_HERE';    // the "anon public" key (safe in client)
+const CLOUD_ENABLED = /^https:\/\/[a-z0-9-]+\.supabase\.co/i.test(SUPABASE_URL)
+  && SUPABASE_ANON_KEY.startsWith('ey')
+  && typeof supabase !== 'undefined';
+
+let sb = null;
+let cloudUser = null;
+let cloudChannel = null;
+let cloudPulling = false;            // guard: don't push while applying a pull
+const cloudDirty = {};               // collection -> true when a push failed (offline / unsynced)
+
+// Map each synced collection to its in-memory state + a local-only writer (no re-push).
+const CLOUD_COLLECTIONS = {
+  projects: {
+    get: () => projects,
+    set: v => { if (Array.isArray(v)) { projects = v; try { localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(projects)); } catch {} renderProjects(); } },
+  },
+  supplies: {
+    get: () => supplies,
+    set: v => { if (Array.isArray(v)) { supplies = v; try { localStorage.setItem(SUPPLIES_KEY, JSON.stringify(supplies)); } catch {} renderShop(); } },
+  },
+  shop_photos: {
+    get: () => userShopPhotos,
+    set: v => { if (v && typeof v === 'object') { userShopPhotos = v; try { localStorage.setItem(SHOP_PHOTOS_KEY, JSON.stringify(userShopPhotos)); } catch {} renderShop(); } },
+  },
+};
+
+function cloudInit() {
+  const btn = document.getElementById('cloud-btn');
+  if (!CLOUD_ENABLED) { if (btn) btn.style.display = 'none'; return; }
+  if (btn) btn.style.display = '';
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+  } catch (e) { console.error('Cloud init failed', e); if (btn) btn.style.display = 'none'; return; }
+
+  sb.auth.onAuthStateChange((_event, session) => {
+    cloudUser = session ? session.user : null;
+    updateCloudUI();
+    if (cloudUser) { subscribeCloud(); pullAll(); }
+    else { unsubscribeCloud(); }
+  });
+  sb.auth.getSession().then(({ data }) => {
+    cloudUser = data.session ? data.session.user : null;
+    updateCloudUI();
+    if (cloudUser) { subscribeCloud(); pullAll(); }
+  });
+  // Re-pull when returning to the tab, in case another device changed things.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && cloudUser) pullAll(); });
+}
+
+function updateCloudUI() {
+  const btn = document.getElementById('cloud-btn');
+  if (!btn) return;
+  if (cloudUser) {
+    const who = (cloudUser.email || 'account').split('@')[0];
+    btn.textContent = '☁ ' + who;
+    btn.title = 'Synced as ' + cloudUser.email + ' — click to sign out';
+  } else {
+    btn.textContent = '☁ Sign in';
+    btn.title = 'Sign in to sync your projects across devices';
+  }
+}
+
+async function cloudAccountClick() {
+  if (!CLOUD_ENABLED || !sb) return;
+  if (cloudUser) {
+    if (confirm('Sign out of cloud sync on this device? Your data stays in the cloud and on this device.')) {
+      await sb.auth.signOut();
+    }
+    return;
+  }
+  const email = (prompt('Enter your email — we\'ll send a one-tap sign-in link:') || '').trim();
+  if (!email) return;
+  const redirect = location.href.split('#')[0].split('?')[0];
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
+  if (error) alert('Could not send the link: ' + error.message);
+  else alert('Check your email (' + email + ') for a sign-in link, then open it on this device.');
+}
+
+// Push one collection's current state up to the cloud (no-op unless signed in).
+async function cloudPush(collection) {
+  if (!CLOUD_ENABLED || !sb || !cloudUser || cloudPulling) return;
+  const coll = CLOUD_COLLECTIONS[collection];
+  if (!coll) return;
+  const row = { user_id: cloudUser.id, collection, data: coll.get(), updated_at: new Date().toISOString() };
+  const { error } = await sb.from('smartcuts_state').upsert(row, { onConflict: 'user_id,collection' });
+  if (error) { cloudDirty[collection] = true; console.warn('cloudPush failed', collection, error.message); }
+  else { delete cloudDirty[collection]; }
+}
+
+// Pull all collections from the cloud and apply to local state.
+async function pullAll() {
+  if (!CLOUD_ENABLED || !sb || !cloudUser) return;
+  // First flush any local changes that failed to push (offline edits win over stale cloud).
+  for (const c of Object.keys(cloudDirty)) await cloudPush(c);
+  const { data, error } = await sb.from('smartcuts_state').select('collection,data').eq('user_id', cloudUser.id);
+  if (error) { console.warn('pullAll failed', error.message); return; }
+  cloudPulling = true;
+  try {
+    for (const r of (data || [])) {
+      if (cloudDirty[r.collection]) continue;        // local is newer/unsynced — keep it
+      const coll = CLOUD_COLLECTIONS[r.collection];
+      if (coll) coll.set(r.data);
+    }
+  } finally { cloudPulling = false; }
+}
+
+function subscribeCloud() {
+  if (!sb || !cloudUser || cloudChannel) return;
+  cloudChannel = sb.channel('smartcuts-sync')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'smartcuts_state', filter: 'user_id=eq.' + cloudUser.id },
+      () => { if (!cloudPulling) pullAll(); })
+    .subscribe();
+}
+function unsubscribeCloud() {
+  if (cloudChannel && sb) { sb.removeChannel(cloudChannel); cloudChannel = null; }
+}
+
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
   const loaded = load();
@@ -4562,6 +4703,7 @@ function init() {
   loadAcademyScores();
   runPlanner();
   runFurniture();
+  cloudInit();
 }
 init();
 </script>

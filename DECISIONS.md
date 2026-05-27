@@ -1,8 +1,11 @@
-# DECISIONS.md — Bright Cuts Architecture Choices
+# DECISIONS.md — Smart Cuts Architecture Choices
 
 One-line entries. Add new entries at top, dated.
 
 ## 2026-05-27
+- **Light mode is the default on mobile, dark on desktop** — user request. `theme` init checks `matchMedia('(max-width: 820px)')` only when there's no saved `woodshop-theme`; a manual toggle still wins and persists. Rationale: phone usage (outdoors/shop, bright screens) reads better light; desktop stays dark.
+- **Mobile polish for app-like use** — sticky header on ≤820px (tabs always reachable), iOS safe-area insets via `env(safe-area-inset-*)` on header + body (notch/status-bar/home-indicator), bigger tap targets (tabs + header actions), `touch-action: manipulation` + transparent tap highlight, and hid the "Live preview" label on phones to save vertical space.
+- **Cloud sync = Supabase (reverses the no-backend decision)** — user needs cross-device project sync, so localStorage-only is no longer sufficient. Plan: single `smartcuts_state` table (one JSONB row per user per collection: projects / supplies / shop_photos), RLS `auth.uid() = user_id`, email magic-link auth, supabase-js from CDN. Push-on-save + pull-on-login + Realtime + visibility-pull; offline edits flagged dirty and flushed before pulls so they're never clobbered. App still works fully offline via localStorage cache. Hosted in a **separate free Supabase org** Michael owns (kept out of Validator Digital infra; a 6th VD-org project would've cost $10/mo). Code is committed but inert until `SUPABASE_URL`/`SUPABASE_ANON_KEY` constants are filled.
 - **Renamed "Bright Cuts" → "Smart Cuts"** — user decision. Renamed display name, GitHub repo slug, and Pages URL (`michael-vdam.github.io/smart-cuts/`). Local folder stays `~/code/woodshop/`. GitHub auto-redirects the old `bright-cuts` URL, but the new URL is canonical — re-add to home screen from it.
 - **PWA / Add to Home Screen** — added `manifest.webmanifest` (standalone display, portrait, theme `#141414`) + `apple-touch-icon` + apple-mobile-web-app meta tags. Makes the app installable full-screen on phone with its own icon. Relative paths (`./`, `icon-*.png`) so it works under the `/smart-cuts/` Pages subpath.
 - **Single PNG logo, retired the 4-variant SVG picker** — user wanted the Gemini "Michael Makes It Work" lightbulb as the real brand mark everywhere (header, home hero, home-screen icon). Removed `LOGO_VARIANTS`/`applyLogo`/`setLogo`/`renderLogoPicker` + the "Choose a logo" UI + `woodshop-logo` localStorage key. Simplicity over customization.

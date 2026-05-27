@@ -73,7 +73,9 @@ Last updated: 2026-05-27 (Session 2 — rename + PWA)
 - List/detail views with edit/delete
 
 ## Other shipped
-- **Light/dark mode** with persistence
+- **Light/dark mode** with persistence — **defaults to light on mobile (≤820px), dark on desktop**; manual toggle overrides
+- **Mobile app polish** — sticky header, iOS safe-area insets (notch/home-indicator), bigger tap targets, hid "Live preview" label on phones
+- **Cloud sync (in progress)** — Supabase-backed cross-device sync for projects/supplies/shop photos is coded but inert; waiting on Michael's free Supabase project URL + anon key to go live (see DECISIONS 2026-05-27)
 - **Mobile responsive** (@media 820px + 480px breakpoints)
 - **Print stylesheet** with `print-color-adjust: exact` for swatches
 - **localStorage** persistence for all user state
