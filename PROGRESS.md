@@ -1,18 +1,19 @@
-# PROGRESS.md — Bright Cuts Current State
+# PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-26 (Session 1 close)
+Last updated: 2026-05-27 (Session 2 — rename + PWA)
 
 ## Live state
-- **URL**: https://michael-vdam.github.io/bright-cuts/
-- **Repo**: https://github.com/michael-VDAM/bright-cuts (public)
-- **File**: ~4700 lines, single `index.html`
+- **URL**: https://michael-vdam.github.io/smart-cuts/
+- **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
+- **File**: ~4600 lines, single `index.html` + static assets (icons, manifest)
 - **Theme**: dark mode default; light mode toggle in header
-- **Active logo**: cheerful (smiling lightbulb + hammer + sparkles)
+- **Logo**: single PNG app icon (Gemini "Michael Makes It Work" lightbulb) — used in header, home hero, and as the home-screen install icon. The old 4-variant SVG logo picker was retired.
+- **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen opens full-screen with the app icon.
 
 ## Features shipped (8 tabs)
 
 ### 1. Home
-- 4 logo variant picker (cheerful / bold / spark / outline)
+- App logo (lightbulb PNG) + title
 - Tile navigation to other tabs
 - Stat summary
 
@@ -76,13 +77,14 @@ Last updated: 2026-05-26 (Session 1 close)
 - **Mobile responsive** (@media 820px + 480px breakpoints)
 - **Print stylesheet** with `print-color-adjust: exact` for swatches
 - **localStorage** persistence for all user state
+- **PWA install** — manifest + apple-touch-icon + apple-mobile-web-app meta; standalone full-screen on phone with custom lightbulb icon
 
 ## Known issues / fixes deferred
 - (none currently — broke navigation once with missing `};`, fixed)
 
 ## Deferred features (not yet built)
 1. **Export / Import backup** — JSON download/upload for cross-device sync (offered to user, awaiting "yes")
-2. **App rename** — suggested "Workbench", "The Bench", "Sawdust", "Shop Companion" — user not yet decided
+2. ~~**App rename**~~ — DONE 2026-05-27: renamed "Bright Cuts" → "Smart Cuts" (display name, repo slug, and Pages URL all updated)
 3. **Real cloud sync** — Supabase/Cloudflare KV for cross-device data sync (only needed if Export/Import is too manual)
 4. **Photo-to-pattern** — upload board design photo, detect grid, auto-set pattern. Originally requested early on.
 5. **Cabinet drawer faces** — currently no separate drawer face panels in cabinet builder. Real kitchen drawers need them.
@@ -98,6 +100,8 @@ Last updated: 2026-05-26 (Session 1 close)
 - Removed: Quick Layouts dropdown from strip pattern
 - Fixed: Grain lines were vertical, now horizontal (along strip length)
 - Fixed: Project form photo upload was wonky (label needed display:block)
-- Added: 4 logo variants on home page
+- Renamed: Bright Cuts → Smart Cuts (2026-05-27)
+- Replaced: 4 SVG logo variants retired → single PNG lightbulb logo (header + home + app icon)
+- Added: PWA / Add to Home Screen install
 - Added: Mobile responsive
 - Added: GitHub Pages hosting

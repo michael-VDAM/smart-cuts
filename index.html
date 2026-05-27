@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bright Cuts · Michael Makes It Work</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Smart Cuts · Michael Makes It Work</title>
+  <meta name="description" content="Plan smarter cuts. Build cleaner boards. Learn the craft. By Michael Makes It Work.">
+  <!-- PWA / Add to Home Screen -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#141414">
+  <link rel="icon" type="image/png" href="favicon-32.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Smart Cuts">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -55,7 +65,7 @@
     /* HEADER + BRAND */
     header { padding: 10px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 18px; background: var(--panel); }
     .brand { display: flex; align-items: center; gap: 9px; }
-    .brand-logo { width: 34px; height: 34px; flex-shrink: 0; }
+    .brand-logo { width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; object-fit: cover; }
     .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
     .brand-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.1px; color: var(--text); }
     .brand-sub { font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 0.7px; text-transform: uppercase; font-weight: 600; }
@@ -370,7 +380,7 @@
     /* HOME PAGE */
     .home-col { padding: 32px 24px 48px; max-width: 1200px; margin: 0 auto; width: 100%; }
     .home-hero { text-align: center; margin-bottom: 36px; }
-    .home-hero-logo { width: 64px; height: 64px; margin-bottom: 14px; }
+    .home-hero-logo { width: 96px; height: 96px; margin-bottom: 14px; border-radius: 50%; object-fit: cover; }
     .home-title { font-size: 42px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
     .home-sub { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
     .home-tagline { color: var(--muted); margin-top: 16px; font-size: 15px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.5; }
@@ -386,14 +396,6 @@
     .home-stat-num { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
     .home-stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
-    /* Logo picker */
-    .logo-picker { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 auto 28px; max-width: 580px; }
-    .logo-option { background: var(--panel2); border: 2px solid var(--border); border-radius: 12px; padding: 14px 10px 10px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .logo-option:hover { border-color: var(--muted2); transform: translateY(-2px); }
-    .logo-option.active { border-color: var(--accent); background: var(--accent-soft); }
-    .logo-option svg { width: 44px; height: 44px; }
-    .logo-option .lbl { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
-    .logo-option.active .lbl { color: var(--accent); }
 
     /* WOOD LIBRARY */
     .workspace.single-col { grid-template-columns: 1fr; }
@@ -548,7 +550,7 @@
       .home-tile { padding: 16px; }
       .home-title { font-size: 28px; }
       .home-tagline { font-size: 13px; }
-      .home-hero-logo { width: 50px; height: 50px; }
+      .home-hero-logo { width: 76px; height: 76px; }
 
       /* Library filter row wraps cleanly */
       .lib-filter-row, .shop-filter-row { gap: 4px; }
@@ -616,30 +618,9 @@
 
 <header>
   <div class="brand">
-    <svg class="brand-logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" aria-label="Bright Cuts logo">
-      <circle cx="20" cy="20" r="19" fill="#f5f0e6" stroke="#1a1a1a" stroke-width="1.5"/>
-      <!-- lightbulb body -->
-      <ellipse cx="16" cy="16" rx="7" ry="8" fill="#e8a838"/>
-      <!-- threads -->
-      <rect x="13" y="22.5" width="6" height="2.5" fill="#4a4a4a" rx="0.5"/>
-      <rect x="13" y="25" width="6" height="0.7" fill="#2a2a2a"/>
-      <rect x="14" y="26" width="4" height="1.6" fill="#2a2a2a"/>
-      <!-- face -->
-      <circle cx="14" cy="15" r="0.95" fill="#1a1a1a"/>
-      <circle cx="18" cy="15" r="0.95" fill="#1a1a1a"/>
-      <path d="M13.6 17.6 Q16 19.4 18.4 17.6" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
-      <!-- hammer head + handle -->
-      <rect x="25.5" y="19" width="1.6" height="9" fill="#8b5a3c" rx="0.3"/>
-      <rect x="22.5" y="16" width="6.5" height="3.5" fill="#a5a5a5" stroke="#222" stroke-width="0.5" rx="0.4"/>
-      <rect x="28.2" y="16" width="0.8" height="3.5" fill="#666"/>
-      <!-- sparkles -->
-      <line x1="6.5" y1="8" x2="6.5" y2="10.5" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/>
-      <line x1="5.3" y1="9.2" x2="7.7" y2="9.2" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/>
-      <line x1="30" y1="8" x2="30" y2="10" stroke="#e8a838" stroke-width="0.9" stroke-linecap="round"/>
-      <line x1="29" y1="9" x2="31" y2="9" stroke="#e8a838" stroke-width="0.9" stroke-linecap="round"/>
-    </svg>
+    <img class="brand-logo" src="icon-192.png" alt="Smart Cuts logo" width="34" height="34">
     <div class="brand-text">
-      <h1>Bright Cuts</h1>
+      <h1>Smart Cuts</h1>
       <span class="brand-sub">by Michael Makes It Work</span>
     </div>
   </div>
@@ -664,29 +645,11 @@
 <div id="tab-home" class="workspace single-col">
   <div class="output-col home-col">
     <div class="home-hero">
-      <svg class="home-hero-logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="20" cy="20" r="19" fill="#f5f0e6" stroke="#1a1a1a" stroke-width="1.5"/>
-        <ellipse cx="16" cy="16" rx="7" ry="8" fill="#e8a838"/>
-        <rect x="13" y="22.5" width="6" height="2.5" fill="#4a4a4a" rx="0.5"/>
-        <rect x="13" y="25" width="6" height="0.7" fill="#2a2a2a"/>
-        <rect x="14" y="26" width="4" height="1.6" fill="#2a2a2a"/>
-        <circle cx="14" cy="15" r="0.95" fill="#1a1a1a"/>
-        <circle cx="18" cy="15" r="0.95" fill="#1a1a1a"/>
-        <path d="M13.6 17.6 Q16 19.4 18.4 17.6" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/>
-        <rect x="25.5" y="19" width="1.6" height="9" fill="#8b5a3c" rx="0.3"/>
-        <rect x="22.5" y="16" width="6.5" height="3.5" fill="#a5a5a5" stroke="#222" stroke-width="0.5" rx="0.4"/>
-        <line x1="6.5" y1="8" x2="6.5" y2="10.5" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/>
-        <line x1="5.3" y1="9.2" x2="7.7" y2="9.2" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/>
-        <line x1="30" y1="8" x2="30" y2="10" stroke="#e8a838" stroke-width="0.9" stroke-linecap="round"/>
-        <line x1="29" y1="9" x2="31" y2="9" stroke="#e8a838" stroke-width="0.9" stroke-linecap="round"/>
-      </svg>
-      <h1 class="home-title" id="home-title">Bright Cuts</h1>
+      <img class="home-hero-logo" src="icon-512.png" alt="Smart Cuts logo">
+      <h1 class="home-title" id="home-title">Smart Cuts</h1>
       <div class="home-sub">by Michael Makes It Work</div>
       <p class="home-tagline">Plan smarter cuts. Build cleaner boards. Learn the craft.</p>
     </div>
-
-    <div style="text-align:center;margin-bottom:14px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700">Choose a logo</div>
-    <div class="logo-picker" id="logo-picker"></div>
 
     <div class="home-tile-grid">
       <button class="home-tile" data-tile-tab="board">
@@ -1934,53 +1897,6 @@ function resetDefaults() {
 }
 
 // ═════════════════════════════ MODE & PATTERN ══════════════════════════════
-// ─── Logo variants (4 styles, user picks favorite from home page) ──────────
-const LOGO_VARIANTS = {
-  cheerful: {
-    label: 'Cheerful',
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#f5f0e6" stroke="#1a1a1a" stroke-width="1.5"/><ellipse cx="16" cy="16" rx="7" ry="8" fill="#e8a838"/><rect x="13" y="22.5" width="6" height="2.5" fill="#4a4a4a" rx="0.5"/><rect x="13" y="25" width="6" height="0.7" fill="#2a2a2a"/><rect x="14" y="26" width="4" height="1.6" fill="#2a2a2a"/><circle cx="14" cy="15" r="0.95" fill="#1a1a1a"/><circle cx="18" cy="15" r="0.95" fill="#1a1a1a"/><path d="M13.6 17.6 Q16 19.4 18.4 17.6" stroke="#1a1a1a" stroke-width="1" fill="none" stroke-linecap="round"/><rect x="25.5" y="19" width="1.6" height="9" fill="#8b5a3c" rx="0.3"/><rect x="22.5" y="16" width="6.5" height="3.5" fill="#a5a5a5" stroke="#222" stroke-width="0.5" rx="0.4"/><line x1="6.5" y1="8" x2="6.5" y2="10.5" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/><line x1="5.3" y1="9.2" x2="7.7" y2="9.2" stroke="#e8a838" stroke-width="1.2" stroke-linecap="round"/></svg>`
-  },
-  bold: {
-    label: 'Bold',
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#1a1a1a" stroke="#e8a838" stroke-width="2"/><ellipse cx="17" cy="16" rx="7.5" ry="8.5" fill="#e8a838"/><rect x="14" y="22.5" width="6" height="3" fill="#888"/><rect x="14.5" y="25.5" width="5" height="2" fill="#666"/><circle cx="14.5" cy="15" r="1.1" fill="#1a1a1a"/><circle cx="19" cy="15" r="1.1" fill="#1a1a1a"/><path d="M14 18 Q17 20 20 18" stroke="#1a1a1a" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="26" y="14" width="2" height="11" fill="#e8a838" rx="0.4"/><rect x="22" y="12" width="8" height="4" fill="#e8a838" stroke="#1a1a1a" stroke-width="0.6" rx="0.5"/></svg>`
-  },
-  spark: {
-    label: 'Spark',
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#f5f0e6" stroke="#1a1a1a" stroke-width="1.5"/><ellipse cx="20" cy="18" rx="8" ry="9" fill="#e8a838"/><rect x="16.5" y="25" width="7" height="3" fill="#4a4a4a" rx="0.5"/><rect x="17.5" y="28" width="5" height="2" fill="#2a2a2a"/><path d="M20 5 L20 8 M20 30 L20 33 M5 20 L8 20 M32 20 L35 20 M9 9 L11 11 M29 9 L27 11 M9 31 L11 29 M29 31 L27 29" stroke="#e8a838" stroke-width="1.5" stroke-linecap="round"/><path d="M16 16 L20 14 L18 18 L22 17 L19 22" stroke="#fff5cf" stroke-width="0.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-  },
-  outline: {
-    label: 'Outline',
-    svg: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="16" cy="16" rx="7" ry="8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="22.5" width="6" height="2.5" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.5"/><line x1="14" y1="26" x2="18" y2="26" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="14" cy="15" r="0.7" fill="currentColor"/><circle cx="18" cy="15" r="0.7" fill="currentColor"/><path d="M13.6 17.6 Q16 19.4 18.4 17.6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><rect x="25.5" y="19" width="1.6" height="9" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.3"/><rect x="22.5" y="16" width="6.5" height="3.5" fill="none" stroke="currentColor" stroke-width="1.2" rx="0.4"/></svg>`
-  },
-};
-let activeLogo = localStorage.getItem('woodshop-logo') || 'cheerful';
-function applyLogo() {
-  const v = LOGO_VARIANTS[activeLogo] || LOGO_VARIANTS.cheerful;
-  // Replace header brand logo
-  const headerLogo = document.querySelector('.brand-logo');
-  if (headerLogo && headerLogo.outerHTML !== v.svg) {
-    headerLogo.outerHTML = v.svg.replace('<svg', '<svg class="brand-logo"');
-  }
-  // Replace hero logo
-  const heroLogo = document.querySelector('.home-hero-logo');
-  if (heroLogo) {
-    heroLogo.outerHTML = v.svg.replace('<svg', '<svg class="home-hero-logo"');
-  }
-}
-function setLogo(name) {
-  activeLogo = name;
-  localStorage.setItem('woodshop-logo', name);
-  applyLogo();
-  renderLogoPicker();
-}
-function renderLogoPicker() {
-  const el = document.getElementById('logo-picker');
-  if (!el) return;
-  el.innerHTML = Object.entries(LOGO_VARIANTS).map(([k, v]) =>
-    `<button class="logo-option ${k === activeLogo ? 'active' : ''}" onclick="setLogo('${k}')">${v.svg}<span class="lbl">${v.label}</span></button>`
-  ).join('');
-}
-
 // Theme (light/dark)
 let theme = localStorage.getItem('woodshop-theme') || 'dark';
 function applyTheme() {
@@ -2919,7 +2835,7 @@ function copyPlan() {
   if (!lastPlan) return;
   const p = lastPlan;
   const bufPct = Math.round((p.bufferPct || 0) * 100);
-  let text = `BRIGHT CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
+  let text = `SMART CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
   if (mode === 'end') text += `Pattern: ${patternLabel(p.pattern)}\n`;
   text += `\nSTOCK (incl. ${bufPct}% buffer): ${p.bufferedBoards} boards · ${p.bufferedBf.toFixed(1)} bf\n`;
   text += `MATERIAL COST: ${money(p.totalCostBuffered)}\n`;
@@ -2933,7 +2849,7 @@ function copyPlan() {
   }
   text += `EDGE: ${edgeProfileLabel(p.edgeProfile)}\n`;
   if (p.juiceGroove !== 'none') text += `JUICE GROOVE: ${juiceGrooveLabel(p.juiceGroove)}\n`;
-  text += `\nGenerated by Bright Cuts · Michael Makes It Work\n`;
+  text += `\nGenerated by Smart Cuts · Michael Makes It Work\n`;
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.copy-btn');
     if (btn) { const orig = btn.innerHTML; btn.innerHTML = '&#10003; Copied'; setTimeout(() => btn.innerHTML = orig, 1500); }
@@ -4644,8 +4560,6 @@ function init() {
   loadProjects();
   renderProjects();
   loadAcademyScores();
-  applyLogo();
-  renderLogoPicker();
   runPlanner();
   runFurniture();
 }

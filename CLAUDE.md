@@ -1,27 +1,34 @@
-# CLAUDE.md — Bright Cuts Project Briefing
+# CLAUDE.md — Smart Cuts Project Briefing
 
 **Read this first** at the start of every session. Then read PROGRESS.md (what's done) and DECISIONS.md (why we built it this way).
 
 ## What this is
-**Bright Cuts** — a single-file HTML app for woodworking. By **Michael Makes It Work** (Michael Ross's personal woodworking brand). Lives in `~/code/woodshop/` locally, pushed to https://github.com/michael-VDAM/bright-cuts, deployed to https://michael-vdam.github.io/bright-cuts/.
+**Smart Cuts** — a single-file HTML app for woodworking, installable on phone via Add to Home Screen (PWA). By **Michael Makes It Work** (Michael Ross's personal woodworking brand). Lives in `~/code/woodshop/` locally (folder name unchanged), pushed to https://github.com/michael-VDAM/smart-cuts, deployed to https://michael-vdam.github.io/smart-cuts/. (Renamed from "Bright Cuts" → "Smart Cuts" on 2026-05-27, repo + URL slug renamed too.)
 
 ## Tech stack
-- **One file**: `index.html` (~4700 lines including inline CSS + JS)
+- **One file**: `index.html` (~4600 lines including inline CSS + JS) + a few static assets (icons, manifest)
 - **Vanilla JS** — no framework, no build step
 - **localStorage** for persistence (per-device, no backend)
 - **Canvas API** for photo auto-resize (1200px max, JPEG 0.82)
-- **Inline SVG** for logos + cutting-board previews + diagrams
+- **Inline SVG** for cutting-board previews + diagrams; **PNG app icon** for the logo (header, home hero, and home-screen install)
+- **PWA**: `manifest.webmanifest` + apple-touch-icon + apple-mobile-web-app meta tags → standalone full-screen install on phone
 
 ## File layout
 ```
 ~/code/woodshop/
-├── index.html       ← the entire app
-├── README.md        ← public-facing project overview
-├── CLAUDE.md        ← THIS FILE (session briefing)
-├── PROGRESS.md      ← what's done + what's queued
-├── DECISIONS.md     ← key architectural choices
+├── index.html             ← the entire app
+├── manifest.webmanifest   ← PWA manifest (name, icons, standalone display)
+├── apple-touch-icon.png   ← 180×180 iOS home-screen icon
+├── icon-192.png           ← header logo + PWA icon
+├── icon-512.png           ← home hero logo + PWA icon
+├── favicon-32.png         ← browser tab favicon
+├── README.md              ← public-facing project overview
+├── CLAUDE.md              ← THIS FILE (session briefing)
+├── PROGRESS.md            ← what's done + what's queued
+├── DECISIONS.md           ← key architectural choices
 └── .gitignore
 ```
+Icons are generated from the source logo via `sips` (center-crop to square → resize). Source: a Gemini-generated "Michael Makes It Work" lightbulb logo.
 
 ## index.html section navigation
 Big sections are marked with banner comments. Use grep to find them:
@@ -53,8 +60,8 @@ git push
 GitHub Pages auto-deploys in ~30 seconds. Hard refresh on phone/laptop to see new version.
 
 ## How users access it
-- Laptop: open https://michael-vdam.github.io/bright-cuts/ in browser
-- Phone: Safari → above URL → Share → "Add to Home Screen" → app icon
+- Laptop: open https://michael-vdam.github.io/smart-cuts/ in browser
+- Phone: Safari → above URL → Share → "Add to Home Screen" → installs full-screen with the lightbulb app icon
 
 ## Where Michael's other Claude docs live
 - **Global memory**: `~/.claude/projects/-Users-michaelross-code-core/memory/MEMORY.md`
@@ -64,7 +71,7 @@ GitHub Pages auto-deploys in ~30 seconds. Hard refresh on phone/laptop to see ne
 - **Woodworking reference**: `~/Documents/Claude/Projects/Woodworking/.claude/skills/{wood-expert,tool-expert,finishing-specialist,maintenance}/references/` — these informed the Wood Library + My Shop content
 
 ## Quick orientation prompts for future sessions
-- "Let's work on Bright Cuts" or "Let's improve the woodshop app" — triggers reading these 3 files
+- "Let's work on Smart Cuts" or "Let's improve the woodshop app" — triggers reading these 3 files
 - Always cd to `~/code/woodshop/` before edits
 - This is NOT a VD project, so vd-session-lifecycle skill should NOT fire
 

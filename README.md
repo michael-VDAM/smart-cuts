@@ -1,13 +1,13 @@
-# Bright Cuts
+# Smart Cuts
 
-A single-file woodworking companion app by **Michael Makes It Work**.
+A single-file woodworking companion app by **Michael Makes It Work**. Installable on your phone (Add to Home Screen) with its own app icon.
 
 🪵 Plan cutting boards (end-grain + face-grain) • Furniture builder • Stock optimizer • Wood encyclopedia (56 species) • Workshop quiz academy • Tool inventory • Project catalog • Supplies tracking
 
 ## Live site
-👉 https://USERNAME.github.io/bright-cuts/
+👉 https://michael-vdam.github.io/smart-cuts/
 
-*(URL will be set after Pages enable)*
+On iPhone: open the URL in Safari → Share → **Add to Home Screen**. The lightbulb logo becomes the app icon and it opens full-screen (no browser chrome).
 
 ## Run locally
 ```bash
@@ -17,7 +17,7 @@ open index.html
 That's it — no build step, no dependencies. Just a single HTML file with inline CSS + JS.
 
 ## Data
-Everything is stored in browser **localStorage** — per device. Projects, photos, supplies, quiz scores, theme preference, and logo choice all live in your browser. No backend, no tracking, no analytics.
+Everything is stored in browser **localStorage** — per device. Projects, photos, supplies, quiz scores, and theme preference all live in your browser. No backend, no tracking, no analytics.
 
 ## Update workflow
 ```bash
@@ -32,7 +32,7 @@ GitHub Pages auto-deploys within ~30 seconds. Hard refresh (`Cmd+Shift+R`) on yo
 - Vanilla JS, no framework
 - localStorage for persistence
 - Canvas API for photo resizing (auto 1200px max, JPEG 0.82)
-- SVG inline rendering for cutting board previews, logos, diagrams
+- SVG inline rendering for cutting board previews + diagrams; PNG app icon (Add to Home Screen)
 
 ## Features
 - **Cutting Board planner** — end + face grain, 7 patterns (checker, brick, stripe, plaid, 3D cube, herringbone, random), 9 standard sizes, multi-species with prices, edge profiles, juice groove

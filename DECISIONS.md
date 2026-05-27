@@ -2,6 +2,13 @@
 
 One-line entries. Add new entries at top, dated.
 
+## 2026-05-27
+- **Renamed "Bright Cuts" → "Smart Cuts"** — user decision. Renamed display name, GitHub repo slug, and Pages URL (`michael-vdam.github.io/smart-cuts/`). Local folder stays `~/code/woodshop/`. GitHub auto-redirects the old `bright-cuts` URL, but the new URL is canonical — re-add to home screen from it.
+- **PWA / Add to Home Screen** — added `manifest.webmanifest` (standalone display, portrait, theme `#141414`) + `apple-touch-icon` + apple-mobile-web-app meta tags. Makes the app installable full-screen on phone with its own icon. Relative paths (`./`, `icon-*.png`) so it works under the `/smart-cuts/` Pages subpath.
+- **Single PNG logo, retired the 4-variant SVG picker** — user wanted the Gemini "Michael Makes It Work" lightbulb as the real brand mark everywhere (header, home hero, home-screen icon). Removed `LOGO_VARIANTS`/`applyLogo`/`setLogo`/`renderLogoPicker` + the "Choose a logo" UI + `woodshop-logo` localStorage key. Simplicity over customization.
+- **Icons via `sips`, not inline** — iOS Add-to-Home-Screen needs a real image file for apple-touch-icon (data URIs are unreliable). Source logo is 2048×2100 → center-cropped to square (`sips -c`) → resized to 180/192/512/32. This is the first time the app isn't strictly single-file; icons + manifest are a deliberate, small exception for installability.
+- **Logo rendered with `border-radius:50%`** — the source PNG is a cream circle on a dark square; circular crop hides the square corners cleanly on both light and dark themes without re-cutting the image.
+
 ## 2026-05-26
 - **Single HTML file, no build step** — easier hosting (works from `file://` or any static host), offline-capable, no dependencies to break. Tradeoff: 4700 lines is getting big, but search/navigation via grep is fine.
 - **Vanilla JS, no framework** — same reason: no build, no node_modules, no version churn. Code is readable to anyone who knows JS.
@@ -9,7 +16,7 @@ One-line entries. Add new entries at top, dated.
 - **Photos auto-resized to 1200px max JPEG 0.82** — keeps localStorage under quota (~5-10MB). User can fit 20-50 projects with photos before hitting cap. Quality is sufficient for portfolio reference.
 - **Brand color `#e8a838` (warm gold-yellow)** — matches the lightbulb in the user's "Michael Makes It Work" logo. Light mode uses slightly darker `#c47a1a` for contrast on white.
 - **Dark mode default** — most woodworkers/makers prefer dark UIs. Light mode optional, persists in localStorage.
-- **App named "Bright Cuts"** — ties to lightbulb logo (bright/ideas) and woodworking (cuts). User considering rename (Workbench, The Bench, Sawdust, Shop Companion). Decision pending.
+- **App originally named "Bright Cuts"** — tied to lightbulb logo (bright/ideas) + woodworking (cuts). Renamed to "Smart Cuts" on 2026-05-27 (see top of file).
 - **Removed Plan Build / Generate Parts buttons** — live preview made them redundant. "Simplicity wins" — user feedback.
 - **Stock Lumber section hidden in cutting board UI** — defaults to 4/4 × 6" × 36" lumber. Hiding reduces cognitive load. Inputs still in DOM for math + save/load. Custom users who need different stock would have to know to override via JS (acceptable for power users).
 - **Standard mode hides L/W inputs** — preset picks them. Only Thickness editable. Simplest possible flow for the 90% case.
@@ -19,7 +26,7 @@ One-line entries. Add new entries at top, dated.
 - **Wood Library uses Mimms Lumber inventory (56 species)** — user's actual local source in Nashville. Categorized: domestic / figured / exotic.
 - **Dynamic Project finish/stain dropdowns** — hardcoded common options + user's My Supplies in oil-wax/stain/finish categories. User can add Walrus Oil to supplies, it shows up everywhere relevant.
 - **Quiz best-score persistence per category** — keyed by category, only updates when beating previous best. Shows "★ Best X%" on welcome.
-- **Logo as inline SVG, not external image** — keeps single-file architecture intact. 4 variants user can switch between, persisted in localStorage.
+- **Logo as inline SVG, not external image** — kept single-file architecture intact; 4 variants user could switch between. SUPERSEDED 2026-05-27: replaced by a single external PNG logo (see top of file) for real-brand consistency + home-screen icon.
 - **Mobile breakpoints at 820px and 480px** — covers tablet + phone. Workspace stacks input → output vertically. Tabs scroll horizontally.
 - **GitHub Pages hosting (not Netlify)** — user has GitHub account, prefers git push workflow over drag-and-drop. Version control for free. Auto-deploys ~30 sec.
 - **Repo public** — no secrets in code. Easier for Pages, simpler permissions.
