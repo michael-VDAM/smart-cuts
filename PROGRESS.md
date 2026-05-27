@@ -75,7 +75,7 @@ Last updated: 2026-05-27 (Session 2 — rename + PWA)
 ## Other shipped
 - **Light/dark mode** with persistence — **defaults to light on mobile (≤820px), dark on desktop**; manual toggle overrides
 - **Mobile app polish** — sticky header, iOS safe-area insets (notch/home-indicator), bigger tap targets, hid "Live preview" label on phones
-- **Cloud sync (in progress)** — Supabase-backed cross-device sync for projects/supplies/shop photos is coded but inert; waiting on Michael's free Supabase project URL + anon key to go live (see DECISIONS 2026-05-27)
+- **Cloud sync (DEPLOYED, login test pending)** — Supabase-backed cross-device sync for projects/supplies/shop photos is live in the deployed app. Project: `brrtfvfilcaoktykrijt` in Michael's **separate private Supabase org** (NOT the Validator Digital org — the MCP connection cannot reach it; Michael runs any SQL/auth changes himself via the dashboard). Table `smartcuts_state` created + RLS verified (anon REST returns `[]`, HTTP 200). Auth = email magic-link; redirect URL set to the Pages URL. **Still unverified:** the actual end-to-end magic-link login + two-device sync test (needs Michael's email). Pick up here next session. See DECISIONS 2026-05-27.
 - **Mobile responsive** (@media 820px + 480px breakpoints)
 - **Print stylesheet** with `print-color-adjust: exact` for swatches
 - **localStorage** persistence for all user state
@@ -87,7 +87,7 @@ Last updated: 2026-05-27 (Session 2 — rename + PWA)
 ## Deferred features (not yet built)
 1. **Export / Import backup** — JSON download/upload for cross-device sync (offered to user, awaiting "yes")
 2. ~~**App rename**~~ — DONE 2026-05-27: renamed "Bright Cuts" → "Smart Cuts" (display name, repo slug, and Pages URL all updated)
-3. **Real cloud sync** — Supabase/Cloudflare KV for cross-device data sync (only needed if Export/Import is too manual)
+3. ~~**Real cloud sync**~~ — DONE 2026-05-27: Supabase magic-link sync for projects/supplies/shop photos, deployed (login test pending). See "Other shipped".
 4. **Photo-to-pattern** — upload board design photo, detect grid, auto-set pattern. Originally requested early on.
 5. **Cabinet drawer faces** — currently no separate drawer face panels in cabinet builder. Real kitchen drawers need them.
 6. **Multi-cabinet layouts** — "3 wall cabinets across 90 inches" — not yet supported.
