@@ -20,33 +20,36 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; }
     button, .tab { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    /* Wood-forward palette: warm walnut/espresso (dark) + parchment/oak (light).
+       High-end, simple: tight palette, one accent (warm honey amber), accent2 reserved
+       for muted slate so info/blue moments don't fight the wood tones. */
     :root {
-      --bg: #141414; --panel: #1c1c1c; --panel2: #232323; --panel3: #2a2a2a;
-      --border: #323232; --border2: #3d3d3d;
-      --text: #ededed; --muted: #8a8a8a; --muted2: #5e5e5e;
-      --accent: #e8a838; --accent-soft: rgba(232,168,56,0.15);
-      --accent2: #4a9eff;
-      --money: #6ec77e;
-      --danger: #e05252; --success: #52c47e; --warn: #e8a838;
-      --cut: #ff6b35;
-      --shadow: 0 4px 18px rgba(0,0,0,0.4);
+      --bg: #18120c; --panel: #1f1812; --panel2: #2a211a; --panel3: #342a21;
+      --border: #3a2e23; --border2: #4a3a2c;
+      --text: #f0e8d8; --muted: #a89880; --muted2: #6b5e4f;
+      --accent: #d4a056; --accent-soft: rgba(212,160,86,0.14);
+      --accent2: #8da8b8;
+      --money: #8fb878;
+      --danger: #d05a4a; --success: #8fb878; --warn: #d4a056;
+      --cut: #d97a45;
+      --shadow: 0 4px 18px rgba(0,0,0,0.45);
     }
-    /* Light theme overrides */
+    /* Light theme overrides — parchment, oak, walnut text */
     [data-theme="light"] {
-      --bg: #f5f1e8;
-      --panel: #ffffff;
-      --panel2: #f9f6ef;
-      --panel3: #ede7d8;
-      --border: #d8d0c0;
-      --border2: #b8b0a0;
-      --text: #1a1814;
-      --muted: #5a5448;
-      --muted2: #8a8478;
-      --accent: #c47a1a;
-      --accent-soft: rgba(196,122,26,0.10);
-      --accent2: #2a78cc;
-      --money: #2e7c46;
-      --shadow: 0 3px 14px rgba(50,40,20,0.10);
+      --bg: #f0e6d2;
+      --panel: #faf5ea;
+      --panel2: #ede2cc;
+      --panel3: #e2d4b8;
+      --border: #cdba98;
+      --border2: #a89878;
+      --text: #2b1f14;
+      --muted: #6b5a44;
+      --muted2: #9a8770;
+      --accent: #b56a1f;
+      --accent-soft: rgba(181,106,31,0.10);
+      --accent2: #5a7a92;
+      --money: #4d7a3d;
+      --shadow: 0 3px 14px rgba(80,55,25,0.12);
     }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 13px; min-height: 100vh; -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "cv01"; transition: background-color 0.2s, color 0.2s; }
     /* Light-mode tweaks for specific surfaces that look weird with simple variable swaps */
@@ -151,12 +154,12 @@
     .strip-row input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
     .strip-row select:focus, .strip-row input:focus { outline: none; border-color: var(--accent); }
     .strip-total { font-size: 10px; color: var(--muted); margin-top: 4px; padding: 4px 6px; background: var(--panel2); border-radius: 4px; font-variant-numeric: tabular-nums; }
-    .strip-total.warn { color: var(--warn); background: rgba(232,168,56,0.08); }
+    .strip-total.warn { color: var(--warn); background: rgba(212,160,86,0.08); }
     .strip-total.ok { color: var(--success); }
 
     /* PLAN BUTTON */
-    .plan-btn { margin: 10px 14px 14px; padding: 11px; background: var(--accent); border: none; border-radius: 7px; color: #1a1a1a; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; flex-shrink: 0; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(232,168,56,0.2); }
-    .plan-btn:hover { opacity: 0.92; box-shadow: 0 3px 12px rgba(232,168,56,0.3); }
+    .plan-btn { margin: 10px 14px 14px; padding: 11px; background: var(--accent); border: none; border-radius: 7px; color: #1a1a1a; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; flex-shrink: 0; letter-spacing: 0.3px; box-shadow: 0 2px 8px rgba(212,160,86,0.2); }
+    .plan-btn:hover { opacity: 0.92; box-shadow: 0 3px 12px rgba(212,160,86,0.3); }
     .plan-btn:active { transform: translateY(1px); }
 
     /* OUTPUT */
@@ -164,8 +167,8 @@
     .empty-state .icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
 
     /* FINISHED PREVIEW */
-    .finished-preview { background: linear-gradient(135deg, #1f1d1a 0%, #181614 100%); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; margin-bottom: 22px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
-    .finished-preview::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(232,168,56,0.06), transparent 55%); pointer-events: none; }
+    .finished-preview { background: linear-gradient(135deg, #241a12 0%, #1a120c 100%); border: 1px solid var(--border); border-radius: 14px; padding: 22px 24px; margin-bottom: 22px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+    .finished-preview::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(212,160,86,0.06), transparent 55%); pointer-events: none; }
     .preview-title { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
     .preview-title h2 { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.2px; }
     .preview-title .dims { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -194,17 +197,17 @@
     .cost-line .amt { color: var(--money); font-weight: 600; min-width: 56px; text-align: right; }
 
     /* BANNERS */
-    .warn-banner { background: rgba(232,168,56,0.08); border: 1px solid rgba(232,168,56,0.3); border-radius: 8px; padding: 11px 14px; margin-bottom: 16px; font-size: 12px; color: var(--warn); display: flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
+    .warn-banner { background: rgba(212,160,86,0.08); border: 1px solid rgba(212,160,86,0.3); border-radius: 8px; padding: 11px 14px; margin-bottom: 16px; font-size: 12px; color: var(--warn); display: flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
     .warn-banner.danger { background: rgba(224,82,82,0.08); border-color: rgba(224,82,82,0.3); color: var(--danger); }
-    .warn-banner.info { background: rgba(74,158,255,0.08); border-color: rgba(74,158,255,0.3); color: var(--accent2); }
+    .warn-banner.info { background: rgba(141,168,184,0.08); border-color: rgba(141,168,184,0.3); color: var(--accent2); }
     .warn-banner .icon { font-size: 14px; line-height: 1.2; }
 
     /* STEPS */
     .steps-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
     .copy-btn, .send-btn { background: var(--panel2); border: 1px solid var(--border); color: var(--muted); padding: 5px 11px; border-radius: 5px; cursor: pointer; font-size: 11px; transition: all 0.12s; }
     .copy-btn:hover, .send-btn:hover { color: var(--text); border-color: var(--muted); }
-    .send-btn { background: rgba(74,158,255,0.1); border-color: rgba(74,158,255,0.3); color: var(--accent2); font-weight: 600; }
-    .send-btn:hover { background: rgba(74,158,255,0.18); border-color: var(--accent2); }
+    .send-btn { background: rgba(141,168,184,0.1); border-color: rgba(141,168,184,0.3); color: var(--accent2); font-weight: 600; }
+    .send-btn:hover { background: rgba(141,168,184,0.18); border-color: var(--accent2); }
     .step-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 9px; margin-bottom: 12px; overflow: hidden; transition: border-color 0.15s; }
     .step-card:hover { border-color: var(--border2); }
     .step-header { display: flex; align-items: flex-start; gap: 11px; padding: 13px 15px 9px; }
@@ -213,7 +216,7 @@
     .step-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.55; }
     .step-body { padding: 0 15px 13px; }
     .measurements { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 11px; }
-    .meas { background: var(--accent-soft); border: 1px solid rgba(232,168,56,0.2); border-radius: 5px; padding: 4px 9px; font-size: 11px; color: var(--text); font-variant-numeric: tabular-nums; }
+    .meas { background: var(--accent-soft); border: 1px solid rgba(212,160,86,0.2); border-radius: 5px; padding: 4px 9px; font-size: 11px; color: var(--text); font-variant-numeric: tabular-nums; }
     .meas strong { color: var(--accent); font-weight: 700; }
 
     /* PARTS TABLE */
@@ -225,9 +228,9 @@
     .parts-table td.qty { font-weight: 700; color: var(--accent); }
     .parts-table td.name { font-weight: 500; }
     .mat-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-    .mat-tag.plywood { background: rgba(74,158,255,0.15); color: var(--accent2); }
-    .mat-tag.plywood-thin { background: rgba(74,158,255,0.08); color: #7eb3e8; }
-    .mat-tag.hardwood { background: rgba(232,168,56,0.15); color: var(--accent); }
+    .mat-tag.plywood { background: rgba(141,168,184,0.15); color: var(--accent2); }
+    .mat-tag.plywood-thin { background: rgba(141,168,184,0.08); color: #a8c0d0; }
+    .mat-tag.hardwood { background: rgba(212,160,86,0.15); color: var(--accent); }
 
     .diagram { background: #15110b; border-radius: 6px; overflow: hidden; border: 1px solid #221a0e; }
     .diagram svg { display: block; width: 100%; height: auto; }
@@ -237,7 +240,7 @@
     .proj-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; gap: 16px; flex-wrap: wrap; }
     .proj-header .title h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; }
     .proj-header .title p { color: var(--muted); font-size: 13px; max-width: 600px; line-height: 1.5; }
-    .proj-add-btn { background: var(--accent); border: none; color: #1a1a1a; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(232,168,56,0.2); transition: opacity 0.15s; }
+    .proj-add-btn { background: var(--accent); border: none; color: #1a1a1a; padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(212,160,86,0.2); transition: opacity 0.15s; }
     .proj-add-btn:hover { opacity: 0.9; }
     .proj-stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
     .proj-stat { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; min-width: 100px; }
@@ -342,12 +345,12 @@
     .sup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 16px; flex-wrap: wrap; }
     .sup-header h3 { font-size: 16px; font-weight: 700; }
     .sup-header .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .sup-add-btn { background: var(--accent); color: #1a1a1a; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(232,168,56,0.2); }
+    .sup-add-btn { background: var(--accent); color: #1a1a1a; border: none; padding: 9px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(212,160,86,0.2); }
     .sup-add-btn:hover { opacity: 0.9; }
     .sup-stats { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .sup-status-pill { font-size: 10px; padding: 2px 8px; border-radius: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
     .sup-status-pill.instock { background: rgba(110,199,126,0.15); color: var(--money); }
-    .sup-status-pill.low { background: rgba(232,168,56,0.15); color: var(--accent); }
+    .sup-status-pill.low { background: rgba(212,160,86,0.15); color: var(--accent); }
     .sup-status-pill.out { background: rgba(224,82,82,0.15); color: var(--danger); }
     .sup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
     .sup-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.15s; display: grid; grid-template-columns: 60px 1fr; gap: 10px; }
@@ -381,24 +384,67 @@
     .sup-actions .cancel { background: var(--panel); border: 1px solid var(--border); color: var(--text); }
     .sup-actions .delete { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); color: var(--danger); }
 
-    /* HOME PAGE */
-    .home-col { padding: 32px 24px 48px; max-width: 1200px; margin: 0 auto; width: 100%; }
-    .home-hero { text-align: center; margin-bottom: 36px; }
-    .home-hero-logo { width: 96px; height: 96px; margin-bottom: 14px; border-radius: 50%; object-fit: cover; }
-    .home-title { font-size: 42px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
-    .home-sub { font-size: 11px; color: var(--muted); margin-top: 6px; letter-spacing: 1.2px; text-transform: uppercase; font-weight: 600; }
-    .home-tagline { color: var(--muted); margin-top: 16px; font-size: 15px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.5; }
-    .home-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .home-tile { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 20px; text-align: left; cursor: pointer; transition: all 0.18s ease; color: var(--text); display: flex; flex-direction: column; align-items: flex-start; }
-    .home-tile:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.5); }
-    .home-tile-icon { font-size: 32px; margin-bottom: 14px; }
-    .home-tile h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.1px; }
-    .home-tile p { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
-    .home-tile-cta { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0.2px; margin-top: auto; }
-    .home-tile-stat { background: linear-gradient(135deg, #1f1d1a 0%, #181614 100%); cursor: default; }
-    .home-tile-stat:hover { transform: none; border-color: var(--border); box-shadow: none; }
-    .home-stat-num { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
-    .home-stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    /* Per-tab Sparky icon next to the header title */
+    .tab-hero-icon { width: 38px; height: 38px; vertical-align: middle; margin-right: 10px; border-radius: 9px; flex-shrink: 0; }
+    [data-theme="light"] .tab-hero-icon { box-shadow: 0 1px 4px rgba(80,55,25,0.08); }
+
+    /* HOME PAGE — mobile-first app launcher */
+    .home-col { padding: 18px 12px 36px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .home-hero { text-align: center; margin-bottom: 18px; }
+    .home-hero-logo { width: 84px; height: 84px; margin-bottom: 10px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+    .home-greeting { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
+    .home-tagline { color: var(--muted); margin-top: 8px; font-size: 13px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+    /* Tile grid: 2-col on phone, 3 on tablet, 4 on desktop */
+    .home-tile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .home-tile {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+      padding: 12px 10px 10px; text-align: center; cursor: pointer; color: var(--text);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      aspect-ratio: 1 / 1.05;
+      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .home-tile:active { transform: scale(0.97); }
+    .home-tile:hover { border-color: var(--accent); box-shadow: 0 6px 20px rgba(0,0,0,0.30); }
+    .home-tile-icon { width: 86%; aspect-ratio: 1 / 1; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; }
+    .home-tile-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; display: block; }
+    .home-tile h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.1px; line-height: 1.2; }
+    .home-tile p { display: none; }
+    .home-tile-cta { display: none; }
+
+    /* Stats row beneath the grid */
+    .home-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+    .home-stat-cell { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 6px; text-align: center; }
+    .home-stat-cell .num { font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .home-stat-cell .lbl { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.2px; line-height: 1.3; }
+
+    /* Tablet */
+    @media (min-width: 600px) {
+      .home-col { padding: 24px 18px 44px; }
+      .home-hero-logo { width: 96px; height: 96px; }
+      .home-greeting { font-size: 28px; }
+      .home-tile-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .home-tile { padding: 16px 14px 14px; }
+      .home-tile h3 { font-size: 14px; }
+      .home-stat-cell .num { font-size: 28px; }
+      .home-stat-cell .lbl { font-size: 11px; }
+    }
+
+    /* Desktop — show full descriptions, 4 cols, taller tiles */
+    @media (min-width: 980px) {
+      .home-col { padding: 32px 24px 48px; }
+      .home-hero { margin-bottom: 30px; }
+      .home-greeting { font-size: 36px; }
+      .home-tagline { font-size: 15px; margin-top: 14px; }
+      .home-tile-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .home-tile { aspect-ratio: auto; padding: 22px 18px 18px; text-align: left; align-items: flex-start; }
+      .home-tile-icon { width: 84px; aspect-ratio: 1 / 1; margin-bottom: 12px; }
+      .home-tile h3 { font-size: 16px; margin-bottom: 6px; }
+      .home-tile p { display: block; font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+      .home-tile-cta { display: block; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 0.2px; margin-top: auto; }
+      .home-stats-row { grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+      .home-stat-cell { padding: 16px 12px; }
+      .home-stat-cell .num { font-size: 34px; }
+    }
 
 
     /* WOOD LIBRARY */
@@ -445,7 +491,7 @@
     .academy-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: var(--text); letter-spacing: 0.2px; }
     .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
     .cat-pill { background: var(--panel); border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; text-align: left; }
-    .cat-pill.selected { border-color: var(--accent); background: rgba(232,168,56,0.06); }
+    .cat-pill.selected { border-color: var(--accent); background: rgba(212,160,86,0.06); }
     .cat-pill:hover:not(.selected) { border-color: var(--border2); }
     .cat-pill .cat-emoji { font-size: 22px; display: block; margin-bottom: 6px; }
     .cat-pill .cat-name { font-weight: 700; color: var(--text); font-size: 14px; }
@@ -455,11 +501,11 @@
     .cat-pill.selected .cat-name { color: var(--accent); }
     .acad-len-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .acad-len { background: var(--panel); border: 2px solid var(--border); padding: 16px 12px; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.15s; }
-    .acad-len.active { border-color: var(--accent); background: rgba(232,168,56,0.08); color: var(--accent); }
+    .acad-len.active { border-color: var(--accent); background: rgba(212,160,86,0.08); color: var(--accent); }
     .acad-len .num { font-size: 22px; font-weight: 800; }
     .acad-len .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .acad-len.active .lbl { color: var(--accent); }
-    .acad-start { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 10px; color: #1a1a1a; font-size: 14px; font-weight: 800; cursor: pointer; letter-spacing: 0.4px; transition: opacity 0.15s; box-shadow: 0 3px 12px rgba(232,168,56,0.25); }
+    .acad-start { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 10px; color: #1a1a1a; font-size: 14px; font-weight: 800; cursor: pointer; letter-spacing: 0.4px; transition: opacity 0.15s; box-shadow: 0 3px 12px rgba(212,160,86,0.25); }
     .acad-start:hover { opacity: 0.9; }
     .acad-start:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
     /* Quiz mode */
@@ -471,7 +517,7 @@
     .quiz-question { font-size: 22px; font-weight: 700; line-height: 1.4; margin-bottom: 24px; color: var(--text); }
     .quiz-options { display: grid; gap: 10px; margin-bottom: 18px; }
     .quiz-option { background: var(--panel); border: 2px solid var(--border); padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.15s; text-align: left; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 12px; line-height: 1.4; }
-    .quiz-option:hover:not(:disabled) { border-color: var(--accent); background: rgba(232,168,56,0.04); }
+    .quiz-option:hover:not(:disabled) { border-color: var(--accent); background: rgba(212,160,86,0.04); }
     .quiz-option .opt-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--panel2); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; color: var(--muted); }
     .quiz-option.correct { border-color: var(--success); background: rgba(82,196,126,0.08); }
     .quiz-option.correct .opt-letter { background: var(--success); color: white; }
@@ -540,7 +586,7 @@
 
       /* Wood library + projects + supplies: single column */
       .wood-grid { grid-template-columns: 1fr; }
-      .proj-grid, .sup-grid, .home-tile-grid { grid-template-columns: 1fr; }
+      .proj-grid, .sup-grid { grid-template-columns: 1fr; }
 
       /* Form grids: stack vertically */
       .field-grid.cols2, .field-grid.cols3 { grid-template-columns: 1fr; }
@@ -553,11 +599,6 @@
       .output-col { padding: 14px 12px; }
       .library-col, .shop-col, .academy-col, .projects-col, .home-col { padding: 16px 12px; }
 
-      /* Home tiles */
-      .home-tile { padding: 16px; }
-      .home-title { font-size: 28px; }
-      .home-tagline { font-size: 13px; }
-      .home-hero-logo { width: 76px; height: 76px; }
 
       /* Library filter row wraps cleanly */
       .lib-filter-row, .shop-filter-row { gap: 4px; }
@@ -654,69 +695,66 @@
   <div class="output-col home-col">
     <div class="home-hero">
       <img class="home-hero-logo" src="icon-512.png" alt="Smart Cuts logo">
-      <h1 class="home-title" id="home-title">Smart Cuts</h1>
-      <div class="home-sub">by Michael Makes It Work</div>
+      <h1 class="home-greeting" id="home-greeting">Smart Cuts</h1>
       <p class="home-tagline">Plan smarter cuts. Build cleaner boards. Learn the craft.</p>
     </div>
 
     <div class="home-tile-grid">
       <button class="home-tile" data-tile-tab="board">
-        <div class="home-tile-icon">🔪</div>
-        <h3>Plan a Cutting Board</h3>
+        <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
+        <h3>Cutting Board</h3>
         <p>End grain or face grain. Pick a standard size or go custom. Get a step-by-step build plan with cut math, material cost, and finishing instructions.</p>
         <span class="home-tile-cta">Start designing →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="furniture">
-        <div class="home-tile-icon">🪵</div>
-        <h3>Build Furniture</h3>
-        <p>Cabinets (base, wall, tall), bookshelves, drawer boxes with 9 joinery options. Generate parts lists and feed them straight into the optimizer.</p>
+        <div class="home-tile-icon"><img src="sparky/furniture.png" alt=""></div>
+        <h3>Furniture</h3>
+        <p>Cabinets (base, wall, tall), bookshelves, drawer boxes with 9 joinery options. Generate parts lists and feed them into the optimizer.</p>
         <span class="home-tile-cta">Open furniture →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="optimizer">
-        <div class="home-tile-icon">📐</div>
-        <h3>Optimize Cuts</h3>
-        <p>Bin-pack pieces onto stock lumber or sheet goods (plywood, MDF). Get a visual cut plan with minimum waste, kerf-aware.</p>
+        <div class="home-tile-icon"><img src="sparky/calculator.png" alt=""></div>
+        <h3>Optimizer</h3>
+        <p>Bin-pack pieces onto stock lumber or sheet goods. Visual cut plan with minimum waste, kerf-aware.</p>
         <span class="home-tile-cta">Open optimizer →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="library">
-        <div class="home-tile-icon">🌲</div>
+        <div class="home-tile-icon"><img src="sparky/wood-selection.png" alt=""></div>
         <h3>Wood Library</h3>
-        <p>56 species sourced from Mimms Lumber: Latin names, Janka hardness, origin, workability, uses, and notes for every wood in the catalog.</p>
+        <p>56 species from Mimms Lumber: Latin names, Janka hardness, origin, workability, uses, and notes.</p>
         <span class="home-tile-cta">Browse library →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="academy">
-        <div class="home-tile-icon">🎓</div>
-        <h3>Woodshop Academy</h3>
-        <p>Test your knowledge across 6 categories — Wood ID, Trivia, Joinery, Tools, Process, Safety. Earn ranks from Beginner to Master Woodworker.</p>
+        <div class="home-tile-icon"><img src="sparky/academy.png" alt=""></div>
+        <h3>Academy</h3>
+        <p>Test your knowledge across 8 categories. Earn ranks from Beginner to Master Woodworker.</p>
         <span class="home-tile-cta">Take a quiz →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="shop">
-        <div class="home-tile-icon">🛠️</div>
+        <div class="home-tile-icon"><img src="sparky/tools.png" alt=""></div>
         <h3>My Shop</h3>
-        <p>Your tool inventory + 10 custom jigs + tool-for-the-job matrix. Quick reference for which tool to grab for each operation.</p>
+        <p>Your tool inventory + tool-for-the-job matrix. Quick reference for which tool to grab.</p>
         <span class="home-tile-cta">Browse shop →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="projects">
-        <div class="home-tile-icon">📷</div>
+        <div class="home-tile-icon"><img src="sparky/camera.png" alt=""></div>
         <h3>Projects</h3>
-        <p>Your build catalog. Upload photos, log species/stain/finish/coats. Track hours and sale prices. Reference back when building something similar.</p>
+        <p>Your build catalog. Upload photos, log species/stain/finish, track hours and sale prices.</p>
         <span class="home-tile-cta">View portfolio →</span>
       </button>
 
-      <div class="home-tile home-tile-stat">
-        <div class="home-stat-num">56</div>
-        <div class="home-stat-lbl">Wood species in library</div>
-        <div class="home-stat-num" style="margin-top:14px">54</div>
-        <div class="home-stat-lbl">Quiz questions to learn from</div>
-        <div class="home-stat-num" style="margin-top:14px">7</div>
-        <div class="home-stat-lbl">End-grain patterns (checker, brick, plaid, 3D cube, herringbone, stripes, random)</div>
-      </div>
+    </div>
+
+    <div class="home-stats-row">
+      <div class="home-stat-cell"><div class="num">56</div><div class="lbl">Wood species</div></div>
+      <div class="home-stat-cell"><div class="num">100+</div><div class="lbl">Quiz questions</div></div>
+      <div class="home-stat-cell"><div class="num">7</div><div class="lbl">End-grain patterns</div></div>
     </div>
   </div>
 </div>
@@ -1045,7 +1083,7 @@
 <div id="tab-shop" style="display:none" class="workspace single-col">
   <div class="output-col shop-col">
     <div class="shop-header">
-      <h2>🛠️ My Shop</h2>
+      <h2><img src="sparky/tools.png" class="tab-hero-icon" alt="">My Shop</h2>
       <p>Michael's tool inventory, custom jigs, and tool-for-the-job matrix. Sourced from the wood-expert / tool-expert / finishing-specialist skill references.</p>
     </div>
     <div class="shop-filter-row">
@@ -1075,7 +1113,7 @@
 <div id="tab-library" style="display:none" class="workspace single-col">
   <div class="output-col library-col">
     <div class="library-header">
-      <h2>Wood Library</h2>
+      <h2><img src="sparky/wood-selection.png" class="tab-hero-icon" alt="">Wood Library</h2>
       <p>Reference encyclopedia for every species in the catalog. Inventory based on <strong>Mimms Lumber</strong> (Nashville, TN) — 56 species across domestic, figured, and exotic categories. Edit prices in the Cutting Board tab.</p>
       <div class="lib-filter-row">
         <button class="lib-filter active" data-filter="all" onclick="setLibFilter('all')">All <span class="lib-count" id="lib-count-all"></span></button>
@@ -3466,7 +3504,7 @@ function renderProjectsList() {
 
   let html = `<div class="proj-header">
     <div class="title">
-      <h2>📷 Projects</h2>
+      <h2><img src="sparky/camera.png" class="tab-hero-icon" alt="">Projects</h2>
       <p>A catalog of everything you've built. Track wood species, finishes, time spent, sale price — and refer back when you're building something similar.</p>
     </div>
     <button class="proj-add-btn" onclick="startNewProject()">+ Add Project</button>
@@ -4375,7 +4413,7 @@ function renderAcademy() {
     const totalAvail = Array.from(academySelectedCats).reduce((s, k) => s + QUIZ_QUESTIONS[k].length, 0);
     c.innerHTML = `
       <div class="academy-header">
-        <h2>🎓 Woodshop Academy</h2>
+        <h2><img src="sparky/academy.png" class="tab-hero-icon" alt="">Woodshop Academy</h2>
         <p class="tagline">Test your knowledge of woods, joinery, tools, process, and shop safety. Build expertise question by question.</p>
       </div>
       <div class="academy-card">
