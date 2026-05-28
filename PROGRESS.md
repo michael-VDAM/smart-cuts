@@ -21,7 +21,7 @@ Last updated: 2026-05-28 (Session 5 — Parametric stripe + input fix + haptic r
 ### 2. Cutting Board
 - **Standard mode**: 9 presets (mini → XL Butcher), shows only Thickness + Qty
 - **Custom mode**: full L/W/T inputs + Settings (kerf, surface loss, buffer %)
-- **End grain**: 7 patterns (checker, brick, stripe, plaid, 3D cube, herringbone, random)
+- **End grain**: 10 patterns (checker, brick, stripe, plaid, 3D cube, herringbone, chevron, basketweave, diagonal, random)
 - **Face grain**: strip pattern with # of strips + per-strip species + width editor
 - **56 species** with prices, dynamic species picker (click ≡ for catalog)
 - Edge profiles (chamfer, 1/8" / 1/4" / 1/2" roundover) + juice groove options
@@ -144,17 +144,17 @@ Twenty-six commits in one session. Major themes:
 - **Parametric stripe pattern** (queue item #1 done). Variable panel above # of Strips with drum-pickable values + add/remove buttons. Every strip row now has a **formula textbox** (e.g. `x`, `x/2`, `2x+y`, `x*phi`) + a **computed-width display**. Built-in constant `phi = 1.618033988749`. Same formula = implicit link (replaces same-width linking) with the `⛓ ×N` pill. Five parametric presets seed variables + formulas: Halves (`x · x/2 · x`), Sym 5 (`x · x/4 · x/2 · x/4 · x`), Sym 7 (extends Sym 5), Golden (`x · x*phi · x`), Golden Accent (`x*phi · x · x · x · x*phi`). Non-parametric presets (Solid/Single/Paired/Triple/Etsy/Uniform) use literal-number formulas. Old saves migrate cleanly via `ensureStripFormulas()`. Auto-fit converts formulas back to literal numbers (locks the layout). Tradeoff: parametric presets can drift up to 1/16" off finalW — the total bar shows it honestly + offers Auto-fit.
 - **Strip count input bug fixed** — deleting the "4" in "# of Strips" used to instantly reset to "1" because oninput committed on every keystroke and refreshStripList re-wrote the input value mid-edit. Now uses `onchange` (commits on blur/Enter only), with a focus-aware writeback + onblur fallback. Can now clear and retype any number without the field fighting you.
 - **Haptic removed entirely** — iOS Safari permanently blocks `navigator.vibrate()`, so the toggle + 7 vibration sites were dead weight on Michael's PWA. Cleaner without it. Restorable from git if Android users ever matter.
+- **Three new end-grain patterns** (queue item #2 done): **Chevron** (mirrored V-point stripes — like herringbone but V tips align cleanly), **Basketweave** (2×2 mega-blocks with alternating grain orientation — horizontal-line cells vs end-grain-dot cells), **Diagonal** (45° bands of alternating species). Each has its own thumbnail in the picker, color logic in `tileColorFor`, build-step description in Phase 2 glue-up, and (for chevron + basket) special grain-line rendering in `svgFinishedBoard`. Picker now shows 10 patterns total.
 
 ## Queue for next session (in priority order)
 
-1. **New end-grain patterns** — Chevron, Basketweave, Diagonal Stripe. Each needs the cutting-render math in `svgFinishedBoard` + step descriptions, not just a thumbnail. Pattern picker UI already scales.
-2. **Academy lessons → quizzes curriculum** — Michael will write content, I scaffold. Beginner → Apprentice → Journeyman → Master tracks. Each lesson = text + diagrams → quiz at the end. Progressive unlock.
-3. **Photo annotation on Projects** — canvas drawing on uploaded build photos: arrows, circles, text labels. Turns Projects into a learning journal.
-4. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
-5. **Wood movement calculator** — given species + width + seasonal humidity range, predict expansion in inches/mm. Pairs with Wood Library.
-6. **Global search (⌘K)** — one bar searches plans, projects, species, supplies.
-7. **Hardware database** — fasteners, glues, finishes with prices. Pairs with Lumber Prices for true total cost.
-8. **Fill out remaining ~40 species** with tree+region data (currently 18/58 covered).
+1. **Academy lessons → quizzes curriculum** — Michael will write content, I scaffold. Beginner → Apprentice → Journeyman → Master tracks. Each lesson = text + diagrams → quiz at the end. Progressive unlock.
+2. **Photo annotation on Projects** — canvas drawing on uploaded build photos: arrows, circles, text labels. Turns Projects into a learning journal.
+3. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
+4. **Wood movement calculator** — given species + width + seasonal humidity range, predict expansion in inches/mm. Pairs with Wood Library.
+5. **Global search (⌘K)** — one bar searches plans, projects, species, supplies.
+6. **Hardware database** — fasteners, glues, finishes with prices. Pairs with Lumber Prices for true total cost.
+7. **Fill out remaining ~40 species** with tree+region data (currently 18/58 covered).
 
 ## Voice + haptic features explicitly OFF the table (per Michael)
 - No "Hey Sparky" voice commands. No Web Speech API. He didn't want them.

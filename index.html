@@ -2934,7 +2934,10 @@ const PATTERN_CATALOG = [
   { key: 'stripe',   label: 'Stripe',      desc: 'Long horizontal bands' },
   { key: 'plaid',    label: 'Plaid',       desc: 'Three-species woven check' },
   { key: 'cube3d',   label: '3D Cube',     desc: 'Tumbling-block illusion' },
-  { key: 'herring',  label: 'Herringbone', desc: 'Angled V-shape stripes' },
+  { key: 'herring',  label: 'Herringbone', desc: 'Interlocked V-angled bars' },
+  { key: 'chevron',  label: 'Chevron',     desc: 'Mirrored V-point stripes' },
+  { key: 'basket',   label: 'Basketweave', desc: 'Woven 2×2 grain blocks' },
+  { key: 'diag',     label: 'Diagonal',    desc: 'Stripes running at 45°' },
   { key: 'random',   label: 'Random',      desc: 'Irregular puzzle layout' },
 ];
 
@@ -3013,6 +3016,62 @@ function _patternThumb(key) {
       }
     }
     return wrap(`<g>${s}</g>`);
+  }
+  if (key === 'chevron') {
+    // Chevron: row-pairs of slanted bars meeting at perfect V points
+    let s = '';
+    const cols = 6, rowPairs = 2;
+    const cw = W / cols, ph = H / rowPairs;
+    for (let p = 0; p < rowPairs; p++) {
+      const slopeUp = p % 2 === 0;
+      const yMid = p * ph + ph / 2;
+      for (let c = 0; c < cols; c++) {
+        const fill = c % 2 ? dk : lt;
+        const x = c * cw, yTop = p * ph, yBot = (p + 1) * ph;
+        s += `<rect x="${x.toFixed(2)}" y="${yTop.toFixed(2)}" width="${cw.toFixed(2)}" height="${ph.toFixed(2)}" fill="${fill}"/>`;
+        // Diagonal grain line per row-pair
+        if (slopeUp) {
+          s += `<line x1="${x}" y1="${yBot}" x2="${x + cw}" y2="${yTop}" stroke="rgba(0,0,0,0.35)" stroke-width="0.8"/>`;
+        } else {
+          s += `<line x1="${x}" y1="${yTop}" x2="${x + cw}" y2="${yBot}" stroke="rgba(0,0,0,0.35)" stroke-width="0.8"/>`;
+        }
+      }
+    }
+    return wrap(s);
+  }
+  if (key === 'basket') {
+    // Basketweave: 2×2 blocks with alternating grain orientation per block
+    let s = '';
+    const blocks = 4, blockSize = W / blocks, cellSize = blockSize / 2;
+    const rows = Math.ceil(H / blockSize);
+    for (let by = 0; by < rows; by++) for (let bx = 0; bx < blocks; bx++) {
+      const horiz = (bx + by) % 2 === 0;
+      const fill = horiz ? lt : dk;
+      const x0 = bx * blockSize, y0 = by * blockSize;
+      s += `<rect x="${x0.toFixed(2)}" y="${y0.toFixed(2)}" width="${blockSize.toFixed(2)}" height="${blockSize.toFixed(2)}" fill="${fill}"/>`;
+      // Grain lines: horizontal for "horiz" blocks, vertical for the other
+      for (let i = 1; i < 4; i++) {
+        if (horiz) {
+          const y = y0 + (i / 4) * blockSize;
+          s += `<line x1="${x0}" y1="${y.toFixed(2)}" x2="${x0 + blockSize}" y2="${y.toFixed(2)}" stroke="rgba(0,0,0,0.22)" stroke-width="0.5"/>`;
+        } else {
+          const x = x0 + (i / 4) * blockSize;
+          s += `<line x1="${x.toFixed(2)}" y1="${y0}" x2="${x.toFixed(2)}" y2="${y0 + blockSize}" stroke="rgba(0,0,0,0.22)" stroke-width="0.5"/>`;
+        }
+      }
+    }
+    return wrap(s);
+  }
+  if (key === 'diag') {
+    // Diagonal: 45° bands of alternating species
+    let s = '';
+    const cols = 12, rows = 8, cw = W / cols, ch = H / rows;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const band = Math.floor((c + r) / 2) % 2;
+      const fill = band ? dk : lt;
+      s += `<rect x="${(c*cw).toFixed(2)}" y="${(r*ch).toFixed(2)}" width="${cw.toFixed(2)}" height="${ch.toFixed(2)}" fill="${fill}"/>`;
+    }
+    return wrap(s);
   }
   if (key === 'random') {
     // Pseudo-random irregular cells
@@ -3598,6 +3657,22 @@ function tileColorFor(col, row, p) {
     const pairCol = Math.floor(col / 2);
     idx = ((pairCol + row) % n + n) % n;
   }
+  else if (p.pattern === 'chevron') {
+    // Chevron: strips stacked in row-pairs. Each row-pair shows one V "leg". Color
+    // cycles by column within a band so species form continuous diagonal lines that
+    // mirror at row-pair boundaries → perfect V points.
+    const band = Math.floor(row / 2);
+    idx = ((col + band) % n + n) % n;
+  }
+  else if (p.pattern === 'basket') {
+    // Basketweave: 2×2 mega-block checker. Each block holds 4 cells of one species
+    // with grain rotated 90° from its neighbor (rendered separately).
+    idx = ((Math.floor(col / 2) + Math.floor(row / 2)) % n + n) % n;
+  }
+  else if (p.pattern === 'diag') {
+    // Diagonal stripe: 2-cell-wide bands at 45° → idx changes every 2 anti-diagonal steps.
+    idx = ((Math.floor((col + row) / 2)) % n + n) % n;
+  }
   else if (p.pattern === 'random') {
     // Deterministic pseudo-random based on (col, row)
     const h = (col * 374761393 + row * 668265263) ^ ((col * row) << 5);
@@ -3650,6 +3725,32 @@ function svgFinishedBoard(p) {
             s += `<line x1="${x+1}" y1="${y+1}" x2="${x+tileW-1}" y2="${y+tileH-1}" stroke="rgba(0,0,0,0.32)" stroke-width="1.3"/>`;
             s += `<line x1="${x+tileW*0.5}" y1="${y+1}" x2="${x+tileW-1}" y2="${y+tileH*0.5}" stroke="rgba(0,0,0,0.16)" stroke-width="0.7"/>`;
           }
+        }
+      } else if (p.pattern === 'chevron') {
+        // Chevron: a single grain line per cell, slope mirrors at each row-pair boundary.
+        // Row-pair 0 slopes up (↗), row-pair 1 slopes down (↘), etc. Adjacent pairs form
+        // continuous Vs across the board.
+        if (Math.min(tileW, tileH) > 3) {
+          const slopeUp = Math.floor(row / 2) % 2 === 0;
+          if (slopeUp) {
+            s += `<line x1="${x+1}" y1="${y+tileH-1}" x2="${x+tileW-1}" y2="${y+1}" stroke="rgba(0,0,0,0.32)" stroke-width="1.3"/>`;
+          } else {
+            s += `<line x1="${x+1}" y1="${y+1}" x2="${x+tileW-1}" y2="${y+tileH-1}" stroke="rgba(0,0,0,0.32)" stroke-width="1.3"/>`;
+          }
+        }
+      } else if (p.pattern === 'basket') {
+        // Basketweave: 2×2 mega-blocks alternate between horizontal-grain (visible ring
+        // lines, like a side cut) and vertical-grain (end-grain dots, like a butcher
+        // block face). The contrast is the whole point of the pattern.
+        const blockHoriz = (Math.floor(col / 2) + Math.floor(row / 2)) % 2 === 0;
+        if (blockHoriz && Math.min(tileW, tileH) > 3) {
+          const lh = tileH / 4;
+          s += `<line x1="${x+1}" y1="${y+lh}" x2="${x+tileW-1}" y2="${y+lh}" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>`;
+          s += `<line x1="${x+1}" y1="${y+tileH/2}" x2="${x+tileW-1}" y2="${y+tileH/2}" stroke="rgba(0,0,0,0.32)" stroke-width="0.9"/>`;
+          s += `<line x1="${x+1}" y1="${y+tileH-lh}" x2="${x+tileW-1}" y2="${y+tileH-lh}" stroke="rgba(0,0,0,0.22)" stroke-width="0.7"/>`;
+        } else if (r > 1.5) {
+          s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="rgba(0,0,0,0.10)"/>`;
+          s += `<circle cx="${cx}" cy="${cy}" r="${r * 1.6}" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="0.6"/>`;
         }
       } else if (r > 1.5) {
         // Standard end-grain dots (concentric rings)
@@ -3890,7 +3991,7 @@ function diagFaceGlueUp(p) {
 // ═════════════════════════════ RENDER ══════════════════════════════════════
 function edgeProfileLabel(v) { return ({none:'square edge',chamfer:'45° chamfer ⅛"',round8:'1/8" roundover',round4:'1/4" roundover',round2:'1/2" roundover'})[v] || v; }
 function juiceGrooveLabel(v) { return ({none:'no juice groove',standard:'¼" × ¼" inset groove',deep:'⅜" × ½" inset groove'})[v] || v; }
-function patternLabel(p) { return ({checker:'checkerboard',brick:'brick',stripe:'stripes',plaid:'plaid',cube3d:'3D cube',herring:'herringbone',random:'random'})[p] || p; }
+function patternLabel(p) { return ({checker:'checkerboard',brick:'brick',stripe:'stripes',plaid:'plaid',cube3d:'3D cube',herring:'herringbone',chevron:'chevron',basket:'basketweave',diag:'diagonal',random:'random'})[p] || p; }
 
 function renderCostBreakdown(p) {
   const bufPct = Math.round(p.bufferPct * 100);
@@ -3964,6 +4065,9 @@ function renderEndGrain(p) {
         cube3d: '<strong>3D Cube construction</strong>: cut the strips at <strong>60° bevels</strong> before Phase 1 and use 3 contrasting species (classic: maple/walnut/cherry). The cross-section shows hexagonal "cubes." Stagger slabs by one tile per row to create the floating-cube illusion.',
         plaid: 'Arrange so accent species form intersecting grid lines — every 4th column + every 4th row gets the accent, with intersections in a 3rd contrast color (tartan-style).',
         herring: '<strong>Herringbone construction</strong>: different from standard end grain — crosscut your strips into shorter pieces (~3–4" long), then arrange at alternating <strong>±45°</strong> in V-pattern using a 45° miter jig. Each "V" is two pieces meeting at a right angle. Glue the Vs into rows, then rows together. See Workshop Companion plan for jig design.',
+        chevron: '<strong>Chevron construction</strong>: like herringbone but the V points line up cleanly. Crosscut strips at <strong>45° miters</strong> with one end mirrored. Glue mirrored pairs along the miter to form one row of perfect Vs, then stack row-pairs alternating slope direction (↗ then ↘) so the V points meet across rows. Cleaner-looking than herringbone but less forgiving — every miter has to be dialed in.',
+        basket: '<strong>Basketweave construction</strong>: rip wider strips (~2× tile size) and crosscut into squares. Arrange squares in 2×2 mega-blocks, rotating every other block 90° so adjacent blocks alternate between end-grain-up and side-grain-up. The contrast in grain direction (not species) carries the woven look — works great in a single species or two contrasting ones.',
+        diag: '<strong>Diagonal stripe construction</strong>: build the Phase 1 panel as a standard stripe, then crosscut at <strong>45°</strong> instead of 90°. The angled cut converts the vertical stripes into 45° diagonal bands across the slab face. Trim the resulting parallelogram square at the end.',
         stripe: 'Keep all slabs in the same orientation — produces clean vertical stripes.',
         random: 'Rotate slabs randomly for organic, rustic look. Mix species freely — great use for offcuts.',
       })[p.pattern] || 'Keep slabs in same orientation.'} Glue ${dim(p.slabEffT)} faces, clamp, cure 24h.`,
