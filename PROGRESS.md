@@ -1,16 +1,17 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-27 (Session 2 — rename + PWA)
+Last updated: 2026-05-27 (Session 3 — Sparky visual overhaul + Plans feature)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~4600 lines, single `index.html` + static assets (icons, manifest)
-- **Theme**: dark mode default; light mode toggle in header
-- **Logo**: single PNG app icon (Gemini "Michael Makes It Work" lightbulb) — used in header, home hero, and as the home-screen install icon. The old 4-variant SVG logo picker was retired.
-- **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen opens full-screen with the app icon.
+- **File**: ~5100 lines, single `index.html` + static assets (icons, manifest, sparky/)
+- **Theme**: dark mode default on desktop, light mode default on phone (manual toggle persists). Both modes now **wood-forward** (warm walnut/espresso dark, parchment/oak light) — no more cold charcoal + cyber-yellow.
+- **App icon**: square Sparky General (the bare character, no name/text). Used as the favicon, PWA icon, and home-page hero avatar.
+- **Sparky icons**: 19 character icons in `sparky/` (256px each) — placed on every home tile, plus inline next to Wood Library / Projects / My Shop / Academy / Plans headers.
+- **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen opens full-screen with the Sparky app icon.
 
-## Features shipped (8 tabs)
+## Features shipped (9 tabs)
 
 ### 1. Home
 - App logo (lightbulb PNG) + title
@@ -63,7 +64,15 @@ Last updated: 2026-05-27 (Session 2 — rename + PWA)
 - Per-item photo upload (click camera icon)
 - **My Supplies** filter: user-editable inventory with CRUD form (Walrus Oil, Titebond, etc.)
 
-### 8. Projects (catalog)
+### 8. Plans (design catalog) — NEW
+- "+ Save Plan" button on the Cutting Board and Furniture preview cards captures the current spec (species, dims, pattern, parts list) as a snapshot
+- Plans land in **Unassigned** by default; when you finish building, **Assign to project →** moves the plan into "Built ✓" and links it to a Project
+- Plan card shows: Sparky icon (matching the design type), generated title (e.g. "Walnut + Maple checkerboard 12"×8""), type/species sub, save date, action buttons
+- Assign-to-project modal lists existing projects or "+ New project" (pre-fills the project form from the plan's species/dims and auto-links after save)
+- Project detail page shows a "Linked plans" section with Unlink action
+- Storage: `woodshop-plans-v1` localStorage; synced via existing cloud sync (added `plans` collection to CLOUD_COLLECTIONS)
+
+### 9. Projects (catalog)
 - Photo upload (auto canvas-resize)
 - Title, date, project type (11 types with emoji)
 - Multi-select species from palette with color chips
@@ -71,6 +80,14 @@ Last updated: 2026-05-27 (Session 2 — rename + PWA)
 - Finish dropdown (Walrus Oil, mineral oil+beeswax, common finishes + user supplies)
 - Coats, dimensions, hours, sale price, sold date, description
 - List/detail views with edit/delete
+
+## Session 3 visual + feature overhaul (2026-05-27)
+
+- **Square Sparky General app icon** — center-padded the wide source to square (cream bg, no text), regenerated apple-touch-icon / icon-192 / icon-512 / favicon. The app now installs with the bare-character Sparky on the home screen.
+- **Wood-forward color palette** — dark mode is now warm walnut/espresso (bg `#18120c`, panel `#1f1812`, accent honey-amber `#d4a056`). Light mode is richer parchment with deeper copper-amber accent (`#b56a1f`). Replaced all hardcoded `rgba(232,168,56,...)` and the cold-blue `rgba(74,158,255,...)` with the new amber + muted slate. The dark `.finished-preview` gradient is now walnut, not charcoal.
+- **Mobile-first home page** as app-style launcher — 2-col tile grid on phone, 3 on tablet, 4 with descriptions on desktop. Each tile is a square Sparky-iconed card. The hero is a compact circular Sparky avatar + title + tagline.
+- **Header collapse on phone** — Sign in / Theme / Print / Reset all fold into a single ⋯ menu button. Brand subtitle hidden on phone (redundant with home hero). Tab strip gets scroll-snap and hidden scrollbar on phone.
+- **Sparky icons throughout** — 19 256px icons in `sparky/` (general, cutting-board, furniture, calculator, wood-selection, academy, tools, camera, plans, pencil, shelves, table-design, finishes, measuring-tools, moisture-reader, safety, screws, thickness, cnc). Currently used: 1 per home tile, 1 per tab hero (Wood Library, Projects, My Shop, Academy, Plans).
 
 ## Other shipped
 - **Light/dark mode** with persistence — **defaults to light on mobile (≤820px), dark on desktop**; manual toggle overrides
