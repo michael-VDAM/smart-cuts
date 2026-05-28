@@ -1,4 +1,4 @@
-# Smart Cuts
+# Bright Cuts
 
 A single-file woodworking companion app by **Michael Makes It Work**. Installable on your phone (Add to Home Screen) with its own app icon.
 

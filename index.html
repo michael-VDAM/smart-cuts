@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Smart Cuts · Michael Makes It Work</title>
+  <title>Bright Cuts · Michael Makes It Work</title>
   <meta name="description" content="Plan smarter cuts. Build cleaner boards. Learn the craft. By Michael Makes It Work.">
   <!-- PWA / Add to Home Screen -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Smart Cuts">
+  <meta name="apple-mobile-web-app-title" content="Bright Cuts">
   <!-- Cloud sync (optional): Supabase JS client. App works fully without it. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -60,7 +60,32 @@
     [data-theme="light"] .preview-svg-wrap svg { filter: drop-shadow(0 4px 14px rgba(60,40,10,0.15)); }
     [data-theme="light"] .home-tile-stat { background: linear-gradient(135deg, #faf6ec 0%, #f3ebd8 100%); }
     [data-theme="light"] .home-tile:hover { box-shadow: 0 6px 22px rgba(60,40,10,0.12); }
-    [data-theme="light"] .lib-search, [data-theme="light"] .species-name, [data-theme="light"] .field input, [data-theme="light"] .field select, [data-theme="light"] .species-price, [data-theme="light"] .strip-row input, [data-theme="light"] .strip-row select { background: #fcfaf3; }
+    /* Light-mode inputs sit a notch DARKER than the page so the box outline is visible without squinting */
+    [data-theme="light"] .lib-search,
+    [data-theme="light"] .species-name,
+    [data-theme="light"] .field input,
+    [data-theme="light"] .field select,
+    [data-theme="light"] .field textarea,
+    [data-theme="light"] .species-price,
+    [data-theme="light"] .strip-row input,
+    [data-theme="light"] .strip-row select,
+    [data-theme="light"] .proj-form input,
+    [data-theme="light"] .proj-form select,
+    [data-theme="light"] .proj-form textarea,
+    [data-theme="light"] .sup-form input,
+    [data-theme="light"] .sup-form select,
+    [data-theme="light"] .sup-form textarea { background: #e6d6b6; border-color: #b69d72; color: #2b1f14; }
+    [data-theme="light"] .field input:focus,
+    [data-theme="light"] .field select:focus,
+    [data-theme="light"] .field textarea:focus,
+    [data-theme="light"] .species-name:focus,
+    [data-theme="light"] .species-price:focus,
+    [data-theme="light"] .strip-row input:focus,
+    [data-theme="light"] .strip-row select:focus,
+    [data-theme="light"] .proj-form input:focus,
+    [data-theme="light"] .proj-form select:focus,
+    [data-theme="light"] .proj-form textarea:focus,
+    [data-theme="light"] .lib-search:focus { background: #f0e6d2; border-color: var(--accent); }
     [data-theme="light"] .wood-card:hover { box-shadow: 0 6px 20px rgba(60,40,10,0.12); }
     [data-theme="light"] .scard:hover, [data-theme="light"] .step-card:hover, [data-theme="light"] .home-tile:hover { box-shadow: 0 4px 16px rgba(60,40,10,0.10); }
     [data-theme="light"] .preset-btn:hover, [data-theme="light"] .seg-btn:hover:not(.active) { background: #f0eada; }
@@ -266,6 +291,36 @@
     .proj-empty .icon { font-size: 56px; opacity: 0.4; margin-bottom: 16px; }
     .proj-empty p { font-size: 14px; line-height: 1.6; max-width: 480px; margin: 0 auto; }
 
+    /* LUMBER PRICES TAB */
+    .prices-col { padding: 28px 36px; max-width: 1000px; margin: 0 auto; width: 100%; }
+    .prices-header { margin-bottom: 18px; }
+    .prices-header h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; display: flex; align-items: center; }
+    .prices-header p { color: var(--muted); font-size: 13px; max-width: 600px; line-height: 1.5; }
+    .prices-filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .prices-list { display: flex; flex-direction: column; gap: 4px; }
+    .price-row { display: grid; grid-template-columns: 24px 1fr auto 92px; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 9px; transition: border-color 0.12s; }
+    .price-row:hover { border-color: var(--border2); }
+    .price-row .swatch { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.18); }
+    .price-row .name { font-weight: 600; font-size: 13px; color: var(--text); }
+    .price-row .cat-tag { font-size: 9.5px; padding: 2px 8px; border-radius: 9px; background: var(--panel3); color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
+    .price-row .cat-tag.figured { background: rgba(212,160,86,0.16); color: var(--accent); }
+    .price-row .cat-tag.exotic { background: rgba(141,168,184,0.18); color: var(--accent2); }
+    .price-row .price-input-wrap { display: flex; align-items: center; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 4px 8px; }
+    .price-row .price-input-wrap:focus-within { border-color: var(--accent); }
+    .price-row .price-input-wrap input { width: 100%; background: none; border: none; outline: none; color: var(--money); font-weight: 700; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; padding: 0; }
+    .price-row .price-input-wrap .unit { font-size: 10px; color: var(--muted); white-space: nowrap; }
+    .price-row.modified { border-color: var(--accent); }
+    .prices-actions { margin-top: 18px; display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+    .prices-reset-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 9px 14px; border-radius: 7px; font-size: 12px; cursor: pointer; }
+    .prices-reset-btn:hover { color: var(--danger); border-color: var(--danger); }
+    .prices-summary { font-size: 11px; color: var(--muted); padding: 8px 4px; }
+    .prices-summary .num { color: var(--accent); font-weight: 700; }
+    @media (max-width: 820px) {
+      .prices-col { padding: 18px 12px; }
+      .price-row { grid-template-columns: 22px 1fr 80px; gap: 8px; padding: 8px 10px; }
+      .price-row .cat-tag { display: none; }
+    }
+
     /* PLANS TAB — design catalog */
     .plans-col { padding: 28px 36px; max-width: 1300px; margin: 0 auto; width: 100%; }
     .plans-header { margin-bottom: 22px; }
@@ -453,6 +508,14 @@
     .tab-hero-icon { width: 38px; height: 38px; vertical-align: middle; margin-right: 10px; border-radius: 9px; flex-shrink: 0; }
     [data-theme="light"] .tab-hero-icon { box-shadow: 0 1px 4px rgba(80,55,25,0.08); }
 
+    /* Inline tab header for 2-col tabs (Cutting Board, Furniture, Optimizer):
+       sits at the top of the input column above the form. */
+    .tab-hero-inline { padding: 13px 14px 11px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .tab-hero-inline img { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
+    [data-theme="light"] .tab-hero-inline img { box-shadow: 0 1px 4px rgba(80,55,25,0.10); }
+    .tab-hero-inline h2 { font-size: 16px; font-weight: 800; letter-spacing: 0.1px; line-height: 1.15; color: var(--text); }
+    .tab-hero-inline p { font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+
     /* HOME PAGE — mobile-first app launcher */
     .home-col { padding: 18px 12px 36px; max-width: 1200px; margin: 0 auto; width: 100%; }
     .home-hero { text-align: center; margin-bottom: 18px; }
@@ -475,6 +538,11 @@
     .home-tile h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.1px; line-height: 1.2; }
     .home-tile p { display: none; }
     .home-tile-cta { display: none; }
+
+    /* Section headers between groups of tiles */
+    .home-section { margin-bottom: 20px; }
+    .home-section:last-of-type { margin-bottom: 12px; }
+    .home-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin-bottom: 9px; padding-left: 4px; }
 
     /* Stats row beneath the grid */
     .home-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
@@ -718,7 +786,10 @@
     @media (max-width: 480px) {
       /* Even tighter on phones */
       .summary-cards, .summary-cards.cols4, .summary-cards.cols5, .summary-cards.cols6 { grid-template-columns: 1fr 1fr; }
-      .preset-row { grid-template-columns: 1fr 1fr; }
+      /* Keep 3-wide preset grid on phone — the 9 presets stay in 3 clean rows of 3 instead of 2/1/2/1 wrap */
+      .preset-row { grid-template-columns: repeat(3, 1fr); }
+      .preset-btn { padding: 6px 3px; font-size: 9.5px; }
+      .preset-btn .ttl { font-size: 10.5px; }
       .cat-grid { grid-template-columns: 1fr; }
       .brand-text h1 { font-size: 12px; }
       .acad-restart-row { grid-template-columns: 1fr; }
@@ -745,9 +816,9 @@
 
 <header>
   <div class="brand">
-    <img class="brand-logo" src="icon-192.png" alt="Smart Cuts logo" width="34" height="34">
+    <img class="brand-logo" src="icon-192.png" alt="Bright Cuts logo" width="34" height="34">
     <div class="brand-text">
-      <h1>Smart Cuts</h1>
+      <h1>Bright Cuts</h1>
       <span class="brand-sub">by Michael Makes It Work</span>
     </div>
   </div>
@@ -761,6 +832,7 @@
     <button class="tab" data-tab="library">Wood Library</button>
     <button class="tab" data-tab="academy">Academy</button>
     <button class="tab" data-tab="shop">My Shop</button>
+    <button class="tab" data-tab="prices">Lumber Prices</button>
   </div>
   <div class="header-spacer"></div>
   <div class="header-tools">
@@ -777,68 +849,87 @@
 <div id="tab-home" class="workspace single-col">
   <div class="output-col home-col">
     <div class="home-hero">
-      <img class="home-hero-logo" src="icon-512.png" alt="Smart Cuts logo">
-      <h1 class="home-greeting" id="home-greeting">Smart Cuts</h1>
+      <img class="home-hero-logo" src="icon-512.png" alt="Bright Cuts logo">
+      <h1 class="home-greeting" id="home-greeting">Bright Cuts</h1>
       <p class="home-tagline">Plan smarter cuts. Build cleaner boards. Learn the craft.</p>
     </div>
 
-    <div class="home-tile-grid">
-      <button class="home-tile" data-tile-tab="board">
-        <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
-        <h3>Cutting Board</h3>
-        <p>End grain or face grain. Pick a standard size or go custom. Get a step-by-step build plan with cut math, material cost, and finishing instructions.</p>
-        <span class="home-tile-cta">Start designing →</span>
-      </button>
+    <div class="home-section">
+      <div class="home-section-title">Design</div>
+      <div class="home-tile-grid">
+        <button class="home-tile" data-tile-tab="board">
+          <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
+          <h3>Cutting Board</h3>
+          <p>End grain or face grain. Standard size or custom. Step-by-step build plan with cut math + cost.</p>
+          <span class="home-tile-cta">Start designing →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="furniture">
+          <div class="home-tile-icon"><img src="sparky/furniture.png" alt=""></div>
+          <h3>Furniture</h3>
+          <p>Cabinets, bookshelves, drawer boxes with 9 joinery options. Parts lists feed the optimizer.</p>
+          <span class="home-tile-cta">Open furniture →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="optimizer">
+          <div class="home-tile-icon"><img src="sparky/calculator.png" alt=""></div>
+          <h3>Optimizer</h3>
+          <p>Bin-pack pieces onto stock lumber or sheet goods. Kerf-aware, material-aware.</p>
+          <span class="home-tile-cta">Open optimizer →</span>
+        </button>
+      </div>
+    </div>
 
-      <button class="home-tile" data-tile-tab="furniture">
-        <div class="home-tile-icon"><img src="sparky/furniture.png" alt=""></div>
-        <h3>Furniture</h3>
-        <p>Cabinets (base, wall, tall), bookshelves, drawer boxes with 9 joinery options. Generate parts lists and feed them into the optimizer.</p>
-        <span class="home-tile-cta">Open furniture →</span>
-      </button>
+    <div class="home-section">
+      <div class="home-section-title">Catalog</div>
+      <div class="home-tile-grid">
+        <button class="home-tile" data-tile-tab="plans">
+          <div class="home-tile-icon"><img src="sparky/plans.png" alt=""></div>
+          <h3>Plans</h3>
+          <p>Save designs to build later. Assign to projects when you finish — catalog grows over time.</p>
+          <span class="home-tile-cta">Open plans →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="projects">
+          <div class="home-tile-icon"><img src="sparky/camera.png" alt=""></div>
+          <h3>Projects</h3>
+          <p>Your build catalog. Photos, species, stain, finish, hours, sale prices.</p>
+          <span class="home-tile-cta">View portfolio →</span>
+        </button>
+      </div>
+    </div>
 
-      <button class="home-tile" data-tile-tab="optimizer">
-        <div class="home-tile-icon"><img src="sparky/calculator.png" alt=""></div>
-        <h3>Optimizer</h3>
-        <p>Bin-pack pieces onto stock lumber or sheet goods. Visual cut plan with minimum waste, kerf-aware.</p>
-        <span class="home-tile-cta">Open optimizer →</span>
-      </button>
+    <div class="home-section">
+      <div class="home-section-title">Learn</div>
+      <div class="home-tile-grid">
+        <button class="home-tile" data-tile-tab="library">
+          <div class="home-tile-icon"><img src="sparky/wood-selection.png" alt=""></div>
+          <h3>Wood Library</h3>
+          <p>56 species — Latin names, Janka hardness, origin, workability, uses, notes.</p>
+          <span class="home-tile-cta">Browse library →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="academy">
+          <div class="home-tile-icon"><img src="sparky/academy.png" alt=""></div>
+          <h3>Academy</h3>
+          <p>100+ quiz questions across 8 categories. Earn ranks from Beginner to Master.</p>
+          <span class="home-tile-cta">Take a quiz →</span>
+        </button>
+      </div>
+    </div>
 
-      <button class="home-tile" data-tile-tab="library">
-        <div class="home-tile-icon"><img src="sparky/wood-selection.png" alt=""></div>
-        <h3>Wood Library</h3>
-        <p>56 species from Mimms Lumber: Latin names, Janka hardness, origin, workability, uses, and notes.</p>
-        <span class="home-tile-cta">Browse library →</span>
-      </button>
-
-      <button class="home-tile" data-tile-tab="academy">
-        <div class="home-tile-icon"><img src="sparky/academy.png" alt=""></div>
-        <h3>Academy</h3>
-        <p>Test your knowledge across 8 categories. Earn ranks from Beginner to Master Woodworker.</p>
-        <span class="home-tile-cta">Take a quiz →</span>
-      </button>
-
-      <button class="home-tile" data-tile-tab="shop">
-        <div class="home-tile-icon"><img src="sparky/tools.png" alt=""></div>
-        <h3>My Shop</h3>
-        <p>Your tool inventory + tool-for-the-job matrix. Quick reference for which tool to grab.</p>
-        <span class="home-tile-cta">Browse shop →</span>
-      </button>
-
-      <button class="home-tile" data-tile-tab="plans">
-        <div class="home-tile-icon"><img src="sparky/plans.png" alt=""></div>
-        <h3>Plans</h3>
-        <p>Save designs to build later. Assign them to projects when you finish — your design catalog grows over time.</p>
-        <span class="home-tile-cta">Open plans →</span>
-      </button>
-
-      <button class="home-tile" data-tile-tab="projects">
-        <div class="home-tile-icon"><img src="sparky/camera.png" alt=""></div>
-        <h3>Projects</h3>
-        <p>Your build catalog. Upload photos, log species/stain/finish, track hours and sale prices.</p>
-        <span class="home-tile-cta">View portfolio →</span>
-      </button>
-
+    <div class="home-section">
+      <div class="home-section-title">Shop</div>
+      <div class="home-tile-grid">
+        <button class="home-tile" data-tile-tab="shop">
+          <div class="home-tile-icon"><img src="sparky/tools.png" alt=""></div>
+          <h3>My Shop</h3>
+          <p>Tool inventory + jigs + tool-for-the-job matrix. Quick reference.</p>
+          <span class="home-tile-cta">Browse shop →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="prices">
+          <div class="home-tile-icon"><img src="sparky/screws.png" alt=""></div>
+          <h3>Lumber Prices</h3>
+          <p>Update your per-board-foot prices for every species. Used live in cost math.</p>
+          <span class="home-tile-cta">Set prices →</span>
+        </button>
+      </div>
     </div>
 
     <div class="home-stats-row">
@@ -853,6 +944,13 @@
 <div id="tab-board" style="display:none" class="workspace">
 
   <div class="input-col">
+    <div class="tab-hero-inline">
+      <img src="sparky/cutting-board.png" alt="">
+      <div>
+        <h2>Cutting Board</h2>
+        <p>Design end- or face-grain boards. Live cut math, material cost, build steps.</p>
+      </div>
+    </div>
     <div class="input-body">
 
       <div class="section">
@@ -995,6 +1093,13 @@
 <!-- ════════════════════════════ TAB: FURNITURE ═════════════════════════════ -->
 <div id="tab-furniture" style="display:none" class="workspace">
   <div class="input-col">
+    <div class="tab-hero-inline">
+      <img src="sparky/furniture.png" alt="">
+      <div>
+        <h2>Furniture</h2>
+        <p>Cabinets, bookshelves, drawer boxes with parts lists ready for the optimizer.</p>
+      </div>
+    </div>
     <div class="input-body">
 
       <div class="section">
@@ -1129,6 +1234,13 @@
 <!-- ════════════════════════════ TAB: OPTIMIZER ═════════════════════════════ -->
 <div id="tab-optimizer" style="display:none" class="workspace">
   <div class="input-col">
+    <div class="tab-hero-inline">
+      <img src="sparky/calculator.png" alt="">
+      <div>
+        <h2>Optimizer</h2>
+        <p>Bin-pack pieces onto sheet goods or lumber. Kerf-aware, material-aware.</p>
+      </div>
+    </div>
     <div class="input-body">
       <div class="section">
         <div class="section-label">Stock <span class="hint">lumber + sheet goods</span></div>
@@ -1159,6 +1271,13 @@
   </div>
   <div class="output-col" id="optimizer-output">
     <div class="empty-state"><div class="icon">&#9634;</div><p>Add stock and pieces, or send from Furniture tab.</p></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ TAB: LUMBER PRICES ═══════════════════════════ -->
+<div id="tab-prices" style="display:none" class="workspace single-col">
+  <div class="output-col prices-col">
+    <div id="prices-content"></div>
   </div>
 </div>
 
@@ -2999,7 +3118,7 @@ function copyPlan() {
   if (!lastPlan) return;
   const p = lastPlan;
   const bufPct = Math.round((p.bufferPct || 0) * 100);
-  let text = `SMART CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
+  let text = `BRIGHT CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
   if (mode === 'end') text += `Pattern: ${patternLabel(p.pattern)}\n`;
   text += `\nSTOCK (incl. ${bufPct}% buffer): ${p.bufferedBoards} boards · ${p.bufferedBf.toFixed(1)} bf\n`;
   text += `MATERIAL COST: ${money(p.totalCostBuffered)}\n`;
@@ -3013,7 +3132,7 @@ function copyPlan() {
   }
   text += `EDGE: ${edgeProfileLabel(p.edgeProfile)}\n`;
   if (p.juiceGroove !== 'none') text += `JUICE GROOVE: ${juiceGrooveLabel(p.juiceGroove)}\n`;
-  text += `\nGenerated by Smart Cuts · Michael Makes It Work\n`;
+  text += `\nGenerated by Bright Cuts · Michael Makes It Work\n`;
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.copy-btn');
     if (btn) { const orig = btn.innerHTML; btn.innerHTML = '&#10003; Copied'; setTimeout(() => btn.innerHTML = orig, 1500); }
@@ -3400,6 +3519,131 @@ function runOptimizer() {
     html += `<div class="step-card"><div class="step-header"><div><div class="step-title">${board.stockRef.name}</div><div class="step-desc">${bw}" × ${bh}" · ${waste}% waste</div></div></div><div class="step-body"><div class="diagram">${svg}</div></div></div>`;
   });
   document.getElementById('optimizer-output').innerHTML = html;
+}
+
+// ═════════════════════════════ LUMBER PRICES ══════════════════════════════
+// User-editable $/bf override per species. Key = species name. If a species
+// isn't in this map, the SPECIES_PALETTE default applies.
+const LUMBER_PRICES_KEY = 'woodshop-lumber-prices-v1';
+let lumberPrices = {};
+let pricesFilter = 'all';
+let pricesSearch = '';
+
+function loadLumberPrices() {
+  try { lumberPrices = JSON.parse(localStorage.getItem(LUMBER_PRICES_KEY) || '{}') || {}; }
+  catch { lumberPrices = {}; }
+}
+function saveLumberPrices() {
+  try { localStorage.setItem(LUMBER_PRICES_KEY, JSON.stringify(lumberPrices)); }
+  catch (e) { console.warn('saveLumberPrices', e); }
+  if (typeof cloudPush === 'function') cloudPush('lumberPrices');
+}
+function priceFor(speciesName) {
+  if (speciesName == null) return 0;
+  if (lumberPrices[speciesName] !== undefined) return lumberPrices[speciesName];
+  const def = SPECIES_PALETTE.find(s => s.name === speciesName);
+  return def ? def.price : 0;
+}
+function updateSpeciesPriceFromTable(name, val) {
+  const num = parseFloat(val);
+  if (!isFinite(num) || num < 0) return;
+  lumberPrices[name] = Math.round(num * 100) / 100;
+  // Also propagate to active cutting-board species list so the live preview reflects it.
+  if (Array.isArray(species)) {
+    species.forEach(s => { if (s && s.name === name) s.price = lumberPrices[name]; });
+    if (typeof scheduleRunPlanner === 'function') scheduleRunPlanner();
+    if (typeof save === 'function') save();
+  }
+  saveLumberPrices();
+  renderPricesSummary();
+}
+function resetAllLumberPrices() {
+  if (!confirm('Reset all 56 species back to their default $/bf? Your customizations will be lost.')) return;
+  lumberPrices = {};
+  saveLumberPrices();
+  // Also refresh active session species back to defaults
+  if (Array.isArray(species)) {
+    species.forEach(s => {
+      if (!s) return;
+      const def = SPECIES_PALETTE.find(p => p.name === s.name);
+      if (def) s.price = def.price;
+    });
+    if (typeof scheduleRunPlanner === 'function') scheduleRunPlanner();
+    if (typeof save === 'function') save();
+  }
+  renderLumberPrices();
+}
+function setPricesFilter(f) { pricesFilter = f; renderLumberPrices(); }
+function setPricesSearch(s) { pricesSearch = (s || '').toLowerCase().trim(); renderPricesList(); }
+
+function renderPricesSummary() {
+  const customCount = Object.keys(lumberPrices).filter(k => lumberPrices[k] !== (SPECIES_PALETTE.find(s => s.name === k) || {}).price).length;
+  const el = document.getElementById('prices-summary');
+  if (el) el.innerHTML = customCount > 0
+    ? `<span class="num">${customCount}</span> species customized · others use default`
+    : 'All species using default prices';
+}
+
+function renderPricesList() {
+  const list = document.getElementById('prices-list');
+  if (!list) return;
+  const rows = SPECIES_PALETTE.filter(s => {
+    if (pricesFilter === 'common' && !s.common) return false;
+    if (pricesFilter === 'figured' && s.cat !== 'figured') return false;
+    if (pricesFilter === 'domestic' && s.cat !== 'domestic') return false;
+    if (pricesFilter === 'exotic' && s.cat !== 'exotic') return false;
+    if (pricesSearch && !s.name.toLowerCase().includes(pricesSearch)) return false;
+    return true;
+  });
+  list.innerHTML = rows.map(s => {
+    const current = priceFor(s.name);
+    const isCustom = lumberPrices[s.name] !== undefined && lumberPrices[s.name] !== s.price;
+    return `<div class="price-row${isCustom ? ' modified' : ''}">
+      <div class="swatch" style="background:${s.color}"></div>
+      <div class="name">${escapeHtml(s.name)}</div>
+      <div class="cat-tag ${s.cat}">${s.cat}</div>
+      <div class="price-input-wrap">
+        <span class="unit">$</span>
+        <input type="number" min="0" step="0.5" value="${current}" oninput="updateSpeciesPriceFromTable('${s.name.replace(/'/g, "\\'")}', this.value); this.closest('.price-row').classList.add('modified')">
+        <span class="unit">/bf</span>
+      </div>
+    </div>`;
+  }).join('');
+  if (rows.length === 0) list.innerHTML = `<p style="color:var(--muted);font-size:12px;text-align:center;padding:24px 8px">No species match this filter.</p>`;
+}
+
+function renderLumberPrices() {
+  const el = document.getElementById('prices-content');
+  if (!el) return;
+  const counts = {
+    all: SPECIES_PALETTE.length,
+    common: SPECIES_PALETTE.filter(s => s.common).length,
+    figured: SPECIES_PALETTE.filter(s => s.cat === 'figured').length,
+    domestic: SPECIES_PALETTE.filter(s => s.cat === 'domestic').length,
+    exotic: SPECIES_PALETTE.filter(s => s.cat === 'exotic').length,
+  };
+  const f = (k, label) => `<button class="lib-filter${pricesFilter === k ? ' active' : ''}" onclick="setPricesFilter('${k}')">${label} <span class="lib-count">${counts[k]}</span></button>`;
+  el.innerHTML = `
+    <div class="prices-header">
+      <h2><img src="sparky/screws.png" class="tab-hero-icon" alt="">Lumber Prices</h2>
+      <p>Your per-board-foot prices, used live in all cost math across Cutting Board, Furniture, and Optimizer. Edits save instantly and sync across devices if you're signed in.</p>
+    </div>
+    <div class="prices-filter-row">
+      ${f('all', 'All')}
+      ${f('common', 'Common')}
+      ${f('domestic', 'Domestic')}
+      ${f('figured', 'Figured')}
+      ${f('exotic', 'Exotic')}
+      <input class="lib-search" type="search" placeholder="Search species…" value="${escapeHtml(pricesSearch)}" oninput="setPricesSearch(this.value)" style="flex:1;min-width:140px;margin-left:auto">
+    </div>
+    <div class="prices-summary" id="prices-summary"></div>
+    <div class="prices-list" id="prices-list"></div>
+    <div class="prices-actions">
+      <button class="prices-reset-btn" onclick="resetAllLumberPrices()">Reset all to defaults</button>
+    </div>
+  `;
+  renderPricesList();
+  renderPricesSummary();
 }
 
 // ═════════════════════════════ PLANS (Design catalog) ═════════════════════
@@ -5048,6 +5292,10 @@ const CLOUD_COLLECTIONS = {
     get: () => plans,
     set: v => { if (Array.isArray(v)) { plans = v; try { localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(plans)); } catch {} renderPlans(); } },
   },
+  lumberPrices: {
+    get: () => lumberPrices,
+    set: v => { if (v && typeof v === 'object') { lumberPrices = v; try { localStorage.setItem(LUMBER_PRICES_KEY, JSON.stringify(lumberPrices)); } catch {} renderLumberPrices(); } },
+  },
 };
 
 function cloudInit() {
@@ -5146,13 +5394,13 @@ function unsubscribeCloud() {
 
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
+  loadLumberPrices();
   const loaded = load();
   if (!loaded || !species.length) species = DEFAULT_SPECIES.slice();
-  // Make sure species have prices (older saves may not)
-  species.forEach(s => { if (s.price === undefined) {
-    const palette = SPECIES_PALETTE.find(w => w.name === s.name);
-    s.price = palette ? palette.price : 10;
-  }});
+  // Make sure species have prices (older saves may not). Use saved override first, palette default second.
+  species.forEach(s => {
+    if (s && s.name) s.price = priceFor(s.name);
+  });
   setMode(mode); setPattern(pattern); setFurnType(furnType); setUIMode(uiMode);
   ['base','wall','tall'].forEach(x => document.getElementById('cabt-' + x).classList.toggle('active', x === cabType));
   renderSpecies();
@@ -5181,6 +5429,7 @@ function init() {
   renderProjects();
   loadPlans();
   renderPlans();
+  renderLumberPrices();
   loadAcademyScores();
   runPlanner();
   runFurniture();
