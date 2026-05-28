@@ -177,7 +177,20 @@
     .wood-option .price { color: var(--money); font-size: 11px; font-variant-numeric: tabular-nums; }
 
     /* STRIP PATTERN (face grain custom layout) */
-    .strip-row { display: grid; grid-template-columns: 1fr 70px 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .strip-row { display: grid; grid-template-columns: 1fr 70px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .strip-row.linked input { border-color: var(--accent); background: var(--accent-soft); }
+    .strip-link-pill { font-size: 9.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.3px; white-space: nowrap; cursor: default; user-select: none; }
+
+    /* Ratio templates above the strip list — formula-driven layouts */
+    .ratio-presets { margin-bottom: 12px; padding: 9px 10px 10px; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; }
+    .ratio-presets-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+    .ratio-presets-label .hint { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted2); font-size: 9.5px; }
+    .ratio-chip-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+    @media (min-width: 600px) { .ratio-chip-row { grid-template-columns: repeat(3, 1fr); } }
+    .ratio-chip { background: var(--panel3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; transition: all 0.12s; text-align: left; }
+    .ratio-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .ratio-chip .ratio-name { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 0.1px; }
+    .ratio-chip .ratio-ratio { font-size: 9.5px; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.2px; }
     .strip-row select { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; cursor: pointer; min-width: 0; }
     .strip-row input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
     .strip-row select:focus, .strip-row input:focus { outline: none; border-color: var(--accent); }
@@ -1036,7 +1049,32 @@
 
       <!-- Face grain strip pattern -->
       <div class="section" id="face-layout-section" style="display:none">
-        <div class="section-label">Strip Pattern <span class="hint">strips run long-ways · click chips to assign species</span></div>
+        <div class="section-label">Strip Pattern <span class="hint">strips run long-ways · matched widths link together</span></div>
+        <div class="ratio-presets">
+          <div class="ratio-presets-label">Ratio templates <span class="hint">tap to fill from panel width</span></div>
+          <div class="ratio-chip-row">
+            <button class="ratio-chip" onclick="faceLayoutPreset('halves')" title="3-strip · outer x · middle x/2 · outer x">
+              <span class="ratio-name">Halves</span>
+              <span class="ratio-ratio">x · ½ · x</span>
+            </button>
+            <button class="ratio-chip" onclick="faceLayoutPreset('sym5')" title="5-strip · x · ¼ · ½ · ¼ · x">
+              <span class="ratio-name">Sym 5</span>
+              <span class="ratio-ratio">x · ¼ · ½ · ¼ · x</span>
+            </button>
+            <button class="ratio-chip" onclick="faceLayoutPreset('sym7')" title="7-strip · x · ¼ · ½ · ¼ · ½ · ¼ · x">
+              <span class="ratio-name">Sym 7</span>
+              <span class="ratio-ratio">x · ¼ · ½ · ¼ · ½ · ¼ · x</span>
+            </button>
+            <button class="ratio-chip" onclick="faceLayoutPreset('golden')" title="Golden Ratio · 1 : φ : 1">
+              <span class="ratio-name">Golden</span>
+              <span class="ratio-ratio">1 · φ · 1</span>
+            </button>
+            <button class="ratio-chip" onclick="faceLayoutPreset('goldenAccent')" title="Golden accent · φ · 1 · 1 · 1 · φ">
+              <span class="ratio-name">Golden 5</span>
+              <span class="ratio-ratio">φ · 1 · 1 · 1 · φ</span>
+            </button>
+          </div>
+        </div>
         <div class="field" style="margin-bottom:10px">
           <label># of Strips</label>
           <input type="number" id="stripCount" value="5" step="1" min="1" max="20" oninput="setStripCount(parseInt(this.value)||1)">
@@ -2337,18 +2375,50 @@ document.addEventListener('click', (e) => {
 });
 
 // ═════════════════════════════ FACE STRIP PATTERN ══════════════════════════
+// Set a strip's width AND ripple to all other strips that currently match it.
+// Two strips at the same width are treated as implicitly linked — changing one
+// changes them all. Set linkMatched=false to bypass (used by ratio presets).
+function setStripWidth(idx, newWidth, linkMatched) {
+  newWidth = Math.max(0, parseFloat(newWidth) || 0);
+  const oldWidth = stripPattern[idx] ? stripPattern[idx].width : null;
+  if (oldWidth === null) return;
+  if (linkMatched === false || oldWidth === 0) {
+    stripPattern[idx].width = newWidth;
+  } else {
+    stripPattern.forEach(s => {
+      if (Math.abs(s.width - oldWidth) < 0.001) s.width = newWidth;
+    });
+  }
+  save();
+  refreshStripList();
+  updateStripTotal();
+  scheduleRunPlanner();
+}
+
+// Count how many strips share the same width as strip at idx (including self).
+function stripLinkCount(idx) {
+  if (!stripPattern[idx]) return 1;
+  const w = stripPattern[idx].width;
+  return stripPattern.filter(s => Math.abs(s.width - w) < 0.001).length;
+}
+
 function refreshStripList() {
   if (mode !== 'face') return;
   const list = document.getElementById('strip-list');
-  list.innerHTML = stripPattern.map((s, i) => `
-    <div class="strip-row">
+  list.innerHTML = stripPattern.map((s, i) => {
+    const linked = stripLinkCount(i) > 1;
+    const linkHint = linked ? `<span class="strip-link-pill" title="${stripLinkCount(i)} strips matched at this width — change one, change them all">⛓ ×${stripLinkCount(i)}</span>` : '';
+    return `
+    <div class="strip-row${linked ? ' linked' : ''}">
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
         ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${sp.name}</option>`).join('')}
       </select>
-      <input type="number" value="${s.width}" min="0.0625" step="0.0625" oninput="stripPattern[${i}].width=Math.max(0, parseFloat(this.value)||0); save(); updateStripTotal(); scheduleRunPlanner()">
+      <input type="number" value="${s.width}" min="0.0625" step="0.0625" oninput="setStripWidth(${i}, this.value, !event.altKey)" title="Tip: hold Option/Alt while typing to change only this strip">
+      ${linkHint}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
   // Keep stripCount input synced with actual strip count
   const countEl = document.getElementById('stripCount');
   if (countEl) countEl.value = stripPattern.length;
@@ -2448,6 +2518,72 @@ function faceLayoutPreset(kind) {
     // Fix last strip to ensure exact total
     const total = stripPattern.reduce((s, x) => s + x.width, 0);
     stripPattern[stripPattern.length - 1].width = r16(stripPattern[stripPattern.length - 1].width + (W - total));
+  } else if (kind === 'halves') {
+    // 3-strip: outer x · middle x/2 · outer x. Sum = 2.5x. x = W / 2.5.
+    const x = r16(W / 2.5);
+    stripPattern = [
+      { speciesIdx: A, width: x },
+      { speciesIdx: B, width: r16(x / 2) },
+      { speciesIdx: A, width: x },
+    ];
+  } else if (kind === 'sym5') {
+    // 5-strip Michael's symmetric: outer x · divider x/4 · middle x/2 · divider x/4 · outer x.
+    // Sum = 2x + 2(x/4) + x/2 = 3x. x = W/3.
+    const x = r16(W / 3);
+    const q = r16(x / 4);
+    const h = r16(x / 2);
+    stripPattern = [
+      { speciesIdx: A, width: x },
+      { speciesIdx: B, width: q },
+      { speciesIdx: C, width: h },
+      { speciesIdx: B, width: q },
+      { speciesIdx: A, width: x },
+    ];
+  } else if (kind === 'sym7') {
+    // 7-strip symmetric: outer x · ÷ · middle x/2 · ÷ · middle x/2 · ÷ · outer x where ÷ = x/4.
+    // Sum = 2x + 3(x/4) + 2(x/2) = 3.75x. x = W/3.75.
+    const x = r16(W / 3.75);
+    const q = r16(x / 4);
+    const h = r16(x / 2);
+    stripPattern = [
+      { speciesIdx: A, width: x },
+      { speciesIdx: B, width: q },
+      { speciesIdx: C, width: h },
+      { speciesIdx: B, width: q },
+      { speciesIdx: C, width: h },
+      { speciesIdx: B, width: q },
+      { speciesIdx: A, width: x },
+    ];
+  } else if (kind === 'golden') {
+    // 3-strip golden: outer 1 · middle φ (~1.618) · outer 1. Sum = 2 + 1.618 = 3.618. base = W/3.618.
+    const PHI = 1.618033988749;
+    const base = W / (2 + PHI);
+    stripPattern = [
+      { speciesIdx: A, width: r16(base) },
+      { speciesIdx: B, width: r16(base * PHI) },
+      { speciesIdx: A, width: r16(base) },
+    ];
+  } else if (kind === 'goldenAccent') {
+    // 5-strip golden accent: outer φ · accent 1 · middle 1 · accent 1 · outer φ.
+    // Sum = 2φ + 3. base = W / (2*1.618 + 3) = W / 6.236.
+    const PHI = 1.618033988749;
+    const base = W / (2 * PHI + 3);
+    stripPattern = [
+      { speciesIdx: A, width: r16(base * PHI) },
+      { speciesIdx: B, width: r16(base) },
+      { speciesIdx: C, width: r16(base) },
+      { speciesIdx: B, width: r16(base) },
+      { speciesIdx: A, width: r16(base * PHI) },
+    ];
+  }
+  // Snap last to exact total when totals drift due to 1/16" rounding
+  if (stripPattern.length > 1) {
+    const sum = stripPattern.reduce((s, x) => s + x.width, 0);
+    const diff = W - sum;
+    if (Math.abs(diff) > 0.0001 && Math.abs(diff) < 0.5) {
+      const last = stripPattern.length - 1;
+      stripPattern[last].width = Math.max(0.0625, r16(stripPattern[last].width + diff));
+    }
   }
   refreshStripList();
   save();
