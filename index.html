@@ -422,6 +422,24 @@
     .plan-card-date { font-size: 10px; color: var(--muted2); letter-spacing: 0.3px; margin-top: 4px; }
     .plan-card-assigned { font-size: 11px; color: var(--money); font-weight: 600; background: rgba(143,184,120,0.10); border: 1px solid rgba(143,184,120,0.25); padding: 5px 9px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; }
     .plan-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .plan-card-timer { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .plan-card-timer.running { border-color: var(--accent); background: var(--accent-soft); }
+    .plan-card-timer .timer-display { font-size: 13px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: 0.4px; flex: 1; }
+    .plan-card-timer.running .timer-display { color: var(--accent); }
+    .plan-card-timer .timer-display::before { content: '⏱'; margin-right: 6px; opacity: 0.7; }
+    .plan-card-timer.running .timer-display::before { content: '●'; color: var(--accent); animation: pulse 1.2s ease-in-out infinite; margin-right: 7px; }
+    .plan-card-timer .timer-btn { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.12s; letter-spacing: 0.2px; }
+    .plan-card-timer .timer-btn.start { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+    .plan-card-timer .timer-btn.start:hover { opacity: 0.92; }
+    .plan-card-timer .timer-btn.pause { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+    .plan-card-timer .timer-btn.reset { color: var(--muted); padding: 5px 8px; font-size: 14px; }
+    .plan-card-timer .timer-btn.reset:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* Header running-timer indicator — tap to jump to that plan */
+    .header-timer-btn { display: none; align-items: center; gap: 6px; padding: 0 10px; height: 38px; border-radius: 9px; background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .header-timer-btn::before { content: '●'; color: var(--accent); animation: pulse 1.2s ease-in-out infinite; }
+    .header-timer-btn:hover { background: var(--accent); color: #1a1a1a; }
+    .header-timer-btn:hover::before { color: #1a1a1a; }
     .plan-btn-primary, .plan-btn-secondary, .plan-btn-danger { padding: 7px 11px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.12s; border: 1px solid transparent; letter-spacing: 0.2px; }
     .plan-btn-primary { background: var(--accent); color: #1a1a1a; border-color: var(--accent); flex: 1; }
     .plan-btn-primary:hover { opacity: 0.92; }
@@ -967,24 +985,41 @@
       .acad-restart-row { grid-template-columns: 1fr; }
     }
     @media print {
+      @page { size: letter; margin: 0.5in; }
       body { background: white !important; color: black !important; }
-      header, .input-col { display: none !important; }
+      header, .input-col, .tab-hero-inline { display: none !important; }
       .workspace { display: block !important; height: auto !important; }
-      .output-col { padding: 0 !important; overflow: visible !important; }
-      .scard, .step-card, .finished-preview, .parts-table, .cost-breakdown { break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
-      .scard .val, .step-num, .meas strong, .parts-table td.qty { color: #c47a1a !important; }
-      .scard .val.money, .cost-line .amt, .cost-breakdown .ttl .total { color: #2e7c46 !important; }
+      .output-col { padding: 0 !important; overflow: visible !important; max-width: 100% !important; }
+      /* Hide every interactive control on the shop-ready print */
+      .save-plan-btn, .copy-btn, .send-btn, .plan-actions-row,
+      .plan-card-actions, .plan-card-timer, .header-timer-btn,
+      .ratio-presets, .pattern-trigger, .add-btn, .icon-btn,
+      .proj-detail-actions, .proj-add-btn, .prices-actions,
+      .copy-btn, button { display: none !important; }
+      /* Keep critical content readable */
+      .scard, .step-card, .finished-preview, .parts-table, .cost-breakdown { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
+      .step-card { margin-bottom: 8px !important; }
+      .scard .val, .step-num, .meas strong, .parts-table td.qty { color: #b56a1f !important; }
+      .scard .val.money, .cost-line .amt, .cost-breakdown .ttl .total { color: #4d7a3d !important; }
       .step-desc, .scard .lbl, .preview-title .dims { color: #555 !important; }
       .step-title, .preview-title h2, .cost-line .name { color: black !important; }
       .meas { background: #fff7e8 !important; border-color: #e8c896 !important; color: black !important; }
       .finished-preview::before { display: none !important; }
       .live-indicator { display: none !important; }
       .wood-swatch, .swatch-input, .cost-line .dot, .mat-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      /* Print-only header at the very top of the page — branding + date */
+      .print-header { display: block !important; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid #b56a1f; }
+      .print-header .ttl { font-size: 22px; font-weight: 800; letter-spacing: 0.2px; color: #2b1f14; }
+      .print-header .sub { font-size: 11px; color: #6b5a44; margin-top: 2px; letter-spacing: 0.3px; }
+      .print-footer { display: block !important; margin-top: 14px; padding-top: 8px; border-top: 1px solid #d4b896; font-size: 10px; color: #888; text-align: center; letter-spacing: 0.4px; }
     }
+    .print-header, .print-footer { display: none; }
     .wood-swatch, .cost-line .dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   </style>
 </head>
 <body>
+<!-- Print-only header: branded title bar shown ONLY when the user prints. -->
+<div class="print-header"><div class="ttl print-title">Bright Cuts Plan</div><div class="sub"><span class="print-date"></span> · Bright Cuts by Michael Makes It Work</div></div>
 
 <header>
   <div class="brand">
@@ -1013,9 +1048,13 @@
     <button class="header-action" onclick="cloudAccountClick()" id="cloud-btn" title="Sync your projects across devices" style="display:none">☁ Sign in</button>
     <button class="header-action" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙 Dark</button>
     <button class="header-action" onclick="toggleUnitSystem()" id="units-btn" title="Switch measurement units">⇄ Imperial (in)</button>
+    <button class="header-action" onclick="toggleHaptic()" id="haptic-btn" title="Toggle haptic vibration on touches">📳 Haptic On</button>
     <button class="header-action" onclick="window.print()">Print</button>
     <button class="header-action" onclick="resetDefaults()">Reset</button>
   </div>
+  <button class="header-timer-btn" id="header-timer" style="display:none" onclick="switchTab('plans')" title="A build timer is running — tap to view">
+    <span class="header-timer-label" aria-live="polite">0s</span>
+  </button>
   <button class="header-calc-btn" onclick="switchTab('calc')" aria-label="Open calculator" title="Calculator — fraction math">
     <span aria-hidden="true">🧮</span>
   </button>
@@ -1563,6 +1602,7 @@
 <script>
 // ═════════════════════════════ TABS ════════════════════════════════════════
 function switchTab(name) {
+  haptic(5);
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
   document.querySelectorAll('[id^="tab-"]').forEach(x => x.style.display = 'none');
   const target = document.getElementById('tab-' + name);
@@ -1580,6 +1620,15 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 document.addEventListener('click', e => {
   const tile = e.target.closest('[data-tile-tab]');
   if (tile) switchTab(tile.dataset.tileTab);
+});
+
+// Right before window.print(), update the print-header title + date
+window.addEventListener('beforeprint', () => {
+  const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', optimizer: 'Cut Optimization Plan', plans: 'Plans Catalog', projects: 'Projects Portfolio', library: 'Wood Library Reference', prices: 'Lumber Prices', shop: 'Shop Inventory', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
+  const active = document.querySelector('.tab.active')?.dataset.tab;
+  document.querySelectorAll('.print-title').forEach(el => el.textContent = titles[active] || 'Bright Cuts Plan');
+  const date = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.querySelectorAll('.print-date').forEach(el => el.textContent = date);
 });
 
 // Phone header overflow menu
@@ -2442,6 +2491,23 @@ const WOOD_TREE_DATA = {
 
 const DEFAULT_SPECIES = [{ ...SPECIES_PALETTE[0] }, { ...SPECIES_PALETTE[1] }];
 
+// User-added species beyond the Mimms catalog. Same shape as SPECIES_PALETTE
+// entries, with cat: 'custom' so they're filterable separately.
+const CUSTOM_SPECIES_KEY = 'woodshop-custom-species-v1';
+let customSpecies = [];
+function loadCustomSpecies() {
+  try { customSpecies = JSON.parse(localStorage.getItem(CUSTOM_SPECIES_KEY) || '[]') || []; }
+  catch { customSpecies = []; }
+}
+function saveCustomSpeciesList() {
+  try { localStorage.setItem(CUSTOM_SPECIES_KEY, JSON.stringify(customSpecies)); }
+  catch (e) { console.warn('saveCustomSpeciesList', e); }
+  if (typeof cloudPush === 'function') cloudPush('customSpecies');
+}
+// Single source of truth when looking up any species — Mimms palette + user-added.
+function allSpecies() { return SPECIES_PALETTE.concat(customSpecies); }
+function findSpecies(name) { return allSpecies().find(s => s.name === name); }
+
 // ═════════════════════════════ UNITS ══════════════════════════════════════
 // Internal model: every measurement is stored as inches. Input fields display in
 // the user's chosen unit (imperial fractional inches or metric mm). v() reads
@@ -2508,6 +2574,25 @@ function applyUnitSuffixes() {
 function updateUnitsMenuLabel() {
   const btn = document.getElementById('units-btn');
   if (btn) btn.textContent = (unitSystem === 'metric' ? '⇄ Metric (mm)' : '⇄ Imperial (in)');
+}
+
+// ═════════════════════════════ HAPTIC FEEDBACK ════════════════════════════
+// Subtle vibration on key interactions. iOS Safari ignores navigator.vibrate;
+// Android and most desktop browsers support it. Toggle stored in localStorage.
+const HAPTIC_KEY = 'woodshop-haptic';
+let hapticOn = true;
+function loadHaptic() { try { hapticOn = localStorage.getItem(HAPTIC_KEY) !== '0'; } catch { hapticOn = true; } }
+function saveHaptic() { try { localStorage.setItem(HAPTIC_KEY, hapticOn ? '1' : '0'); } catch {} }
+function haptic(ms = 6) {
+  if (!hapticOn) return;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch {}
+}
+function toggleHaptic() {
+  hapticOn = !hapticOn;
+  saveHaptic();
+  haptic(10);  // confirm with a single tick
+  const btn = document.getElementById('haptic-btn');
+  if (btn) btn.textContent = hapticOn ? '📳 Haptic On' : '📴 Haptic Off';
 }
 
 // ═════════════════════════════ DRUM PICKER ════════════════════════════════
@@ -2617,6 +2702,7 @@ function _renderDrumSheet({ label, cols, toInchesFn, sourceInput }) {
     if (el) el.textContent = dim(inches);
   }
   function markSelected(colEl, i, idx) {
+    if (selected[i] !== idx) haptic(3);  // soft tick on each snap change
     colEl.querySelectorAll('.drum-item').forEach((it, j) => it.classList.toggle('selected', j === idx));
     selected[i] = idx;
     updateCurrent();
@@ -2896,6 +2982,7 @@ function _patternThumb(key) {
 }
 
 function setPattern(p) {
+  if (pattern !== p) haptic(8);
   pattern = p;
   // Update the trigger card UI (replaces the old segmented buttons)
   const thumb = document.getElementById('pattern-trigger-thumb');
@@ -2986,17 +3073,19 @@ function pickWood(i) {
   if (!menu) return;
   document.querySelectorAll('.wood-picker-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
   if (menu.classList.contains('open')) { menu.classList.remove('open'); return; }
-  menu.innerHTML = SPECIES_PALETTE.map((w, j) => `
+  const list = allSpecies();
+  menu.innerHTML = list.map((w, j) => `
     <div class="wood-option" onclick="applyWood(${i}, ${j})">
       <span class="sw" style="background:${w.color}"></span>
-      <span class="name">${w.name}</span>
-      <span class="price">$${w.price}/bf</span>
+      <span class="name">${w.name}${w.cat === 'custom' ? ' <span style="color:var(--accent);font-size:9px;letter-spacing:0.3px">★</span>' : ''}</span>
+      <span class="price">$${priceFor(w.name)}/bf</span>
     </div>
   `).join('');
   menu.classList.add('open');
 }
 function applyWood(i, paletteIdx) {
-  species[i] = { ...SPECIES_PALETTE[paletteIdx] };
+  const list = allSpecies();
+  species[i] = { ...list[paletteIdx], price: priceFor(list[paletteIdx].name) };
   document.querySelectorAll('.wood-picker-menu.open').forEach(m => m.classList.remove('open'));
   renderSpecies();
   refreshStripList();
@@ -3767,6 +3856,7 @@ function renderEndGrain(p) {
     <div class="preview-svg-wrap">${svgFinishedBoard(p)}</div>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
       <button class="save-plan-btn" onclick="savePlanFromBoard()">+ Save Plan</button>
+      <button class="save-plan-btn" onclick="window.print()" style="background:none">🖨 Print cut sheet</button>
     </div>
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
@@ -4345,6 +4435,7 @@ function calcBackspace() {
   renderCalc();
 }
 function calcOperator(op) {
+  haptic(5);
   // If we just computed, continue from result
   if (calcJustComputed && calcResult !== null) { calcA = calcResult; calcResult = null; calcJustComputed = false; }
   // If user is chaining (A + B then taps another op), compute first
@@ -4364,6 +4455,7 @@ function calcEquals() {
   if (calcA === null || calcOp === null || calcB === null) return;
   const r = calcCompute(calcA, calcOp, calcB);
   if (r === null) return;
+  haptic(15);  // satisfying click on result
   calcHistory.unshift({ a: calcA, op: calcOp, b: calcB, result: r });
   if (calcHistory.length > 12) calcHistory.length = 12;
   calcResult = r;
@@ -4515,7 +4607,7 @@ function saveLumberPrices() {
 function priceFor(speciesName) {
   if (speciesName == null) return 0;
   if (lumberPrices[speciesName] !== undefined) return lumberPrices[speciesName];
-  const def = SPECIES_PALETTE.find(s => s.name === speciesName);
+  const def = findSpecies(speciesName);
   return def ? def.price : 0;
 }
 function updateSpeciesPriceFromTable(name, val) {
@@ -4561,20 +4653,26 @@ function renderPricesSummary() {
 function renderPricesList() {
   const list = document.getElementById('prices-list');
   if (!list) return;
-  const rows = SPECIES_PALETTE.filter(s => {
+  const rows = allSpecies().filter(s => {
     if (pricesFilter === 'common' && !s.common) return false;
     if (pricesFilter === 'figured' && s.cat !== 'figured') return false;
     if (pricesFilter === 'domestic' && s.cat !== 'domestic') return false;
     if (pricesFilter === 'exotic' && s.cat !== 'exotic') return false;
+    if (pricesFilter === 'custom' && s.cat !== 'custom') return false;
     if (pricesSearch && !s.name.toLowerCase().includes(pricesSearch)) return false;
     return true;
   });
   list.innerHTML = rows.map(s => {
     const current = priceFor(s.name);
-    const isCustom = lumberPrices[s.name] !== undefined && lumberPrices[s.name] !== s.price;
-    return `<div class="price-row${isCustom ? ' modified' : ''}">
+    const isCustom = s.cat === 'custom';
+    const isModified = lumberPrices[s.name] !== undefined && lumberPrices[s.name] !== s.price;
+    const customControls = isCustom
+      ? `<button class="icon-btn" onclick="event.stopPropagation(); editCustomSpecies('${s.name.replace(/'/g, "\\'")}')" title="Edit" style="position:absolute;right:106px;top:50%;transform:translateY(-50%)">✎</button>
+         <button class="icon-btn" onclick="event.stopPropagation(); deleteCustomSpecies('${s.name.replace(/'/g, "\\'")}')" title="Delete" style="position:absolute;right:128px;top:50%;transform:translateY(-50%);color:var(--danger)">×</button>`
+      : '';
+    return `<div class="price-row${isModified || isCustom ? ' modified' : ''}" style="position:relative">
       <div class="swatch" style="background:${s.color}"></div>
-      <div class="name">${escapeHtml(s.name)}</div>
+      <div class="name">${escapeHtml(s.name)}${isCustom ? ' <span style="color:var(--accent);font-size:9px;letter-spacing:0.3px;font-weight:700">★ CUSTOM</span>' : ''}</div>
       <div class="cat-tag ${s.cat}">${s.cat}</div>
       <div class="price-input-wrap">
         <span class="unit">$</span>
@@ -4586,21 +4684,108 @@ function renderPricesList() {
   if (rows.length === 0) list.innerHTML = `<p style="color:var(--muted);font-size:12px;text-align:center;padding:24px 8px">No species match this filter.</p>`;
 }
 
+// ─── Custom species editor ─────────────────────────────────────────────────
+let editingCustomSpecies = null;
+function openCustomSpeciesEditor(existingName) {
+  editingCustomSpecies = existingName
+    ? { ...customSpecies.find(s => s.name === existingName), _origName: existingName }
+    : { name: '', color: '#a07e4e', price: 8, janka: '', cat: 'custom' };
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-backdrop';
+  overlay.id = 'custom-species-modal';
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeCustomSpeciesEditor(); });
+  const d = editingCustomSpecies;
+  overlay.innerHTML = `
+    <div class="modal-card" role="dialog" aria-label="Custom species">
+      <h3>${d._origName ? 'Edit' : 'Add'} custom species</h3>
+      <div class="sub">Add a wood not in the Mimms catalog — your buddy's stash, a one-off slab, anything. It'll show up in the species picker right next to the standard 56.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px">Name
+          <input id="cs-name" type="text" placeholder="e.g. Locally-milled Black Walnut" value="${escapeHtml(d.name)}" style="margin-top:4px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;width:100%;font-size:13px;color:var(--text)">
+        </label>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;display:flex;align-items:center;gap:10px">Swatch color
+          <input id="cs-color" type="color" value="${d.color}" style="height:36px;width:60px;border:1px solid var(--border);border-radius:6px;padding:2px;background:var(--panel2);cursor:pointer">
+          <span style="font-size:11px;color:var(--muted2);text-transform:none;letter-spacing:0">Used in previews + the wood library</span>
+        </label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px">Janka (lbf)
+            <input id="cs-janka" type="number" min="0" step="50" placeholder="e.g. 1010" value="${d.janka || ''}" style="margin-top:4px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;width:100%;font-size:13px;color:var(--text)">
+          </label>
+          <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.4px">$ / board-foot
+            <input id="cs-price" type="number" min="0" step="0.5" placeholder="8.00" value="${d.price || ''}" style="margin-top:4px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;width:100%;font-size:13px;color:var(--money);font-weight:700;font-variant-numeric:tabular-nums">
+          </label>
+        </div>
+      </div>
+      <div class="actions">
+        <button onclick="closeCustomSpeciesEditor()">Cancel</button>
+        <button class="primary" onclick="saveCustomSpecies()">${d._origName ? 'Save changes' : 'Add species'}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('cs-name')?.focus(), 50);
+}
+function closeCustomSpeciesEditor() {
+  editingCustomSpecies = null;
+  document.getElementById('custom-species-modal')?.remove();
+}
+function saveCustomSpecies() {
+  const name = document.getElementById('cs-name').value.trim();
+  if (!name) { alert('Give the species a name.'); return; }
+  // Prevent collision with palette names unless we're editing
+  if (!editingCustomSpecies._origName && allSpecies().some(s => s.name.toLowerCase() === name.toLowerCase())) {
+    alert(`"${name}" already exists. Pick a different name (e.g. add "(my mill)" suffix).`);
+    return;
+  }
+  const color = document.getElementById('cs-color').value;
+  const janka = parseInt(document.getElementById('cs-janka').value, 10) || undefined;
+  const price = parseFloat(document.getElementById('cs-price').value) || 0;
+  const entry = { name, color, price, cat: 'custom' };
+  if (janka) entry.janka = janka;
+  if (editingCustomSpecies._origName) {
+    const i = customSpecies.findIndex(s => s.name === editingCustomSpecies._origName);
+    if (i >= 0) customSpecies[i] = entry;
+    // If price changed, sync to lumberPrices override too
+    lumberPrices[name] = price;
+    if (editingCustomSpecies._origName !== name) delete lumberPrices[editingCustomSpecies._origName];
+  } else {
+    customSpecies.push(entry);
+    lumberPrices[name] = price;
+  }
+  saveCustomSpeciesList();
+  saveLumberPrices();
+  closeCustomSpeciesEditor();
+  renderLumberPrices();
+  if (typeof showToast === 'function') showToast(`Custom species saved: ${name}`);
+}
+function editCustomSpecies(name) { openCustomSpeciesEditor(name); }
+function deleteCustomSpecies(name) {
+  if (!confirm(`Delete custom species "${name}"? Any cutting boards that use it will keep their existing data, but the species won't be in the picker.`)) return;
+  customSpecies = customSpecies.filter(s => s.name !== name);
+  delete lumberPrices[name];
+  saveCustomSpeciesList();
+  saveLumberPrices();
+  renderLumberPrices();
+}
+
 function renderLumberPrices() {
   const el = document.getElementById('prices-content');
   if (!el) return;
+  const all = allSpecies();
   const counts = {
-    all: SPECIES_PALETTE.length,
-    common: SPECIES_PALETTE.filter(s => s.common).length,
-    figured: SPECIES_PALETTE.filter(s => s.cat === 'figured').length,
-    domestic: SPECIES_PALETTE.filter(s => s.cat === 'domestic').length,
-    exotic: SPECIES_PALETTE.filter(s => s.cat === 'exotic').length,
+    all: all.length,
+    common: all.filter(s => s.common).length,
+    figured: all.filter(s => s.cat === 'figured').length,
+    domestic: all.filter(s => s.cat === 'domestic').length,
+    exotic: all.filter(s => s.cat === 'exotic').length,
+    custom: customSpecies.length,
   };
   const f = (k, label) => `<button class="lib-filter${pricesFilter === k ? ' active' : ''}" onclick="setPricesFilter('${k}')">${label} <span class="lib-count">${counts[k]}</span></button>`;
   el.innerHTML = `
     <div class="prices-header">
       <h2><img src="sparky/screws.png" class="tab-hero-icon" alt="">Lumber Prices</h2>
       <p>Your per-board-foot prices, used live in all cost math across Cutting Board, Furniture, and Optimizer. Edits save instantly and sync across devices if you're signed in.</p>
+      <button class="proj-add-btn" style="margin-top:10px" onclick="openCustomSpeciesEditor()">+ Add custom species</button>
     </div>
     <div class="prices-filter-row">
       ${f('all', 'All')}
@@ -4608,6 +4793,7 @@ function renderLumberPrices() {
       ${f('domestic', 'Domestic')}
       ${f('figured', 'Figured')}
       ${f('exotic', 'Exotic')}
+      ${counts.custom ? f('custom', '★ Custom') : ''}
       <input class="lib-search" type="search" placeholder="Search species…" value="${escapeHtml(pricesSearch)}" oninput="setPricesSearch(this.value)" style="flex:1;min-width:140px;margin-left:auto">
     </div>
     <div class="prices-summary" id="prices-summary"></div>
@@ -4695,6 +4881,7 @@ function savePlanFromBoard() {
   plans.unshift(newPlan);
   persistPlans();
   renderPlans();
+  haptic(20);  // confirmation pulse
   showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
 }
 
@@ -4730,8 +4917,91 @@ function savePlanFromFurniture() {
   plans.unshift(newPlan);
   persistPlans();
   renderPlans();
+  haptic(20);  // confirmation pulse
   showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
 }
+
+// ─── Plan build timer ──────────────────────────────────────────────────────
+// Each plan stores { accumulated: ms, startedAt: epoch-ms | null }. accumulated
+// holds the time committed across pauses; startedAt is the in-progress start
+// when running. Total = accumulated + (now - startedAt) if running.
+function planTimerMs(plan) {
+  if (!plan || !plan.timer) return 0;
+  const base = plan.timer.accumulated || 0;
+  return plan.timer.startedAt ? base + (Date.now() - plan.timer.startedAt) : base;
+}
+function planTimerRunning(plan) { return !!(plan && plan.timer && plan.timer.startedAt); }
+function formatPlanDuration(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${sec.toString().padStart(2, '0')}s`;
+  return `${sec}s`;
+}
+function planTotalHours(plan) {
+  return Math.round((planTimerMs(plan) / 3_600_000) * 100) / 100;  // 2 decimals
+}
+function startPlanTimer(id) {
+  const plan = getPlanById(id);
+  if (!plan) return;
+  if (!plan.timer) plan.timer = { accumulated: 0, startedAt: null };
+  if (plan.timer.startedAt) return;
+  // Only one timer running at a time — pause any others
+  plans.forEach(p => {
+    if (p.id !== id && p.timer && p.timer.startedAt) {
+      p.timer.accumulated += Date.now() - p.timer.startedAt;
+      p.timer.startedAt = null;
+    }
+  });
+  plan.timer.startedAt = Date.now();
+  persistPlans();
+  renderPlans();
+  updateHeaderTimer();
+}
+function pausePlanTimer(id) {
+  const plan = getPlanById(id);
+  if (!plan || !plan.timer || !plan.timer.startedAt) return;
+  plan.timer.accumulated += Date.now() - plan.timer.startedAt;
+  plan.timer.startedAt = null;
+  persistPlans();
+  renderPlans();
+  updateHeaderTimer();
+}
+function resetPlanTimer(id) {
+  const plan = getPlanById(id);
+  if (!plan || !plan.timer) return;
+  if (!confirm(`Reset timer for "${plan.title}"? Accumulated time will be lost.`)) return;
+  plan.timer = { accumulated: 0, startedAt: null };
+  persistPlans();
+  renderPlans();
+  updateHeaderTimer();
+}
+function updateHeaderTimer() {
+  const el = document.getElementById('header-timer');
+  if (!el) return;
+  const running = plans.find(p => planTimerRunning(p));
+  if (running) {
+    el.style.display = 'inline-flex';
+    el.dataset.planId = running.id;
+    el.title = `Build timer running on "${running.title}" — tap to view`;
+    el.querySelector('.header-timer-label').textContent = formatPlanDuration(planTimerMs(running));
+  } else {
+    el.style.display = 'none';
+    delete el.dataset.planId;
+  }
+}
+// Live tick: update every second while at least one timer runs
+setInterval(() => {
+  if (!plans || !plans.some(p => planTimerRunning(p))) return;
+  document.querySelectorAll('[data-plan-timer-display]').forEach(el => {
+    const planId = el.dataset.planTimerDisplay;
+    const p = getPlanById(planId);
+    if (p) el.textContent = formatPlanDuration(planTimerMs(p));
+  });
+  updateHeaderTimer();
+}, 1000);
 
 function deletePlan(id) {
   const plan = getPlanById(id);
@@ -4804,11 +5074,25 @@ function assignPlanToProject(projectId) {
   const plan = getPlanById(pendingAssignPlanId);
   if (!plan) { closeAssignModal(); return; }
   plan.projectId = projectId;
+  // Stop the timer if running, and roll the elapsed hours into the project.
+  if (plan.timer && plan.timer.startedAt) {
+    plan.timer.accumulated += Date.now() - plan.timer.startedAt;
+    plan.timer.startedAt = null;
+  }
+  const hrs = planTotalHours(plan);
+  if (hrs > 0) {
+    const proj = projects.find(p => p.id === projectId);
+    if (proj && (!proj.hours || proj.hours === '')) {
+      proj.hours = hrs;
+      saveProjects();
+    }
+  }
   persistPlans();
   closeAssignModal();
   renderPlans();
   if (typeof renderProjects === 'function') renderProjects();
-  showToast('Plan assigned to project');
+  updateHeaderTimer();
+  showToast(hrs > 0 ? `Plan assigned · ${hrs}h rolled into project` : 'Plan assigned to project');
 }
 function createProjectFromPlan() {
   const plan = getPlanById(pendingAssignPlanId);
@@ -4829,6 +5113,9 @@ function createProjectFromPlan() {
       draft.dimT = plan.spec.H || '';
     }
   }
+  // Pre-fill hours from the plan's timer if any time was logged
+  const hrs = planTotalHours(plan);
+  if (hrs > 0) draft.hours = hrs;
   editingDraft = draft;
   projectsView = 'form';
   // After project is saved, the user can come back here and assign — for now just open the form
@@ -4850,6 +5137,17 @@ function renderPlans() {
       ? `${plan.spec.mode === 'end' ? 'End grain' : 'Face grain'} · ${(plan.spec.species || []).filter(s => s.name).map(s => s.name).join(' + ') || 'Wood'}`
       : `${({cabinet:'Cabinet',shelf:'Bookshelf',drawer:'Drawer Box'})[plan.spec.furnType] || 'Furniture'} · ${(plan.spec.parts || []).reduce((s,p)=>s+(p.qty||0),0)} parts`;
     const assignedProject = plan.projectId ? projects.find(pr => pr.id === plan.projectId) : null;
+    const running = planTimerRunning(plan);
+    const elapsedMs = planTimerMs(plan);
+    const hasTime = elapsedMs > 0;
+    const timerRow = `<div class="plan-card-timer${running ? ' running' : ''}">
+      <span class="timer-display" data-plan-timer-display="${plan.id}">${hasTime ? formatPlanDuration(elapsedMs) : 'Not started'}</span>
+      ${running
+        ? `<button class="timer-btn pause" onclick="pausePlanTimer('${plan.id}')">⏸ Pause</button>`
+        : `<button class="timer-btn start" onclick="startPlanTimer('${plan.id}')">${hasTime ? '▶ Resume' : '▶ Start'}</button>`
+      }
+      ${hasTime && !running ? `<button class="timer-btn reset" onclick="resetPlanTimer('${plan.id}')" title="Reset timer">↺</button>` : ''}
+    </div>`;
     return `
       <div class="plan-card">
         <div class="plan-card-top">
@@ -4860,6 +5158,7 @@ function renderPlans() {
             <div class="plan-card-date">${dateStr}</div>
           </div>
         </div>
+        ${timerRow}
         ${assignedProject
           ? `<div class="plan-card-assigned">✓ Built as: ${escapeHtml(assignedProject.title || 'project')}</div>
              <div class="plan-card-actions">
@@ -6290,6 +6589,10 @@ const CLOUD_COLLECTIONS = {
     get: () => lumberPrices,
     set: v => { if (v && typeof v === 'object') { lumberPrices = v; try { localStorage.setItem(LUMBER_PRICES_KEY, JSON.stringify(lumberPrices)); } catch {} renderLumberPrices(); } },
   },
+  customSpecies: {
+    get: () => customSpecies,
+    set: v => { if (Array.isArray(v)) { customSpecies = v; try { localStorage.setItem(CUSTOM_SPECIES_KEY, JSON.stringify(customSpecies)); } catch {} renderLumberPrices(); } },
+  },
 };
 
 function cloudInit() {
@@ -6389,6 +6692,10 @@ function unsubscribeCloud() {
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
   loadUnits();
+  loadHaptic();
+  const hbtn = document.getElementById('haptic-btn');
+  if (hbtn) hbtn.textContent = hapticOn ? '📳 Haptic On' : '📴 Haptic Off';
+  loadCustomSpecies();
   loadLumberPrices();
   // Convert static HTML defaults (in inches) to the current unit BEFORE load() restores saved values.
   // If load() finds saved data it will overwrite these; if not, the HTML defaults render correctly.
@@ -6443,6 +6750,7 @@ function init() {
   renderProjects();
   loadPlans();
   renderPlans();
+  updateHeaderTimer();
   renderLumberPrices();
   renderCalc();
   loadAcademyScores();
