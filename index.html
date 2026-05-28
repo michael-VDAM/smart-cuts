@@ -481,6 +481,33 @@
     .modal-card .actions button { padding: 9px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--muted); }
     .modal-card .actions button.primary { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
 
+    /* Photo annotation modal */
+    .annot-modal { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px; width: 95vw; max-width: 1100px; max-height: 95vh; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+    .annot-modal h3 { font-size: 15px; font-weight: 700; margin: 0; }
+    .annot-modal .sub { font-size: 11px; color: var(--muted); }
+    .annot-stage { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; background: var(--panel2); border-radius: 10px; overflow: hidden; }
+    .annot-canvas { position: relative; display: inline-block; max-width: 100%; max-height: 100%; line-height: 0; }
+    .annot-canvas img { display: block; max-width: 100%; max-height: 70vh; width: auto; height: auto; user-select: none; -webkit-user-drag: none; }
+    .annot-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+    .annot-canvas svg.tool-delete { cursor: pointer; }
+    .annot-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; background: var(--panel2); border: 1px solid var(--border); border-radius: 9px; }
+    .annot-tool { background: var(--panel3); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: var(--text); cursor: pointer; transition: border-color 0.12s, background 0.12s; }
+    .annot-tool:hover { border-color: var(--border2); }
+    .annot-tool.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .annot-color { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
+    .annot-color:hover { transform: scale(1.08); }
+    .annot-color.active { border-color: var(--text); transform: scale(1.12); box-shadow: 0 0 0 2px var(--bg); }
+    .annot-divider { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+    .annot-hint { font-size: 11px; color: var(--muted); margin-left: auto; padding: 0 6px; }
+    .annot-actions { display: flex; gap: 6px; }
+    .annot-actions button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text); }
+    .annot-actions button.primary { background: var(--accent); border-color: var(--accent); color: #1a1a1a; }
+    .annot-actions button.danger { color: #c64; border-color: #c64; }
+
+    /* Annotation overlay (used in the project detail view too) */
+    .proj-detail-photo { position: relative; }
+    .proj-detail-photo svg.annot-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
     /* Project detail — linked plans section */
     .proj-linked-plans { margin-top: 20px; }
     .proj-linked-plans h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 10px; }
@@ -5468,6 +5495,7 @@ function newProjectDraft() {
     forSale: false,
     salePrice: '',
     soldAt: '',
+    annotations: [],
   };
 }
 
@@ -5777,6 +5805,149 @@ function renderProjectForm() {
   `;
 }
 
+// ═════════════════════════════ PHOTO ANNOTATIONS ═══════════════════════════
+// Non-destructive: annotations are normalized 0–1 coords stored alongside the photo.
+// SVG overlay renders them in the detail view + the modal editor.
+const ANNOT_COLORS = [
+  { key: 'red',    hex: '#e84545' },
+  { key: 'yellow', hex: '#f0c040' },
+  { key: 'blue',   hex: '#4a9eff' },
+  { key: 'white',  hex: '#f5f5f5' },
+];
+const ANNOT_TOOLS = [
+  { key: 'arrow',  label: '↗ Arrow',  hint: 'Tap the start, then tap where to point.' },
+  { key: 'circle', label: '○ Circle', hint: 'Tap the center, then tap the edge.' },
+  { key: 'text',   label: 'T Text',   hint: 'Tap where to place the label, then type it.' },
+  { key: 'delete', label: '✕ Delete', hint: 'Tap any annotation to remove it.' },
+];
+let annotState = null;
+function _annotColorHex(key) { return (ANNOT_COLORS.find(c => c.key === key) || ANNOT_COLORS[0]).hex; }
+function _annotMarkers() {
+  return `<defs>${ANNOT_COLORS.map(c =>
+    `<marker id="annot-arrow-${c.key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="${c.hex}"/></marker>`
+  ).join('')}</defs>`;
+}
+function _annotItemSvg(a, idx, deletable) {
+  const c = _annotColorHex(a.color);
+  const pe = deletable ? 'pointer-events:auto;cursor:pointer' : 'pointer-events:none';
+  const click = deletable ? `onclick="_annotDeleteByIdx(${idx}, event)"` : '';
+  if (a.kind === 'arrow') {
+    return `<line x1="${(a.x1*100).toFixed(2)}" y1="${(a.y1*100).toFixed(2)}" x2="${(a.x2*100).toFixed(2)}" y2="${(a.y2*100).toFixed(2)}" stroke="${c}" stroke-width="0.9" stroke-linecap="round" marker-end="url(#annot-arrow-${a.color})" style="${pe}" ${click}/>`;
+  }
+  if (a.kind === 'circle') {
+    return `<ellipse cx="${(a.cx*100).toFixed(2)}" cy="${(a.cy*100).toFixed(2)}" rx="${(a.r*100).toFixed(2)}" ry="${(a.r*100).toFixed(2)}" fill="none" stroke="${c}" stroke-width="0.9" style="${pe}" ${click}/>`;
+  }
+  if (a.kind === 'text') {
+    return `<text x="${(a.x*100).toFixed(2)}" y="${(a.y*100).toFixed(2)}" fill="${c}" font-size="3.5" font-weight="700" font-family="system-ui, sans-serif" stroke="rgba(0,0,0,0.6)" stroke-width="0.2" paint-order="stroke" style="${pe}" ${click}>${escapeHtml(a.text || '')}</text>`;
+  }
+  return '';
+}
+function annotSvgMarkup(items, deletable) {
+  const inner = (items || []).map((a, i) => _annotItemSvg(a, i, deletable)).join('');
+  return `<svg class="annot-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">${_annotMarkers()}${inner}</svg>`;
+}
+function openAnnotator(projectId) {
+  const p = projects.find(x => x.id === projectId);
+  if (!p || !p.photo) { showToast('Add a photo to the project before annotating.'); return; }
+  annotState = {
+    projectId,
+    items: (p.annotations || []).map(a => ({ ...a })),
+    tool: 'arrow',
+    color: 'red',
+    pending: null,
+  };
+  _renderAnnotator();
+}
+function _renderAnnotator() {
+  let modal = document.getElementById('annot-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'annot-modal';
+    modal.className = 'modal-backdrop';
+    modal.style.zIndex = '500';
+    document.body.appendChild(modal);
+  }
+  const p = projects.find(x => x.id === annotState.projectId);
+  if (!p) { closeAnnotator(false); return; }
+  const tool = annotState.tool;
+  const toolHint = (ANNOT_TOOLS.find(t => t.key === tool) || {}).hint || '';
+  const pendingHint = annotState.pending ? ' • Tap the end point now' : '';
+  const items = annotState.items;
+  let pending = '';
+  if (annotState.pending) {
+    const c = _annotColorHex(annotState.color);
+    pending = `<circle cx="${(annotState.pending.x*100).toFixed(2)}" cy="${(annotState.pending.y*100).toFixed(2)}" r="0.9" fill="${c}"/>`;
+  }
+  const overlay = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" class="tool-${tool}" onclick="_annotClickPhoto(event)">${_annotMarkers()}${items.map((a,i) => _annotItemSvg(a, i, tool === 'delete')).join('')}${pending}</svg>`;
+  modal.innerHTML = `
+    <div class="annot-modal" onclick="event.stopPropagation()">
+      <div>
+        <h3>Annotate · ${escapeHtml(p.title || 'Untitled project')}</h3>
+        <div class="sub">${toolHint}${pendingHint}</div>
+      </div>
+      <div class="annot-stage">
+        <div class="annot-canvas">
+          <img src="${p.photo}" alt="">
+          ${overlay}
+        </div>
+      </div>
+      <div class="annot-toolbar">
+        ${ANNOT_TOOLS.map(t => `<button class="annot-tool${t.key === tool ? ' active' : ''}" onclick="_annotSetTool('${t.key}')">${t.label}</button>`).join('')}
+        <div class="annot-divider"></div>
+        ${ANNOT_COLORS.map(c => `<button class="annot-color${c.key === annotState.color ? ' active' : ''}" style="background:${c.hex}" onclick="_annotSetColor('${c.key}')" title="${c.key}"></button>`).join('')}
+        <span class="annot-hint">${items.length} mark${items.length !== 1 ? 's' : ''}</span>
+        <div class="annot-actions">
+          <button onclick="closeAnnotator(false)">Cancel</button>
+          <button class="primary" onclick="closeAnnotator(true)">Done</button>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.onclick = () => closeAnnotator(false);
+}
+function _annotSetTool(t) { annotState.tool = t; annotState.pending = null; _renderAnnotator(); }
+function _annotSetColor(c) { annotState.color = c; _renderAnnotator(); }
+function _annotClickPhoto(event) {
+  event.stopPropagation();
+  if (annotState.tool === 'delete') return;  // delete is handled by per-item handlers
+  const svg = event.currentTarget;
+  const rect = svg.getBoundingClientRect();
+  const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+  const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+  const tool = annotState.tool, color = annotState.color;
+  if (tool === 'arrow') {
+    if (!annotState.pending) annotState.pending = { x, y };
+    else { annotState.items.push({ kind: 'arrow', color, x1: annotState.pending.x, y1: annotState.pending.y, x2: x, y2: y }); annotState.pending = null; }
+  } else if (tool === 'circle') {
+    if (!annotState.pending) annotState.pending = { x, y };
+    else {
+      const r = Math.max(0.01, Math.hypot(x - annotState.pending.x, y - annotState.pending.y));
+      annotState.items.push({ kind: 'circle', color, cx: annotState.pending.x, cy: annotState.pending.y, r });
+      annotState.pending = null;
+    }
+  } else if (tool === 'text') {
+    const txt = prompt('Label text:');
+    if (txt && txt.trim()) annotState.items.push({ kind: 'text', color, x, y, text: txt.trim().slice(0, 40) });
+  }
+  _renderAnnotator();
+}
+function _annotDeleteByIdx(idx, event) {
+  if (event) event.stopPropagation();
+  if (!annotState || annotState.tool !== 'delete') return;
+  annotState.items.splice(idx, 1);
+  _renderAnnotator();
+}
+function closeAnnotator(commit) {
+  if (commit && annotState) {
+    const p = projects.find(x => x.id === annotState.projectId);
+    if (p) { p.annotations = annotState.items.slice(); saveProjects(); }
+  }
+  annotState = null;
+  const modal = document.getElementById('annot-modal');
+  if (modal) modal.remove();
+  renderProjects();
+}
+
 function renderProjectDetail() {
   const p = projects.find(x => x.id === viewingProjectId);
   if (!p) { projectsView = 'list'; return renderProjectsList(); }
@@ -5816,7 +5987,9 @@ function renderProjectDetail() {
     <div class="proj-detail">
       <div class="proj-detail-grid">
         <div class="proj-detail-photo">
-          ${p.photo ? `<img src="${p.photo}" alt="${escapeHtml(p.title || '')}">` : `<div class="proj-photo" style="aspect-ratio:4/3;border-radius:10px">🪵</div>`}
+          ${p.photo
+            ? `<img src="${p.photo}" alt="${escapeHtml(p.title || '')}">${(p.annotations||[]).length ? annotSvgMarkup(p.annotations, false) : ''}`
+            : `<div class="proj-photo" style="aspect-ratio:4/3;border-radius:10px">🪵</div>`}
         </div>
         <div class="proj-detail-info">
           <h2>${escapeHtml(p.title || '(untitled)')}</h2>
@@ -5825,6 +5998,7 @@ function renderProjectDetail() {
           ${p.description ? `<div class="proj-detail-row"><span class="lbl">Notes</span><span class="val">${p.description.replace(/\n/g, '<br>')}</span></div>` : ''}
           <div class="proj-detail-actions">
             <button class="proj-add-btn" onclick="editProject(${p.id})">Edit</button>
+            ${p.photo ? `<button class="proj-add-btn" onclick="openAnnotator(${p.id})">✏ Annotate</button>` : ''}
             <button class="proj-delete-btn" onclick="deleteProject(${p.id})">Delete</button>
           </div>
         </div>

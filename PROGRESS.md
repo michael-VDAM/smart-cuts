@@ -145,16 +145,16 @@ Twenty-six commits in one session. Major themes:
 - **Strip count input bug fixed** — deleting the "4" in "# of Strips" used to instantly reset to "1" because oninput committed on every keystroke and refreshStripList re-wrote the input value mid-edit. Now uses `onchange` (commits on blur/Enter only), with a focus-aware writeback + onblur fallback. Can now clear and retype any number without the field fighting you.
 - **Haptic removed entirely** — iOS Safari permanently blocks `navigator.vibrate()`, so the toggle + 7 vibration sites were dead weight on Michael's PWA. Cleaner without it. Restorable from git if Android users ever matter.
 - **Three new end-grain patterns** (queue item #2 done): **Chevron** (mirrored V-point stripes — like herringbone but V tips align cleanly), **Basketweave** (2×2 mega-blocks with alternating grain orientation — horizontal-line cells vs end-grain-dot cells), **Diagonal** (45° bands of alternating species). Each has its own thumbnail in the picker, color logic in `tileColorFor`, build-step description in Phase 2 glue-up, and (for chevron + basket) special grain-line rendering in `svgFinishedBoard`. Picker now shows 10 patterns total.
+- **Photo annotation on Projects** (queue item #3 done). Non-destructive — annotations are stored as normalized 0–1 coords on the project record, rendered as a SVG overlay on top of the photo. Four tools: **↗ Arrow** (tap start, tap end), **○ Circle** (tap center, tap edge), **T Text** (tap → prompt), **✕ Delete** (tap any annotation to remove). Four colors: red / yellow / blue / white. Editor is a full-screen modal (95vw × 95vh) reachable via an **✏ Annotate** button on the project detail page (only shown when the project has a photo). Cancel discards edits; Done commits. The detail view shows the saved annotations as an inline SVG overlay over the photo. Storage cost is tiny — a few floats per annotation, no canvas re-rasterizing.
 
 ## Queue for next session (in priority order)
 
 1. **Academy lessons → quizzes curriculum** — Michael will write content, I scaffold. Beginner → Apprentice → Journeyman → Master tracks. Each lesson = text + diagrams → quiz at the end. Progressive unlock.
-2. **Photo annotation on Projects** — canvas drawing on uploaded build photos: arrows, circles, text labels. Turns Projects into a learning journal.
-3. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
-4. **Wood movement calculator** — given species + width + seasonal humidity range, predict expansion in inches/mm. Pairs with Wood Library.
-5. **Global search (⌘K)** — one bar searches plans, projects, species, supplies.
-6. **Hardware database** — fasteners, glues, finishes with prices. Pairs with Lumber Prices for true total cost.
-7. **Fill out remaining ~40 species** with tree+region data (currently 18/58 covered).
+2. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
+3. **Wood movement calculator** — given species + width + seasonal humidity range, predict expansion in inches/mm. Pairs with Wood Library.
+4. **Global search (⌘K)** — one bar searches plans, projects, species, supplies.
+5. **Hardware database** — fasteners, glues, finishes with prices. Pairs with Lumber Prices for true total cost.
+6. **Fill out remaining ~40 species** with tree+region data (currently 18/58 covered).
 
 ## Voice + haptic features explicitly OFF the table (per Michael)
 - No "Hey Sparky" voice commands. No Web Speech API. He didn't want them.
