@@ -308,6 +308,43 @@
     .proj-empty .icon { font-size: 56px; opacity: 0.4; margin-bottom: 16px; }
     .proj-empty p { font-size: 14px; line-height: 1.6; max-width: 480px; margin: 0 auto; }
 
+    /* CALCULATOR TAB — woodworking fraction math */
+    .calc-col { padding: 28px 36px 60px; max-width: 540px; margin: 0 auto; width: 100%; }
+    .calc-header { margin-bottom: 16px; }
+    .calc-header h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; display: flex; align-items: center; }
+    .calc-header p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .calc-screen { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px 22px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .calc-expr { font-size: 14px; color: var(--muted); min-height: 22px; text-align: right; font-variant-numeric: tabular-nums; letter-spacing: 0.4px; word-break: break-word; }
+    .calc-expr .op { color: var(--accent); font-weight: 700; padding: 0 6px; }
+    .calc-result { font-size: 44px; font-weight: 800; color: var(--accent); text-align: right; line-height: 1.05; font-variant-numeric: tabular-nums; margin-top: 6px; letter-spacing: -0.5px; word-break: break-word; min-height: 50px; }
+    .calc-result.placeholder { color: var(--muted2); }
+    .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .calc-key { padding: 16px 0; background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; color: var(--text); font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.1s; -webkit-tap-highlight-color: transparent; }
+    .calc-key:hover { border-color: var(--border2); background: var(--panel3); }
+    .calc-key:active { transform: scale(0.96); }
+    .calc-key.op { color: var(--accent); }
+    .calc-key.op.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+    .calc-key.eq { background: var(--accent); color: #1a1a1a; border-color: var(--accent); grid-column: span 2; font-size: 22px; }
+    .calc-key.eq:hover { opacity: 0.9; }
+    .calc-key.util { color: var(--muted); font-size: 16px; }
+    .calc-key.util:hover { color: var(--text); }
+    .calc-key.value { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); grid-column: span 4; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; padding: 14px 0; }
+    .calc-key.value:hover { background: var(--accent); color: #1a1a1a; }
+    .calc-history { margin-top: 22px; }
+    .calc-history h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .calc-history .clear { background: none; border: none; color: var(--muted); font-size: 11px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+    .calc-history .clear:hover { color: var(--danger); }
+    .calc-history-list { display: flex; flex-direction: column; gap: 6px; }
+    .calc-history-row { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; transition: border-color 0.12s; }
+    .calc-history-row:hover { border-color: var(--accent); }
+    .calc-history-row .expr { font-variant-numeric: tabular-nums; }
+    .calc-history-row .result { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+    @media (max-width: 820px) {
+      .calc-col { padding: 18px 14px 40px; }
+      .calc-result { font-size: 38px; }
+      .calc-key { padding: 14px 0; font-size: 17px; }
+    }
+
     /* LUMBER PRICES TAB */
     .prices-col { padding: 28px 36px; max-width: 1000px; margin: 0 auto; width: 100%; }
     .prices-header { margin-bottom: 18px; }
@@ -928,6 +965,7 @@
     <button class="tab" data-tab="academy">Academy</button>
     <button class="tab" data-tab="shop">My Shop</button>
     <button class="tab" data-tab="prices">Lumber Prices</button>
+    <button class="tab" data-tab="calc">Calculator</button>
   </div>
   <div class="header-spacer"></div>
   <div class="header-tools">
@@ -952,7 +990,7 @@
 
     <div class="home-section">
       <div class="home-section-title">Design</div>
-      <div class="home-tile-grid cols-3">
+      <div class="home-tile-grid">
         <button class="home-tile" data-tile-tab="board">
           <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
           <h3>Cutting Board</h3>
@@ -966,10 +1004,16 @@
           <span class="home-tile-cta">Open furniture →</span>
         </button>
         <button class="home-tile" data-tile-tab="optimizer">
-          <div class="home-tile-icon"><img src="sparky/calculator.png" alt=""></div>
+          <div class="home-tile-icon"><img src="sparky/measuring-tools.png" alt=""></div>
           <h3>Optimizer</h3>
           <p>Bin-pack pieces onto stock lumber or sheet goods. Kerf-aware, material-aware.</p>
           <span class="home-tile-cta">Open optimizer →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="calc">
+          <div class="home-tile-icon"><img src="sparky/calculator.png" alt=""></div>
+          <h3>Calculator</h3>
+          <p>Add, subtract, multiply, divide wood-fraction measurements. Snap to 1/16".</p>
+          <span class="home-tile-cta">Open calculator →</span>
         </button>
       </div>
     </div>
@@ -1392,6 +1436,13 @@
   </div>
   <div class="output-col" id="optimizer-output">
     <div class="empty-state"><div class="icon">&#9634;</div><p>Add stock and pieces, or send from Furniture tab.</p></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ TAB: CALCULATOR ══════════════════════════════ -->
+<div id="tab-calc" style="display:none" class="workspace single-col">
+  <div class="output-col calc-col">
+    <div id="calc-content"></div>
   </div>
 </div>
 
@@ -2270,7 +2321,7 @@ function fromInches(inches) {
   return Math.round(inches * 16) / 16;
 }
 function unitLabel() { return unitSystem === 'metric' ? 'mm' : 'in'; }
-function unitStep() { return unitSystem === 'metric' ? 1 : 0.125; }
+function unitStep() { return unitSystem === 'metric' ? 1 : 0.0625; }
 function unitMin() { return unitSystem === 'metric' ? 1 : 0.0625; }
 
 function toggleUnitSystem() {
@@ -2315,6 +2366,20 @@ function updateUnitsMenuLabel() {
 // Tap any input.measure-input to open this bottom-sheet drum wheel.
 // Two columns: whole + fraction (imperial) or cm + mm (metric). Scroll-snap.
 function _range(start, end) { const a = []; for (let i = start; i < end; i++) a.push(i); return a; }
+// Pretty label for a 1/16th-eighth-quarter-half fraction (0..15).
+function _frac16Label(n) {
+  if (n === 0) return '0';
+  if (n === 8) return '½';
+  if (n === 4) return '¼';
+  if (n === 12) return '¾';
+  if (n === 2) return '⅛';
+  if (n === 6) return '⅜';
+  if (n === 10) return '⅝';
+  if (n === 14) return '⅞';
+  // 16ths
+  const odd = ['', '¹⁄₁₆','', '³⁄₁₆','', '⁵⁄₁₆','', '⁷⁄₁₆','', '⁹⁄₁₆','', '¹¹⁄₁₆','', '¹³⁄₁₆','', '¹⁵⁄₁₆'];
+  return odd[n] || `${n}/16`;
+}
 function _drumLabelFor(input) {
   // Use explicit data attribute first; fall back to the field's <label>.
   if (input.dataset.measureLabel) return input.dataset.measureLabel;
@@ -2346,11 +2411,12 @@ function openDrumPicker(input) {
     toInchesFn = (c, m) => (c * 10 + m) / MM_PER_INCH;
   } else {
     let whole = Math.floor(inches);
-    let fracIdx = Math.round((inches - whole) * 8);
-    if (fracIdx >= 8) { whole += 1; fracIdx = 0; }
+    let fracIdx = Math.round((inches - whole) * 16);
+    if (fracIdx >= 16) { whole += 1; fracIdx = 0; }
     whole = Math.max(0, Math.min(max, whole));
-    const fracs = [0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8];
-    const fracLabels = ['0', '⅛', '¼', '⅜', '½', '⅝', '¾', '⅞'];
+    const fracs = []; const fracLabels = [];
+    // 0, 1/16, 1/8, 3/16, 1/4, 5/16, 3/8, 7/16, 1/2, 9/16, 5/8, 11/16, 3/4, 13/16, 7/8, 15/16
+    for (let n = 0; n < 16; n++) { fracs.push(n / 16); fracLabels.push(_frac16Label(n)); }
     cols = [
       { values: _range(0, max + 1), valueLabels: null, start: whole, unit: 'in' },
       { values: fracs, valueLabels: fracLabels, start: fracIdx, unit: '' },
@@ -3965,6 +4031,185 @@ function runOptimizer() {
     html += `<div class="step-card"><div class="step-header"><div><div class="step-title">${board.stockRef.name}</div><div class="step-desc">${bw}" × ${bh}" · ${waste}% waste</div></div></div><div class="step-body"><div class="diagram">${svg}</div></div></div>`;
   });
   document.getElementById('optimizer-output').innerHTML = html;
+}
+
+// ═════════════════════════════ CALCULATOR ═════════════════════════════════
+// Woodworking fraction math: 2 1/16" - 3/32", etc. Internal state is always
+// inches; results are formatted back to exact fractions (lowest denominator
+// that's a power of 2 up to 64ths). Honors the unit system.
+let calcA = null;        // first operand (inches), null when nothing entered
+let calcOp = null;       // '+', '-', '*', '/', null
+let calcB = null;        // second operand (inches), null until set
+let calcResult = null;   // last computed result (inches)
+let calcJustComputed = false;
+let calcHistory = [];
+
+function calcReset() {
+  calcA = null; calcOp = null; calcB = null; calcResult = null; calcJustComputed = false;
+  renderCalc();
+}
+function calcClearHistory() {
+  if (!calcHistory.length) return;
+  if (!confirm('Clear all calculator history?')) return;
+  calcHistory = [];
+  renderCalc();
+}
+function calcBackspace() {
+  if (calcB !== null) calcB = null;
+  else if (calcOp !== null) calcOp = null;
+  else if (calcA !== null) calcA = null;
+  calcJustComputed = false;
+  renderCalc();
+}
+function calcOperator(op) {
+  // If we just computed, continue from result
+  if (calcJustComputed && calcResult !== null) { calcA = calcResult; calcResult = null; calcJustComputed = false; }
+  // If user is chaining (A + B then taps another op), compute first
+  if (calcA !== null && calcOp !== null && calcB !== null) {
+    const r = calcCompute(calcA, calcOp, calcB);
+    if (r !== null) {
+      calcHistory.unshift({ a: calcA, op: calcOp, b: calcB, result: r });
+      if (calcHistory.length > 12) calcHistory.length = 12;
+      calcA = r; calcB = null;
+    }
+  }
+  if (calcA === null) return;  // no operand to operate on
+  calcOp = op;
+  renderCalc();
+}
+function calcEquals() {
+  if (calcA === null || calcOp === null || calcB === null) return;
+  const r = calcCompute(calcA, calcOp, calcB);
+  if (r === null) return;
+  calcHistory.unshift({ a: calcA, op: calcOp, b: calcB, result: r });
+  if (calcHistory.length > 12) calcHistory.length = 12;
+  calcResult = r;
+  calcJustComputed = true;
+  calcA = r; calcB = null; calcOp = null;
+  renderCalc();
+}
+function calcCompute(a, op, b) {
+  if (op === '+') return a + b;
+  if (op === '-') return a - b;
+  if (op === '*') return a * b;
+  if (op === '/') { if (Math.abs(b) < 1e-9) { alert("Can't divide by zero."); return null; } return a / b; }
+  return null;
+}
+function calcSetOperand(inches) {
+  // If we just computed, a fresh operand starts a new calculation
+  if (calcJustComputed) { calcA = inches; calcOp = null; calcB = null; calcResult = null; calcJustComputed = false; }
+  else if (calcA === null) calcA = inches;
+  else if (calcOp !== null) calcB = inches;
+  else calcA = inches;  // overwrite if no op chosen
+  renderCalc();
+}
+function calcRecall(entry) {
+  // Tap a history row to load its result as the next starting value
+  calcA = entry.result; calcOp = null; calcB = null; calcResult = entry.result;
+  calcJustComputed = true;
+  renderCalc();
+}
+function calcOpenPicker() {
+  // Use the existing drum picker by creating a virtual input
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.value = fromInches(calcB !== null ? calcB : (calcOp !== null ? 0 : (calcA !== null ? calcA : 0)));
+  inp.dataset.measureLabel = calcOp !== null ? 'Second value' : 'Value';
+  inp.addEventListener('change', () => {
+    const inches = toInches(inp.value);
+    calcSetOperand(inches);
+  });
+  openDrumPicker(inp);
+}
+
+// Format a number of inches as a wood fraction (e.g. "2 5/32\""). Metric uses mm.
+function formatCalc(inches) {
+  if (inches === null || inches === undefined || !isFinite(inches)) return '—';
+  if (unitSystem === 'metric') {
+    const mm = Math.round(inches * MM_PER_INCH * 10) / 10;
+    return mm + ' mm';
+  }
+  if (Math.abs(inches) < 1e-9) return '0"';
+  return _formatInchFrac(inches);
+}
+function _formatInchFrac(n) {
+  const sign = n < 0 ? '−' : '';
+  const x = Math.abs(n);
+  const whole = Math.floor(x);
+  const remain = x - whole;
+  if (remain < 1e-9) return sign + whole + '"';
+  // Find best 2^k denominator (≤64) approximation
+  let bestN = 0, bestD = 1, bestErr = Infinity;
+  for (const d of [2, 4, 8, 16, 32, 64]) {
+    const num = Math.round(remain * d);
+    const approx = num / d;
+    const err = Math.abs(remain - approx);
+    if (err < bestErr - 1e-10) { bestErr = err; bestN = num; bestD = d; }
+  }
+  // Reduce to lowest terms
+  function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+  const g = gcd(bestN, bestD);
+  bestN /= g; bestD /= g;
+  if (bestN === 0) return sign + whole + '"';
+  if (whole === 0) return sign + bestN + '/' + bestD + '"';
+  return sign + whole + ' ' + bestN + '/' + bestD + '"';
+}
+
+function renderCalc() {
+  const el = document.getElementById('calc-content');
+  if (!el) return;
+  // Build expression string
+  const opSym = { '+': '+', '-': '−', '*': '×', '/': '÷' };
+  let expr = '';
+  if (calcJustComputed && calcHistory.length) {
+    // Show the original operands that produced the result, not the result itself.
+    const last = calcHistory[0];
+    expr = `${formatCalc(last.a)} <span class="op">${opSym[last.op]}</span> ${formatCalc(last.b)} <span class="op">=</span>`;
+  } else {
+    if (calcA !== null) expr += formatCalc(calcA);
+    if (calcOp !== null) expr += ` <span class="op">${opSym[calcOp]}</span> `;
+    if (calcB !== null) expr += formatCalc(calcB);
+  }
+  // Result line: shows what the user will see — current operand if entering, or result
+  let resultLine;
+  if (calcJustComputed) resultLine = formatCalc(calcResult);
+  else if (calcB !== null) resultLine = formatCalc(calcB);
+  else if (calcOp !== null) resultLine = '—';
+  else if (calcA !== null) resultLine = formatCalc(calcA);
+  else resultLine = '—';
+  const placeholder = (calcA === null && calcB === null) ? ' placeholder' : '';
+
+  const historyHtml = calcHistory.length
+    ? calcHistory.map(h => `<button class="calc-history-row" onclick='calcRecall(${JSON.stringify(h)})'>
+        <span class="expr">${formatCalc(h.a)} ${opSym[h.op]} ${formatCalc(h.b)}</span>
+        <span class="result">= ${formatCalc(h.result)}</span>
+      </button>`).join('')
+    : `<p style="color:var(--muted2);font-size:12px;text-align:center;padding:16px 8px">No calculations yet.</p>`;
+
+  el.innerHTML = `
+    <div class="calc-header">
+      <h2><img src="sparky/calculator.png" class="tab-hero-icon" alt="">Calculator</h2>
+      <p>Add, subtract, multiply, divide wood-fraction measurements. Tap <strong>Enter value</strong> to scroll a fractional inch (or metric mm), then chain operations.</p>
+    </div>
+    <div class="calc-screen">
+      <div class="calc-expr">${expr || '&nbsp;'}</div>
+      <div class="calc-result${placeholder}">${resultLine}</div>
+    </div>
+    <div class="calc-keys">
+      <button class="calc-key value" onclick="calcOpenPicker()">🎡 Enter value</button>
+      <button class="calc-key util" onclick="calcReset()">C</button>
+      <button class="calc-key util" onclick="calcBackspace()">⌫</button>
+      <button class="calc-key op${calcOp === '/' ? ' active' : ''}" onclick="calcOperator('/')">÷</button>
+      <button class="calc-key op${calcOp === '*' ? ' active' : ''}" onclick="calcOperator('*')">×</button>
+      <button class="calc-key op${calcOp === '-' ? ' active' : ''}" onclick="calcOperator('-')">−</button>
+      <button class="calc-key op${calcOp === '+' ? ' active' : ''}" onclick="calcOperator('+')">+</button>
+      <button class="calc-key eq" onclick="calcEquals()">=</button>
+    </div>
+    <div class="calc-history">
+      <h3>History ${calcHistory.length ? `<button class="clear" onclick="calcClearHistory()">Clear</button>` : ''}</h3>
+      <div class="calc-history-list">${historyHtml}</div>
+    </div>
+  `;
 }
 
 // ═════════════════════════════ LUMBER PRICES ══════════════════════════════
@@ -5896,6 +6141,7 @@ function init() {
   loadPlans();
   renderPlans();
   renderLumberPrices();
+  renderCalc();
   loadAcademyScores();
   runPlanner();
   runFurniture();
