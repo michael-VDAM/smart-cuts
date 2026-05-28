@@ -3452,6 +3452,22 @@ function refreshStripList() {
   renderVarList();
   const list = document.getElementById('strip-list');
   if (!list) return;
+  // Preserve focus + cursor position across the innerHTML rewrite. Without this,
+  // every keystroke in a formula input would clobber the DOM element and reset
+  // focus — the user could only type 1 character at a time.
+  const ae = document.activeElement;
+  let focusInfo = null;
+  if (ae && ae.classList && ae.classList.contains('formula-input')) {
+    const row = ae.closest('.strip-row');
+    if (row && row.parentElement === list) {
+      focusInfo = {
+        idx: Array.from(list.children).indexOf(row),
+        start: ae.selectionStart,
+        end: ae.selectionEnd,
+        value: ae.value,
+      };
+    }
+  }
   list.innerHTML = stripPattern.map((s, i) => {
     const linked = stripLinkCount(i) > 1;
     const linkHint = linked ? `<span class="strip-link-pill" title="${stripLinkCount(i)} strips share this formula — they update together">⛓ ×${stripLinkCount(i)}</span>` : '';
@@ -3469,6 +3485,17 @@ function refreshStripList() {
     </div>
   `;
   }).join('');
+  if (focusInfo && focusInfo.idx >= 0 && focusInfo.idx < list.children.length) {
+    const newInput = list.children[focusInfo.idx].querySelector('.formula-input');
+    if (newInput) {
+      // Just restore focus + cursor. The new input's value comes from the saved
+      // formula in the model, which is the source of truth — overriding it here
+      // would clobber programmatic updates (presets, var changes) that ran while
+      // the user happened to have a different formula input focused.
+      newInput.focus();
+      try { newInput.setSelectionRange(focusInfo.start, focusInfo.end); } catch {}
+    }
+  }
   const countEl = document.getElementById('stripCount');
   if (countEl && document.activeElement !== countEl) countEl.value = stripPattern.length;
   updateStripTotal();
@@ -4223,6 +4250,10 @@ function renderFaceGrain(p) {
   let html = `<div class="finished-preview">
     <div class="preview-title"><h2>Finished Board Preview</h2><span class="dims">${dim(p.finalL)} × ${dim(p.panelW)} × ${dim(p.finalT)} · face grain · ${p.species.map(s => s.name).join(' + ')}</span></div>
     <div class="preview-svg-wrap">${svgFinishedFaceGrain(p)}</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="save-plan-btn" onclick="savePlanFromBoard()">+ Save Plan</button>
+      <button class="save-plan-btn" onclick="window.print()" style="background:none">🖨 Print cut sheet</button>
+    </div>
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
   const bufPct = Math.round(p.bufferPct * 100);
