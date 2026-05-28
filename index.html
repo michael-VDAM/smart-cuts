@@ -3560,15 +3560,15 @@ function openAssignModal(planId) {
   }
   const projectList = projects.length
     ? projects.map(p => `<button class="project-pick" onclick="assignPlanToProject(${JSON.stringify(p.id)})">
-        <span class="ttl">${p.title || '(untitled project)'}</span>
-        <span class="date">${p.date || ''}</span>
+        <span class="ttl">${escapeHtml(p.title || '(untitled project)')}</span>
+        <span class="date">${escapeHtml(p.date || '')}</span>
       </button>`).join('')
     : `<p style="color:var(--muted);font-size:12px;text-align:center;padding:18px 8px">No projects yet. Create one first.</p>`;
   backdrop.innerHTML = `
     <div class="modal-card" role="dialog" aria-label="Assign plan to project">
       <h3>Assign plan to a project</h3>
       <div class="sub">Pick the project this plan was built for. It'll move from Unassigned into that project's page.</div>
-      <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:10px">${plan.title}</div>
+      <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:10px">${escapeHtml(plan.title)}</div>
       <div class="project-pick-list">${projectList}</div>
       <div class="actions">
         <button onclick="closeAssignModal()">Cancel</button>
@@ -3943,9 +3943,9 @@ function renderProjectsList() {
   } else {
     html += `<div class="proj-grid">${projects.map(p => `
       <div class="proj-card" onclick="viewProject(${p.id})">
-        <div class="proj-photo">${p.photo ? `<img src="${p.photo}" alt="${p.title}">` : '🪵'}</div>
+        <div class="proj-photo">${p.photo ? `<img src="${p.photo}" alt="${escapeHtml(p.title || '')}">` : '🪵'}</div>
         <div class="proj-body">
-          <div class="proj-title">${p.title || '(untitled)'}</div>
+          <div class="proj-title">${escapeHtml(p.title || '(untitled)')}</div>
           <div class="proj-meta">
             <span>${p.date || ''}</span>
             ${p.species && p.species.length ? `<span class="dot-row">${p.species.slice(0, 6).map(s => `<span class="d" style="background:${s.color}"></span>`).join('')}</span>` : ''}
@@ -3999,7 +3999,7 @@ function renderProjectForm() {
 
       <div class="proj-form-row">
         <label class="lbl">Title <span class="req">*</span></label>
-        <input type="text" id="pf-title" value="${d.title}" placeholder="e.g. Walnut + Maple Cutting Board" oninput="editingDraft.title=this.value">
+        <input type="text" id="pf-title" value="${escapeHtml(d.title)}" placeholder="e.g. Walnut + Maple Cutting Board" oninput="editingDraft.title=this.value">
       </div>
 
       <div class="proj-form-grid cols2">
@@ -4129,10 +4129,10 @@ function renderProjectDetail() {
     <div class="proj-detail">
       <div class="proj-detail-grid">
         <div class="proj-detail-photo">
-          ${p.photo ? `<img src="${p.photo}" alt="${p.title}">` : `<div class="proj-photo" style="aspect-ratio:4/3;border-radius:10px">🪵</div>`}
+          ${p.photo ? `<img src="${p.photo}" alt="${escapeHtml(p.title || '')}">` : `<div class="proj-photo" style="aspect-ratio:4/3;border-radius:10px">🪵</div>`}
         </div>
         <div class="proj-detail-info">
-          <h2>${p.title || '(untitled)'}</h2>
+          <h2>${escapeHtml(p.title || '(untitled)')}</h2>
           <div class="proj-detail-date">${p.date || ''}</div>
           ${rows.map(([lbl, val]) => `<div class="proj-detail-row"><span class="lbl">${lbl}</span><span class="val">${val || '—'}</span></div>`).join('')}
           ${p.description ? `<div class="proj-detail-row"><span class="lbl">Notes</span><span class="val">${p.description.replace(/\n/g, '<br>')}</span></div>` : ''}
