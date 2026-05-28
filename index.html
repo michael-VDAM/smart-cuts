@@ -396,6 +396,77 @@
     .toast { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: var(--accent); color: #1a1a1a; padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); cursor: pointer; z-index: 250; opacity: 0; transition: opacity 0.2s ease; max-width: calc(100vw - 32px); text-align: center; }
     .toast.show { opacity: 1; }
 
+    /* Measurement inputs that open the drum picker on tap. Visually identical to
+       a regular input but with cursor:pointer to signal interactivity. */
+    input.measure-input { cursor: pointer; caret-color: transparent; }
+    input.measure-input::selection { background: transparent; }
+
+    /* DRUM PICKER — iOS-style bottom sheet with scroll-snap wheels */
+    .drum-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 300;
+      display: flex; align-items: flex-end; justify-content: center;
+      animation: drum-fade 0.16s ease-out;
+    }
+    @keyframes drum-fade { from { opacity: 0; } to { opacity: 1; } }
+    .drum-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      padding: 6px 16px calc(16px + env(safe-area-inset-bottom));
+      animation: drum-slide 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+      box-shadow: 0 -10px 36px rgba(0,0,0,0.42);
+    }
+    @keyframes drum-slide { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .drum-handle { width: 38px; height: 4px; background: var(--border2); border-radius: 2px; margin: 6px auto 10px; opacity: 0.6; }
+    .drum-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .drum-header .drum-label { font-size: 14px; font-weight: 800; letter-spacing: 0.2px; color: var(--text); }
+    .drum-header button { border: none; background: none; font-size: 14px; font-weight: 700; padding: 8px 10px; border-radius: 8px; cursor: pointer; letter-spacing: 0.2px; }
+    .drum-header .drum-cancel { color: var(--muted); }
+    .drum-header .drum-cancel:hover { color: var(--text); }
+    .drum-header .drum-done { color: var(--accent); }
+    .drum-header .drum-done:active { background: var(--accent-soft); }
+    .drum-current { text-align: center; font-size: 30px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 4px 0 12px; letter-spacing: 0.5px; line-height: 1; }
+    .drum-cylinders {
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      height: 232px;
+      position: relative;
+      background: var(--panel2);
+      border-radius: 14px;
+      padding: 0 14px;
+      overflow: hidden;
+    }
+    /* Two horizontal lines marking the selected row (centered in the drum) */
+    .drum-cylinders::before, .drum-cylinders::after {
+      content: '';
+      position: absolute; left: 10px; right: 10px;
+      height: 0; border-top: 1px solid var(--accent);
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    .drum-cylinders::before { top: 92px; }
+    .drum-cylinders::after { top: 140px; }
+    .drum-col {
+      flex: 0 1 84px;
+      height: 232px;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      -webkit-overflow-scrolling: touch;
+      mask-image: linear-gradient(to bottom, transparent 0, #000 24%, #000 76%, transparent 100%);
+    }
+    .drum-col::-webkit-scrollbar { display: none; }
+    .drum-track { padding: 92px 0; } /* lets first/last items reach centerline */
+    .drum-item { height: 48px; line-height: 48px; scroll-snap-align: center; font-size: 20px; color: var(--muted2); font-weight: 500; transition: color 0.12s; }
+    .drum-item.selected { color: var(--text); font-weight: 800; font-size: 26px; }
+    .drum-unit { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 0 4px; }
+    .drum-sep { font-size: 18px; color: var(--muted2); font-weight: 700; padding: 0 2px; }
+
     /* Project form */
     .proj-form { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 26px 28px; margin-bottom: 22px; }
     .proj-form h3 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
@@ -2211,6 +2282,144 @@ function updateUnitsMenuLabel() {
   if (btn) btn.textContent = (unitSystem === 'metric' ? '⇄ Metric (mm)' : '⇄ Imperial (in)');
 }
 
+// ═════════════════════════════ DRUM PICKER ════════════════════════════════
+// Tap any input.measure-input to open this bottom-sheet drum wheel.
+// Two columns: whole + fraction (imperial) or cm + mm (metric). Scroll-snap.
+function _range(start, end) { const a = []; for (let i = start; i < end; i++) a.push(i); return a; }
+function _drumLabelFor(input) {
+  // Use explicit data attribute first; fall back to the field's <label>.
+  if (input.dataset.measureLabel) return input.dataset.measureLabel;
+  const field = input.closest('.field');
+  const lab = field && field.querySelector('label');
+  if (lab) return lab.textContent.trim();
+  return input.placeholder || 'Value';
+}
+function _drumApplyValue(input, inches) {
+  input.value = fromInches(inches);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function openDrumPicker(input) {
+  if (!input) return;
+  const label = _drumLabelFor(input);
+  const inches = toInches(input.value);
+  const max = parseFloat(input.dataset.max || (unitSystem === 'metric' ? 5000 : 200));
+
+  let cols, toInchesFn;
+  if (unitSystem === 'metric') {
+    const totalMm = Math.max(0, Math.min(max, Math.round(inches * MM_PER_INCH)));
+    const cm = Math.floor(totalMm / 10);
+    const mm = totalMm % 10;
+    cols = [
+      { values: _range(0, Math.ceil(max / 10) + 1), valueLabels: null, start: cm, unit: 'cm' },
+      { values: _range(0, 10), valueLabels: null, start: mm, unit: 'mm' },
+    ];
+    toInchesFn = (c, m) => (c * 10 + m) / MM_PER_INCH;
+  } else {
+    let whole = Math.floor(inches);
+    let fracIdx = Math.round((inches - whole) * 8);
+    if (fracIdx >= 8) { whole += 1; fracIdx = 0; }
+    whole = Math.max(0, Math.min(max, whole));
+    const fracs = [0, 1/8, 2/8, 3/8, 4/8, 5/8, 6/8, 7/8];
+    const fracLabels = ['0', '⅛', '¼', '⅜', '½', '⅝', '¾', '⅞'];
+    cols = [
+      { values: _range(0, max + 1), valueLabels: null, start: whole, unit: 'in' },
+      { values: fracs, valueLabels: fracLabels, start: fracIdx, unit: '' },
+    ];
+    toInchesFn = (w, f) => w + f;
+  }
+
+  _renderDrumSheet({ label, cols, toInchesFn, sourceInput: input });
+}
+function _renderDrumSheet({ label, cols, toInchesFn, sourceInput }) {
+  closeDrumPicker();
+  const overlay = document.createElement('div');
+  overlay.className = 'drum-overlay';
+  overlay.id = 'drum-overlay';
+
+  const colsHtml = cols.map((c, i) => {
+    const items = c.values.map((val, vi) => {
+      const lbl = (c.valueLabels && c.valueLabels[vi]) || String(val);
+      return `<div class="drum-item" data-idx="${vi}">${lbl}</div>`;
+    }).join('');
+    const unit = c.unit ? `<div class="drum-unit">${c.unit}</div>` : '';
+    const sep = (i > 0 && cols[i - 1].unit && c.unit) ? '<div class="drum-sep">+</div>' : '';
+    return sep + `<div class="drum-col" data-col="${i}"><div class="drum-track">${items}</div></div>` + unit;
+  }).join('');
+
+  overlay.innerHTML = `
+    <div class="drum-sheet" role="dialog" aria-label="Pick value">
+      <div class="drum-handle"></div>
+      <div class="drum-header">
+        <button class="drum-cancel" onclick="closeDrumPicker()">Cancel</button>
+        <span class="drum-label">${escapeHtml(label)}</span>
+        <button class="drum-done" id="drum-done-btn">Done</button>
+      </div>
+      <div class="drum-current" id="drum-current">—</div>
+      <div class="drum-cylinders">${colsHtml}</div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeDrumPicker(); });
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+
+  const ITEM_H = 48;
+  const colEls = overlay.querySelectorAll('.drum-col');
+  const selected = cols.map(c => c.start || 0);
+
+  function updateCurrent() {
+    const args = cols.map((c, i) => c.values[selected[i]]);
+    const inches = toInchesFn(...args);
+    const el = document.getElementById('drum-current');
+    if (el) el.textContent = dim(inches);
+  }
+  function markSelected(colEl, i, idx) {
+    colEl.querySelectorAll('.drum-item').forEach((it, j) => it.classList.toggle('selected', j === idx));
+    selected[i] = idx;
+    updateCurrent();
+  }
+
+  colEls.forEach((colEl, i) => {
+    // Initial scroll position
+    requestAnimationFrame(() => { colEl.scrollTop = (cols[i].start || 0) * ITEM_H; });
+    markSelected(colEl, i, cols[i].start || 0);
+
+    let scrollTimer;
+    colEl.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const idx = Math.round(colEl.scrollTop / ITEM_H);
+        const clamped = Math.max(0, Math.min(cols[i].values.length - 1, idx));
+        markSelected(colEl, i, clamped);
+        // Snap exactly
+        if (Math.abs(colEl.scrollTop - clamped * ITEM_H) > 0.5) colEl.scrollTo({ top: clamped * ITEM_H, behavior: 'smooth' });
+      }, 90);
+    });
+  });
+
+  document.getElementById('drum-done-btn').onclick = () => {
+    const args = cols.map((c, i) => c.values[selected[i]]);
+    const inches = toInchesFn(...args);
+    _drumApplyValue(sourceInput, inches);
+    closeDrumPicker();
+  };
+}
+function closeDrumPicker() {
+  const o = document.getElementById('drum-overlay');
+  if (o) o.remove();
+  document.body.style.overflow = '';
+}
+// Open drum on any click of a .measure-input
+document.addEventListener('click', e => {
+  const inp = e.target.closest('input.measure-input');
+  if (!inp) return;
+  e.preventDefault();
+  inp.blur();
+  openDrumPicker(inp);
+});
+// ESC closes
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrumPicker(); });
+
 // ═════════════════════════════ HELPERS ════════════════════════════════════
 // v() returns the value of a measurement input AS INCHES (converting from the current display unit).
 const v = id => { const el = document.getElementById(id); if (!el) return 0; return toInches(el.value); };
@@ -2485,7 +2694,7 @@ function refreshStripList() {
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
         ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${sp.name}</option>`).join('')}
       </select>
-      <input type="number" value="${fromInches(s.width)}" min="${unitMin()}" step="${unitStep()}" oninput="setStripWidth(${i}, toInches(this.value), !event.altKey)" title="Tip: hold Option/Alt while typing to change only this strip">
+      <input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Strip ${i + 1} width" value="${fromInches(s.width)}" min="${unitMin()}" step="${unitStep()}" oninput="setStripWidth(${i}, toInches(this.value), !event.altKey)">
       ${linkHint}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
@@ -5614,7 +5823,12 @@ function init() {
   }
   MEASURE_KEYS.forEach(id => {
     const el = document.getElementById(id);
-    if (el) { el.step = unitStep(); el.min = unitMin(); }
+    if (!el) return;
+    el.step = unitStep();
+    el.min = unitMin();
+    el.classList.add('measure-input');
+    el.setAttribute('readonly', 'readonly');     // Drum picker is the input; type isn't allowed
+    el.setAttribute('inputmode', 'none');         // no native keyboard on touch
   });
   applyUnitSuffixes();
   updateUnitsMenuLabel();
