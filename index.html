@@ -103,11 +103,25 @@
     .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
     .brand-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.1px; color: var(--text); }
     .brand-sub { font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 0.7px; text-transform: uppercase; font-weight: 600; }
-    .tab-row { display: flex; gap: 2px; margin-left: 6px; overflow-x: auto; scrollbar-width: none; }
-    .tab-row::-webkit-scrollbar { display: none; }
-    .tab { padding: 5px 12px; border-radius: 6px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
-    .tab.active { background: var(--panel2); border-color: var(--border); color: var(--text); }
-    .tab:hover:not(.active) { color: var(--text); }
+    /* Grouped nav: Home + Design/Workshop/Learn */
+    .nav-row { display: flex; gap: 4px; margin-left: 6px; align-items: center; }
+    .nav-btn { padding: 6px 13px; border-radius: 7px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 12.5px; font-weight: 600; transition: all 0.12s; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+    .nav-btn:hover:not(.active) { color: var(--text); }
+    .nav-btn.active { background: var(--panel2); border-color: var(--border); color: var(--text); }
+    .nav-btn .nav-chev { font-size: 8px; opacity: 0.6; transition: transform 0.15s; }
+    .nav-btn.menu-open .nav-chev { transform: rotate(180deg); }
+    /* Grouped nav menu — dropdown on desktop, bottom-sheet on mobile (see media query) */
+    .nav-menu-overlay { position: fixed; inset: 0; z-index: 300; background: transparent; pointer-events: none; }
+    .nav-menu-panel { position: fixed; pointer-events: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 6px; min-width: 232px; box-shadow: 0 12px 34px rgba(0,0,0,0.34); animation: nav-pop 0.13s ease-out; }
+    @keyframes nav-pop { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+    .nav-menu-panel .drum-handle { display: none; }
+    .nav-menu-title { display: none; }
+    .nav-menu-item { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; border: none; background: none; color: var(--text); font-size: 13px; font-weight: 500; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.1s; }
+    .nav-menu-item .nav-ic { width: 22px; text-align: center; font-size: 15px; flex-shrink: 0; }
+    .nav-menu-item .nav-chk { margin-left: auto; color: var(--accent); opacity: 0; font-weight: 800; }
+    .nav-menu-item:hover { background: var(--panel2); }
+    .nav-menu-item.active { background: var(--panel2); font-weight: 700; }
+    .nav-menu-item.active .nav-chk { opacity: 1; }
     .header-spacer { flex: 1; }
     .header-tools { display: flex; align-items: center; gap: 6px; }
     .header-action { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
@@ -1002,10 +1016,15 @@
       .brand { flex: 1 1 auto; min-width: 0; }
       .brand-text h1 { font-size: 14px; }
       .brand-sub { display: none; }
-      .tab-row { order: 3; flex: 1 1 100%; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scroll-snap-type: x proximity; }
-      .tab-row::-webkit-scrollbar { display: none; }
-      /* Bigger finger-friendly tap targets on touch screens */
-      .tab-row .tab { white-space: nowrap; flex-shrink: 0; padding: 9px 14px; font-size: 13px; scroll-snap-align: start; }
+      /* 4 grouped buttons fit on one line — no more horizontal scroll strip */
+      .nav-row { order: 3; flex: 1 1 100%; justify-content: space-between; gap: 4px; margin-left: 0; }
+      .nav-btn { flex: 1 1 auto; justify-content: center; padding: 9px 8px; font-size: 13px; }
+      /* Grouped menu becomes a bottom sheet on phones */
+      .nav-menu-overlay { pointer-events: auto; background: rgba(0,0,0,0.55); display: flex; align-items: flex-end; justify-content: center; animation: drum-fade 0.16s ease-out; }
+      .nav-menu-panel { position: static !important; left: auto !important; top: auto !important; width: 100%; max-width: 480px; min-width: 0; border-radius: 20px 20px 0 0; border-top: 1px solid var(--border); padding: 6px 14px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 36px rgba(0,0,0,0.42); animation: drum-slide 0.22s cubic-bezier(0.2, 0.7, 0.3, 1); }
+      .nav-menu-panel .drum-handle { display: block; }
+      .nav-menu-title { display: block; text-align: center; font-size: 14px; font-weight: 800; color: var(--text); padding: 6px 0 8px; }
+      .nav-menu-item { padding: 14px 14px; font-size: 15px; }
       .header-spacer { display: none; }
       /* Collapse the 4 action buttons into a ⋯ popover */
       .header-menu-btn { display: flex; }
@@ -1109,7 +1128,7 @@
       .proj-detail-actions, .proj-add-btn, .prices-actions,
       .copy-btn, button { display: none !important; }
       /* Hide every modal/overlay so an accidentally-open picker or annotator never prints */
-      .drum-overlay, .modal-backdrop, #annot-modal { display: none !important; }
+      .drum-overlay, .modal-backdrop, #annot-modal, .nav-menu-overlay { display: none !important; }
       /* Keep critical content readable */
       .scard, .step-card, .finished-preview, .parts-table, .cost-breakdown { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
       .step-card { margin-bottom: 8px !important; }
@@ -1143,21 +1162,7 @@
       <span class="brand-sub">by Michael Makes It Work</span>
     </div>
   </div>
-  <div class="tab-row">
-    <button class="tab active" data-tab="home">Home</button>
-    <button class="tab" data-tab="board">Cutting Board</button>
-    <button class="tab" data-tab="furniture">Furniture</button>
-    <button class="tab" data-tab="optimizer">Optimizer</button>
-    <button class="tab" data-tab="plans">Plans</button>
-    <button class="tab" data-tab="projects">Projects</button>
-    <button class="tab" data-tab="library">Wood Library</button>
-    <button class="tab" data-tab="movement">Movement</button>
-    <button class="tab" data-tab="academy">Academy</button>
-    <button class="tab" data-tab="shop">My Shop</button>
-    <button class="tab" data-tab="prices">Lumber Prices</button>
-    <button class="tab" data-tab="hardware">Hardware</button>
-    <button class="tab" data-tab="calc">Calculator</button>
-  </div>
+  <nav class="nav-row" id="nav-row"></nav>
   <div class="header-spacer"></div>
   <div class="header-tools">
     <span class="live-preview-pill" style="font-size:11px;color:var(--muted)"><span class="live-indicator"></span>Live preview</span>
@@ -1744,21 +1749,115 @@
 
 <script>
 // ═════════════════════════════ TABS ════════════════════════════════════════
+// ─── Grouped navigation: Home + Design / Workshop / Learn ───
+// Single source of truth. Each tab: [tabId, label, icon]. To add a tool, drop a
+// row into the right group — the nav bar + menus render from this automatically.
+const NAV_GROUPS = [
+  { id: 'design', label: 'Design', tabs: [
+    ['board', 'Cutting Board', '🔪'],
+    ['furniture', 'Furniture', '🪑'],
+    ['optimizer', 'Optimizer', '📐'],
+    ['movement', 'Wood Movement', '📏'],
+    ['calc', 'Calculator', '🧮'],
+  ] },
+  { id: 'workshop', label: 'Workshop', tabs: [
+    ['plans', 'Plans', '📋'],
+    ['projects', 'Projects', '📷'],
+    ['shop', 'My Shop', '🪚'],
+    ['prices', 'Lumber Prices', '🧾'],
+    ['hardware', 'Hardware', '🔩'],
+  ] },
+  { id: 'learn', label: 'Learn', tabs: [
+    ['library', 'Wood Library', '🌳'],
+    ['academy', 'Academy', '🎓'],
+  ] },
+];
+let activeTab = 'home';
+let openNavGroup = null;
+
+function groupOf(tab) { return NAV_GROUPS.find(g => g.tabs.some(t => t[0] === tab)); }
+
+function renderNav() {
+  const row = document.getElementById('nav-row');
+  if (!row) return;
+  let html = `<button class="nav-btn" data-group="home" onclick="navHome()">Home</button>`;
+  NAV_GROUPS.forEach(g => {
+    html += `<button class="nav-btn" data-group="${g.id}" onclick="toggleNavMenu('${g.id}', this)">${g.label}<span class="nav-chev">▼</span></button>`;
+  });
+  row.innerHTML = html;
+  updateNavActive();
+}
+
+function updateNavActive() {
+  const grp = groupOf(activeTab);
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    const g = b.dataset.group;
+    const on = g === 'home' ? activeTab === 'home' : (grp && grp.id === g);
+    b.classList.toggle('active', !!on);
+  });
+}
+
+function navHome() { closeNavMenu(); switchTab('home'); }
+function navGo(tab) { closeNavMenu(); switchTab(tab); }
+
+function toggleNavMenu(groupId, btn) {
+  if (openNavGroup === groupId) { closeNavMenu(); return; }
+  openNavMenu(groupId, btn);
+}
+
+function openNavMenu(groupId, btn) {
+  closeNavMenu();
+  const g = NAV_GROUPS.find(x => x.id === groupId);
+  if (!g) return;
+  openNavGroup = groupId;
+  btn.classList.add('menu-open');
+  const items = g.tabs.map(([id, label, icon]) =>
+    `<button class="nav-menu-item ${id === activeTab ? 'active' : ''}" onclick="navGo('${id}')"><span class="nav-ic">${icon}</span>${label}<span class="nav-chk">✓</span></button>`
+  ).join('');
+  const overlay = document.createElement('div');
+  overlay.className = 'nav-menu-overlay';
+  overlay.id = 'nav-menu-overlay';
+  overlay.innerHTML = `<div class="nav-menu-panel" id="nav-menu-panel" role="menu">
+    <div class="drum-handle"></div>
+    <div class="nav-menu-title">${g.label}</div>
+    ${items}
+  </div>`;
+  document.body.appendChild(overlay);
+  // Desktop: anchor the panel under the button. Mobile CSS overrides to a bottom sheet.
+  if (window.innerWidth > 820) {
+    const panel = overlay.querySelector('.nav-menu-panel');
+    const r = btn.getBoundingClientRect();
+    panel.style.top = (r.bottom + 6) + 'px';
+    const maxLeft = window.innerWidth - panel.offsetWidth - 8;
+    panel.style.left = Math.max(8, Math.min(r.left, maxLeft)) + 'px';
+  }
+  // Close on any click outside the panel / nav buttons (added next tick so this click doesn't fire it).
+  setTimeout(() => document.addEventListener('click', navOutsideClose), 0);
+}
+
+function navOutsideClose(e) {
+  if (e.target.closest('.nav-menu-panel') || e.target.closest('.nav-btn')) return;
+  closeNavMenu();
+}
+
+function closeNavMenu() {
+  if (!openNavGroup && !document.getElementById('nav-menu-overlay')) return;
+  openNavGroup = null;
+  document.removeEventListener('click', navOutsideClose);
+  document.querySelectorAll('.nav-btn.menu-open').forEach(b => b.classList.remove('menu-open'));
+  document.getElementById('nav-menu-overlay')?.remove();
+}
+
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+  activeTab = name;
   document.querySelectorAll('[id^="tab-"]').forEach(x => x.style.display = 'none');
   const target = document.getElementById('tab-' + name);
   if (target) target.style.display = 'grid';
-  // Center the active tab within the horizontal tab strip (mobile-only need)
-  requestAnimationFrame(() => {
-    const activeTab = document.querySelector('.tab.active');
-    const strip = activeTab && activeTab.parentElement;
-    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
-    const offset = activeTab.offsetLeft - (strip.clientWidth - activeTab.offsetWidth) / 2;
-    strip.scrollLeft = Math.max(0, offset);
-  });
+  closeNavMenu();
+  updateNavActive();
 }
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && openNavGroup) closeNavMenu(); });
 document.addEventListener('click', e => {
   const tile = e.target.closest('[data-tile-tab]');
   if (tile) switchTab(tile.dataset.tileTab);
@@ -1767,7 +1866,7 @@ document.addEventListener('click', e => {
 // Right before window.print(), update the print-header title + date
 window.addEventListener('beforeprint', () => {
   const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', optimizer: 'Cut Optimization Plan', plans: 'Plans Catalog', projects: 'Projects Portfolio', library: 'Wood Library Reference', prices: 'Lumber Prices', shop: 'Shop Inventory', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
-  const active = document.querySelector('.tab.active')?.dataset.tab;
+  const active = activeTab;
   document.querySelectorAll('.print-title').forEach(el => el.textContent = titles[active] || 'Bright Cuts Plan');
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   document.querySelectorAll('.print-date').forEach(el => el.textContent = date);
@@ -5015,7 +5114,7 @@ function sendPartsToOptimizer() {
     g.parts.forEach(p => optAddPiece({ name: p.name, length: p.L, width: p.W, qty: p.qty, mat: matKey }));
   });
   // Switch tab + run synchronously (no need for setTimeout — DOM updates are sync)
-  document.querySelector('[data-tab="optimizer"]').click();
+  switchTab('optimizer');
   runOptimizer();
 }
 
@@ -8107,6 +8206,7 @@ function init() {
   loadMovementState();
   renderMovement();
   loadAcademyScores();
+  renderNav();
   runPlanner();
   runFurniture();
   cloudInit();
