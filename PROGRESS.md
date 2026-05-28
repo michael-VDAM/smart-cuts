@@ -1,6 +1,6 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-27 (Session 3 — Sparky visual overhaul + Plans feature)
+Last updated: 2026-05-28 (Session 4 — Bright Cuts rename + many features)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
@@ -80,6 +80,57 @@ Last updated: 2026-05-27 (Session 3 — Sparky visual overhaul + Plans feature)
 - Finish dropdown (Walrus Oil, mineral oil+beeswax, common finishes + user supplies)
 - Coats, dimensions, hours, sale price, sold date, description
 - List/detail views with edit/delete
+
+## Session 4 — Bright Cuts rename + huge feature wave (2026-05-28)
+
+Twenty-six commits in one session. Major themes:
+
+### Brand + identity
+- **Renamed Smart Cuts → Bright Cuts** (display name only — repo + Pages URL kept as `smart-cuts/` so existing PWA installs survive). All copy updated: header, manifest, README, copy-plan exports.
+
+### New tabs
+- **Calculator tab + always-on 🧮 header shortcut.** Wood-fraction math (add / subtract / multiply / divide). Tap "Enter value" → drum picker. Big copper result + expression line + history. Internal math in inches; output snaps to lowest-denominator power-of-2 fraction up to 64ths (so 2 1/16" − 3/32" = 1 31/32" exact). Honors Imperial/Metric. Header shortcut accessible from any page.
+- **Lumber Prices tab.** Per-species $/bf editor with All/Common/Domestic/Figured/Exotic filter + search + "modified" highlight. New `priceFor()` helper overrides the SPECIES_PALETTE defaults everywhere. Cloud-synced.
+
+### Measurement system
+- **Imperial / Metric toggle** in the ⋯ menu. Internal storage stays inches; display unit drives every input + dim() output. Step changes (1/8" ↔ 1mm). Save/load preserves inches in localStorage so toggling never corrupts data. Toggling re-converts every measurement input live. 25 static + dynamic inputs covered.
+- **Drum picker for all measurements.** iOS-style bottom-sheet with two scroll-snap columns (whole + fraction in imperial, cm + mm in metric). 1/16" snap (was 1/8"). Mask fade + center-line markers. Drum-pickable everywhere: Cutting Board, Furniture, Optimizer (static + dynamic rows), Strip widths, Project form, Calculator.
+- **Unit pills** (IN / MM) on every measurement label so you always know what unit you're in.
+
+### Cutting Board upgrades
+- **Linked stripe widths** — strips at the same width are implicitly linked; editing one ripples to matched siblings (hold Alt to bypass). Linked rows highlight with accent border + "⛓ ×N" pill.
+- **Ratio template chips** above the strip list: Halves, Sym 5, Sym 7, Golden, Golden 5. Formula-driven layouts that fill the panel width with 1/16" snap.
+- **Pattern picker overhaul** — replaced the 7-button grid with a tappable preview card → bottom-sheet picker showing each pattern as a labeled mini SVG thumbnail. New `PATTERN_CATALOG` makes adding patterns trivial.
+- **Standard sizes grid fix** — was wrapping 2/1/2/1 on phone; now stays 3-col on phone for clean 3 rows of 3.
+
+### Wood Library
+- **Tree identification per species** — new "The Tree" section in each card with stylized SVG silhouette + arborist description (height, leaves, bark, distinguishing features). 7 silhouette shapes: broad / oval / narrow / conifer / cypress / spreading / birch.
+- **Regional detail per species** — new "Where It Grows" section with specific states/countries, climate, conservation notes. 18 species filled in (Walnut, Maple, Cherry, oaks, Ash, Hickory, Alder, Birch, Cedar, Cypress, Pine, Poplar, Soft Maple + 4 exotics). Remaining ~40 species progressively.
+- "Edit prices" link now points to the Lumber Prices tab.
+
+### Home page
+- **Sectioned home tiles** — Design / Catalog / Learn / Shop. Design now 3-col (Cutting Board / Furniture / Optimizer); Catalog 2-col (Plans / Projects); Learn (Wood Library / Academy); Shop (My Shop / Lumber Prices). Calculator joined as a 4th Design tile (2×2 layout).
+
+### Visual + UX polish
+- **Light-mode input contrast** — text inputs now sit a notch darker than the page background with a stronger border so the box outline is visible.
+- **Standard tab page headers** — Cutting Board / Furniture / Optimizer get a compact Sparky+title+description block at top of the input column.
+- **iOS status bar fix** — switched apple-mobile-web-app-status-bar-style from black-translucent to default so iOS reserves a separate strip instead of overlaying.
+- **Manifest theme_color updated** to new walnut + meta theme-color with light/dark media queries.
+- **Tab strip auto-scrolls** the active tab into view (no more invisible-active when off-screen).
+- **Title-with-quote bug fix** — plan titles like `Cabinet 30"×24"d` no longer truncate at the first `"` in HTML attributes (added `escapeHtml()` wrapping everywhere).
+- **Desktop polish** — tabs + action buttons + brand subtitle nowrap on desktop, no more 2-line wraps.
+
+### Commits (in order)
+1. Bright Cuts rename + Standard headers + Standard sizes grid + light-mode contrast + Home sections + Lumber Prices
+2. Wave 2: Linked stripe widths + Ratio templates
+3. Wave 3 part 1: Imperial / Metric unit toggle
+4. Wave 3 part 2: Scroll-wheel (drum) measurement picker
+5. Polish pass: status bar + mobile/desktop refinements
+6. 1/16" drum step + new Calculator tab
+7. Always-available 🧮 calculator shortcut in the header
+8. Drum picker on every length/width/thickness field
+9. Pattern picker overhaul — bottom-sheet with thumbnails
+10. Wood Library: regional detail + tree-identification per species
 
 ## Session 3 visual + feature overhaul (2026-05-27)
 
