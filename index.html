@@ -852,6 +852,7 @@
     <span class="live-preview-pill" style="font-size:11px;color:var(--muted)"><span class="live-indicator"></span>Live preview</span>
     <button class="header-action" onclick="cloudAccountClick()" id="cloud-btn" title="Sync your projects across devices" style="display:none">☁ Sign in</button>
     <button class="header-action" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙 Dark</button>
+    <button class="header-action" onclick="toggleUnitSystem()" id="units-btn" title="Switch measurement units">⇄ Imperial (in)</button>
     <button class="header-action" onclick="window.print()">Print</button>
     <button class="header-action" onclick="resetDefaults()">Reset</button>
   </div>
@@ -2153,8 +2154,66 @@ const WOOD_ENCYCLOPEDIA = {
 };
 const DEFAULT_SPECIES = [{ ...SPECIES_PALETTE[0] }, { ...SPECIES_PALETTE[1] }];
 
+// ═════════════════════════════ UNITS ══════════════════════════════════════
+// Internal model: every measurement is stored as inches. Input fields display in
+// the user's chosen unit (imperial fractional inches or metric mm). v() reads
+// from any input and converts to inches; dim() formats from inches into the
+// chosen unit. On unit toggle we gather current inches, switch, and re-apply.
+const UNITS_KEY = 'woodshop-units';
+let unitSystem = 'imperial';
+const MM_PER_INCH = 25.4;
+const MEASURE_KEYS = ['finalL','finalW','finalT','tileSize','stockL','stockW','stockT','kerf','surfaceAllowance',
+  'cab-W','cab-H','cab-D','cab-T','cab-back','cab-toe',
+  'bsh-W','bsh-H','bsh-D','bsh-T',
+  'drw-W','drw-D','drw-H','drw-T',
+  'furn-sheetL','furn-sheetW'];
+function loadUnits() {
+  try { unitSystem = localStorage.getItem(UNITS_KEY) === 'metric' ? 'metric' : 'imperial'; }
+  catch { unitSystem = 'imperial'; }
+}
+function saveUnitSystem() { try { localStorage.setItem(UNITS_KEY, unitSystem); } catch {} }
+function toInches(val) { const n = parseFloat(val); if (!isFinite(n)) return 0; return unitSystem === 'metric' ? n / MM_PER_INCH : n; }
+function fromInches(inches) {
+  if (!isFinite(inches)) return 0;
+  if (unitSystem === 'metric') return Math.round(inches * MM_PER_INCH * 10) / 10;
+  // Snap to 1/16" to clean up float drift from mm→in roundtrips
+  return Math.round(inches * 16) / 16;
+}
+function unitLabel() { return unitSystem === 'metric' ? 'mm' : 'in'; }
+function unitStep() { return unitSystem === 'metric' ? 1 : 0.125; }
+function unitMin() { return unitSystem === 'metric' ? 1 : 0.0625; }
+
+function toggleUnitSystem() {
+  const inchesMap = {};
+  MEASURE_KEYS.forEach(id => { const el = document.getElementById(id); if (el) inchesMap[id] = toInches(el.value); });
+  // Also snapshot stripPattern widths (already in inches, but ensure)
+  unitSystem = unitSystem === 'imperial' ? 'metric' : 'imperial';
+  saveUnitSystem();
+  MEASURE_KEYS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = fromInches(inchesMap[id] || 0);
+    el.step = unitStep();
+    el.min = unitMin();
+  });
+  applyUnitSuffixes();
+  if (typeof refreshStripList === 'function') refreshStripList();
+  if (typeof scheduleRunPlanner === 'function') scheduleRunPlanner();
+  if (typeof runFurniture === 'function') runFurniture();
+  updateUnitsMenuLabel();
+}
+function applyUnitSuffixes() {
+  // Each measurement input may have an adjacent ".unit-suffix" element to update.
+  document.querySelectorAll('.unit-suffix').forEach(el => { el.textContent = unitLabel(); });
+}
+function updateUnitsMenuLabel() {
+  const btn = document.getElementById('units-btn');
+  if (btn) btn.textContent = (unitSystem === 'metric' ? '⇄ Metric (mm)' : '⇄ Imperial (in)');
+}
+
 // ═════════════════════════════ HELPERS ════════════════════════════════════
-const v = id => { const el = document.getElementById(id); return el ? (parseFloat(el.value) || 0) : 0; };
+// v() returns the value of a measurement input AS INCHES (converting from the current display unit).
+const v = id => { const el = document.getElementById(id); if (!el) return 0; return toInches(el.value); };
 const sval = id => { const el = document.getElementById(id); return el ? el.value : ''; };
 const FRACS = [[0,''],[1/16,'1/16"'],[1/8,'1/8"'],[3/16,'3/16"'],[1/4,'1/4"'],[5/16,'5/16"'],
   [3/8,'3/8"'],[7/16,'7/16"'],[1/2,'1/2"'],[9/16,'9/16"'],[5/8,'5/8"'],[11/16,'11/16"'],
@@ -2167,7 +2226,13 @@ function frac(n) {
   if (c[0] === 1) return (whole + 1) + '"';
   return (whole > 0 ? whole + ' ' : '') + c[1];
 }
-const dim = n => frac(Math.round(n * 16) / 16);
+const dim = n => {
+  if (unitSystem === 'metric') {
+    const mm = Math.round((n || 0) * MM_PER_INCH);
+    return mm + ' mm';
+  }
+  return frac(Math.round(n * 16) / 16);
+};
 const ceilQ = n => Math.ceil(n * 4) / 4;
 const bf = (l, w, t) => (l * w * t) / 144;
 const money = n => '$' + n.toFixed(2);
@@ -2182,7 +2247,12 @@ function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       mode, pattern, furnType, cabType, uiMode, species, stripPattern,
-      inputs: SAVED_KEYS.reduce((a, k) => { const el = document.getElementById(k); if (el) a[k] = el.value; return a; }, {})
+      inputs: SAVED_KEYS.reduce((a, k) => {
+        const el = document.getElementById(k); if (!el) return a;
+        // Measurement values persist as inches so unit changes don't corrupt saved data.
+        a[k] = MEASURE_KEYS.includes(k) ? toInches(el.value) : el.value;
+        return a;
+      }, {})
     }));
   } catch {}
 }
@@ -2191,7 +2261,9 @@ function load() {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     if (!data) return false;
     if (data.inputs) Object.entries(data.inputs).forEach(([k, val]) => {
-      const el = document.getElementById(k); if (el) el.value = val;
+      const el = document.getElementById(k); if (!el) return;
+      // Stored measurement values are always inches → render in current unit.
+      el.value = MEASURE_KEYS.includes(k) ? fromInches(parseFloat(val) || 0) : val;
     });
     if (data.mode) mode = data.mode;
     if (data.pattern) pattern = data.pattern;
@@ -2413,7 +2485,7 @@ function refreshStripList() {
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
         ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${sp.name}</option>`).join('')}
       </select>
-      <input type="number" value="${s.width}" min="0.0625" step="0.0625" oninput="setStripWidth(${i}, this.value, !event.altKey)" title="Tip: hold Option/Alt while typing to change only this strip">
+      <input type="number" value="${fromInches(s.width)}" min="${unitMin()}" step="${unitStep()}" oninput="setStripWidth(${i}, toInches(this.value), !event.altKey)" title="Tip: hold Option/Alt while typing to change only this strip">
       ${linkHint}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
@@ -5530,7 +5602,22 @@ function unsubscribeCloud() {
 
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
+  loadUnits();
   loadLumberPrices();
+  // Convert static HTML defaults (in inches) to the current unit BEFORE load() restores saved values.
+  // If load() finds saved data it will overwrite these; if not, the HTML defaults render correctly.
+  if (unitSystem === 'metric') {
+    MEASURE_KEYS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = fromInches(parseFloat(el.value) || 0);
+    });
+  }
+  MEASURE_KEYS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.step = unitStep(); el.min = unitMin(); }
+  });
+  applyUnitSuffixes();
+  updateUnitsMenuLabel();
   const loaded = load();
   if (!loaded || !species.length) species = DEFAULT_SPECIES.slice();
   // Make sure species have prices (older saves may not). Use saved override first, palette default second.
