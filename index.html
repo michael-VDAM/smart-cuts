@@ -3986,6 +3986,43 @@ function calcEndGrain() {
   p.totalCost = p.costPerSpecies.reduce((s, c) => s + c.cost, 0);
   // Buffer % — covers mistakes, defects, kerf overhead. Recommended: 10% face / 20% end grain.
   p.bufferPct = Math.max(0, Math.min(50, v('buffer'))) / 100;
+  // ─── 3D Cube (tumbling block) construction override ───
+  // True 3D cubes are built from 60° bevel-ripped parallelogram bars of 3 species,
+  // glued into an offset "loaf," then sliced crossways into end-grain boards. The
+  // standard tiled-board math above models a flat checker board, so override the
+  // material/strip/cost fields here to reflect the angled-cut construction.
+  if (p.pattern === 'cube3d') {
+    p.cube3d = true;
+    p.cubeEdge = p.tileSize;                  // rhombus edge = bar face width = the cube-size knob
+    p.bevelAngle = 60;                        // parallelogram corner angle
+    p.bladeTilt = 30;                         // table-saw tilt off vertical (90 − 60)
+    const xPer = Math.sqrt(3) * p.cubeEdge;   // horizontal cube period on the finished face
+    const yPer = 1.5 * p.cubeEdge;            // vertical cube period (honeycomb)
+    p.cubesAcross = Math.max(1, Math.round(p.finalL / xPer));
+    p.cubesDown = Math.max(1, Math.round(p.finalW / yPer));
+    p.cubeCount = p.cubesAcross * p.cubesDown;
+    const nUsed = Math.min(3, p.species.length);
+    p.cubeSpeciesUsed = nUsed;
+    p.cubeBeveledStrips = 3 * p.cubeCount;    // 3 rhombus bars (one per species) per cube
+    // Material: finished volume scaled up for angled-cut yield loss, split across species.
+    p.cubeYield = 0.6;                        // ~40% waste from bevel offcuts + squaring the blank
+    const finishedBf = bf(p.finalL, p.finalW, p.finalT) * p.qty;
+    p.cubeRawBf = finishedBf / p.cubeYield;
+    const bfPerBoard = bf(p.stockL, p.stockW, p.stockT);
+    const perSpeciesRawBf = p.cubeRawBf / nUsed;
+    const perSpeciesStrips = Math.max(1, Math.round(p.cubeBeveledStrips / nUsed));
+    p.costPerSpecies = p.species.map((s, i) => {
+      if (i >= nUsed) return { species: s, strips: 0, pieces: 0, boards: 0, bf: 0, cost: 0 };
+      const boards = Math.max(1, Math.ceil(perSpeciesRawBf / bfPerBoard));
+      const speciesBf = boards * bfPerBoard;
+      return { species: s, strips: perSpeciesStrips, pieces: boards, boards, bf: speciesBf, cost: speciesBf * (s.price || 0) };
+    });
+    p.totalStrips = perSpeciesStrips * nUsed;
+    p.stripsPerSpecies = p.costPerSpecies.map(c => c.strips);
+    p.boardFeet = p.costPerSpecies.reduce((a, c) => a + c.bf, 0);
+    p.stockBoardsNeeded = p.costPerSpecies.reduce((a, c) => a + c.boards, 0);
+    p.totalCost = p.costPerSpecies.reduce((a, c) => a + c.cost, 0);
+  }
   p.costPerSpeciesBuffered = p.costPerSpecies.map(c => {
     if (c.strips === 0) return { ...c, boardsBuf: 0, bfBuf: 0, costBuf: 0 };
     const boardsBuf = Math.ceil(c.boards * (1 + p.bufferPct));
@@ -4003,10 +4040,14 @@ function calcEndGrain() {
   p.glueOz = Math.max(0.5, ((phase1Area + phase2Area) * 0.015 * 2 / 6 / 28.35));
   p.warnings = [];
   if (p.tileSize > p.stockW) p.warnings.push(`Tile size ${dim(p.tileSize)} > stock width ${dim(p.stockW)} — strips won't fit. Use wider stock or smaller tiles.`);
-  if (p.stockL < p.initialCutL) p.warnings.push(`Stock length ${dim(p.stockL)} < required crosscut ${dim(p.initialCutL)}. Use longer stock.`);
-  if (p.tileSize > p.stockT + 0.05) p.warnings.push(`Surface tiles will be rectangular (${dim(p.tileSize)} × ${dim(p.stockT)}). For square tiles, set tile size = stock thickness.`);
-  if (p.tileSize < p.stockT - 0.05) p.warnings.push(`Tile size < stock thickness. Tiles will be tall rectangles.`);
-  if (p.slabEffT <= 0.25) p.warnings.push(`After surfacing, slabs only ${dim(p.slabEffT)} thick — structurally risky.`);
+  if (p.pattern === 'cube3d') {
+    if (p.species.length < 3) p.warnings.push(`3D cube needs <strong>3 contrasting species</strong> for the tumbling-block illusion — you have ${p.species.length}. Add species in the palette above (classic: maple · cherry · walnut).`);
+  } else {
+    if (p.stockL < p.initialCutL) p.warnings.push(`Stock length ${dim(p.stockL)} < required crosscut ${dim(p.initialCutL)}. Use longer stock.`);
+    if (p.tileSize > p.stockT + 0.05) p.warnings.push(`Surface tiles will be rectangular (${dim(p.tileSize)} × ${dim(p.stockT)}). For square tiles, set tile size = stock thickness.`);
+    if (p.tileSize < p.stockT - 0.05) p.warnings.push(`Tile size < stock thickness. Tiles will be tall rectangles.`);
+    if (p.slabEffT <= 0.25) p.warnings.push(`After surfacing, slabs only ${dim(p.slabEffT)} thick — structurally risky.`);
+  }
   return p;
 }
 
@@ -4520,18 +4561,40 @@ function renderEndGrain(p) {
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
   const bufPct = Math.round(p.bufferPct * 100);
+  const tailCards = p.cube3d ? `
+    <div class="scard"><div class="val">${p.cubeCount}</div><div class="lbl">3D Cubes</div></div>
+    <div class="scard"><div class="val">${p.cubeBeveledStrips}</div><div class="lbl">Bevel Bars</div></div>
+    <div class="scard"><div class="val">${p.bladeTilt}°</div><div class="lbl">Blade Tilt</div></div>` : `
+    <div class="scard"><div class="val">${p.totalStrips}</div><div class="lbl">Strips to Rip</div></div>
+    <div class="scard"><div class="val">${p.nSlabs}</div><div class="lbl">Slabs Cut</div></div>
+    <div class="scard"><div class="val">${dim(p.initialCutL)}</div><div class="lbl">Init. Crosscut</div></div>`;
   html += `<div class="summary-cards cols6">
     <div class="scard"><div class="val">${p.bufferedBoards}</div><div class="lbl">Stock Boards${bufPct > 0 ? ` <span style="color:var(--muted2)">+${bufPct}%</span>` : ''}</div></div>
     <div class="scard"><div class="val">${p.bufferedBf.toFixed(1)}</div><div class="lbl">Board Feet</div></div>
     <div class="scard"><div class="val money">${money(p.totalCostBuffered)}</div><div class="lbl">Material Cost</div></div>
-    <div class="scard"><div class="val">${p.totalStrips}</div><div class="lbl">Strips to Rip</div></div>
-    <div class="scard"><div class="val">${p.nSlabs}</div><div class="lbl">Slabs Cut</div></div>
-    <div class="scard"><div class="val">${dim(p.initialCutL)}</div><div class="lbl">Init. Crosscut</div></div>
+    ${tailCards}
   </div>`;
   html += renderCostBreakdown(p);
 
   const finishStep = `Surface both faces (remove ${dim(p.sa)} per face) to final ${dim(p.finalT)}. Trim length to ${dim(p.finalL)}, rip to ${dim(p.finalW)}. Profile edges: <strong>${edgeProfileLabel(p.edgeProfile)}</strong>${p.juiceGroove !== 'none' ? `. Route <strong>${juiceGrooveLabel(p.juiceGroove)}</strong> on the top face` : ''}. Sand 80 → 120 → 180 → 220. Finish with mineral oil + beeswax (food-safe).`;
-  const steps = [
+  const cubeSteps = [
+    { title: 'Mill 3 Contrasting Species',
+      desc: `Surface a light, medium, and dark species to identical thickness — classic combo is <strong>hard maple · cherry · walnut</strong>. Grain runs the length of every bar.`,
+      measures: [{label:'cube size',val:dim(p.cubeEdge)},{label:'species',val:p.cubeSpeciesUsed},{label:'kerf',val:dim(p.kerf)}], svg: null },
+    { title: `Bevel-Rip Parallelogram Bars — ${p.bladeTilt}° tilt`,
+      desc: `Tilt the saw blade to <strong>${p.bladeTilt}°</strong> off vertical so each rip leaves a <strong>${p.bevelAngle}° parallelogram</strong> cross-section. Rip every species into bars ${dim(p.cubeEdge)} wide on the face. You need about <strong>${p.cubeBeveledStrips} bars</strong> (~${Math.round(p.cubeBeveledStrips / Math.max(1, p.cubeSpeciesUsed))} per species). Bevel cuts are wasteful — ~40% extra stock is already budgeted into the board count.`,
+      measures: [{label:'blade tilt',val:`${p.bladeTilt}°`},{label:'parallelogram',val:`${p.bevelAngle}°`},{label:'bar width',val:dim(p.cubeEdge)},{label:'total bars',val:p.cubeBeveledStrips}], svg: null },
+    { title: 'Glue the Loaf — Offset A-B-C',
+      desc: `Stack the bars into a block, repeating the three species in the same order and <strong>offsetting each course by one bar</strong> so the three faces nest into hexagonal "cubes" across the end. Beveled faces slip under clamp pressure — use cauls or tape hinges and clamp lightly. <strong>Dry-fit and check the cube alignment before glue.</strong> Cure 24h.`,
+      measures: [{label:'offset',val:'1 bar'},{label:'cubes',val:p.cubeCount},{label:'across',val:p.cubesAcross},{label:'rows',val:p.cubesDown}], svg: null },
+    { title: 'Crosscut Into Boards — End Grain Up',
+      desc: `Slice the loaf crossways into ${p.qty} board blank${p.qty>1?'s':''} at ${dim(p.slabCutT)} thick (final ${dim(p.finalT)} + surfacing allowance). Each slice is one cutting board showing the end-grain cube pattern.`,
+      measures: [{label:'slab thickness',val:dim(p.slabCutT)},{label:p.qty>1?'boards':'board',val:p.qty},{label:'kerf',val:dim(p.kerf)}], svg: diagPhase2(p) },
+    { title: 'Surface, Trim & Finish',
+      desc: finishStep,
+      measures: [{label:'length',val:dim(p.finalL)},{label:'width',val:dim(p.finalW)},{label:'thickness',val:dim(p.finalT)},{label:'edge',val:edgeProfileLabel(p.edgeProfile)}], svg: null },
+  ];
+  const steps = p.cube3d ? cubeSteps : [
     { title: `Initial Crosscut — ${dim(p.initialCutL)}`,
       desc: `Crosscut all boards to working length. Compounds: ${p.nSlabs} slabs × ${dim(p.slabCutT)} + ${p.nSlabs - 1} kerfs + 1" end waste.`,
       measures: [{label:'cut length',val:dim(p.initialCutL)},{label:'pieces / board',val:p.piecesPerStockBoard},{label:'total pieces',val:p.totalPieces},{label:'stock boards',val:p.stockBoardsNeeded}],
