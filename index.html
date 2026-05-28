@@ -186,9 +186,24 @@
     .wood-option .price { color: var(--money); font-size: 11px; font-variant-numeric: tabular-nums; }
 
     /* STRIP PATTERN (face grain custom layout) */
-    .strip-row { display: grid; grid-template-columns: 1fr 70px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
-    .strip-row.linked input { border-color: var(--accent); background: var(--accent-soft); }
+    .strip-row { display: grid; grid-template-columns: 1fr 90px 60px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .strip-row.linked .formula-input { border-color: var(--accent); background: var(--accent-soft); }
     .strip-link-pill { font-size: 9.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.3px; white-space: nowrap; cursor: default; user-select: none; }
+    .formula-input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: left; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .formula-input:focus { outline: none; border-color: var(--accent); }
+    .formula-input.invalid { border-color: #c64; background: rgba(204, 102, 68, 0.08); }
+    .strip-width-display { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; font-weight: 600; }
+    .strip-width-display.invalid { color: #c64; }
+    .var-panel { margin-bottom: 12px; padding: 9px 10px 10px; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; }
+    .var-panel-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+    .var-panel-label .hint { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted2); font-size: 9.5px; }
+    .var-row { display: grid; grid-template-columns: 36px 1fr 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .var-row .var-name { font-weight: 700; color: var(--accent); font-size: 14px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; text-align: center; }
+    .var-row input { background: var(--panel3); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; cursor: pointer; caret-color: transparent; }
+    .var-row input:focus { outline: none; border-color: var(--accent); }
+    .var-row button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .var-add-btn { background: none; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; margin-top: 2px; }
+    .var-add-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* Pattern picker trigger card + bottom-sheet picker */
     .pattern-trigger { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color 0.12s; text-align: left; }
@@ -1048,7 +1063,6 @@
     <button class="header-action" onclick="cloudAccountClick()" id="cloud-btn" title="Sync your projects across devices" style="display:none">☁ Sign in</button>
     <button class="header-action" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙 Dark</button>
     <button class="header-action" onclick="toggleUnitSystem()" id="units-btn" title="Switch measurement units">⇄ Imperial (in)</button>
-    <button class="header-action" onclick="toggleHaptic()" id="haptic-btn" title="Toggle haptic vibration on touches">📳 Haptic On</button>
     <button class="header-action" onclick="window.print()">Print</button>
     <button class="header-action" onclick="resetDefaults()">Reset</button>
   </div>
@@ -1255,9 +1269,9 @@
 
       <!-- Face grain strip pattern -->
       <div class="section" id="face-layout-section" style="display:none">
-        <div class="section-label">Strip Pattern <span class="hint">strips run long-ways · matched widths link together</span></div>
+        <div class="section-label">Strip Pattern <span class="hint">strips run long-ways · type formulas like x, x/2, 2x+y</span></div>
         <div class="ratio-presets">
-          <div class="ratio-presets-label">Ratio templates <span class="hint">tap to fill from panel width</span></div>
+          <div class="ratio-presets-label">Ratio templates <span class="hint">tap to seed variables + formulas</span></div>
           <div class="ratio-chip-row">
             <button class="ratio-chip" onclick="faceLayoutPreset('halves')" title="3-strip · outer x · middle x/2 · outer x">
               <span class="ratio-name">Halves</span>
@@ -1281,9 +1295,14 @@
             </button>
           </div>
         </div>
+        <div class="var-panel">
+          <div class="var-panel-label">Variables <span class="hint">tap value to set · referenced by formulas</span></div>
+          <div id="var-list"></div>
+          <button class="var-add-btn" onclick="addVariable()">+ Add variable</button>
+        </div>
         <div class="field" style="margin-bottom:10px">
           <label># of Strips</label>
-          <input type="number" id="stripCount" value="5" step="1" min="1" max="20" oninput="setStripCount(parseInt(this.value)||1)">
+          <input type="number" id="stripCount" value="5" step="1" min="1" max="20" onchange="setStripCount(parseInt(this.value)||1)" onblur="if(!this.value)this.value=stripPattern.length">
         </div>
         <div id="strip-list"></div>
         <button class="add-btn" onclick="addStrip()">+ Add Strip</button>
@@ -1602,7 +1621,6 @@
 <script>
 // ═════════════════════════════ TABS ════════════════════════════════════════
 function switchTab(name) {
-  haptic(5);
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
   document.querySelectorAll('[id^="tab-"]').forEach(x => x.style.display = 'none');
   const target = document.getElementById('tab-' + name);
@@ -1650,7 +1668,54 @@ let pattern = 'checker';
 let furnType = 'cabinet';
 let cabType = 'base';
 let species = [];
-let stripPattern = []; // face grain only: [{speciesIdx, width}, ...]
+let stripPattern = []; // face grain only: [{speciesIdx, formula, width}, ...]
+// Parametric variables — used inside strip formulas. Drum-pickable; values in inches.
+// Built-in constants (phi) are merged in at eval time.
+let stripVars = { x: 1.5 };
+const STRIP_CONSTANTS = { phi: 1.618033988749 };
+// Safely evaluate a strip formula. Returns inches (number) or NaN if invalid.
+// Accepts literals (0.5), variable refs (x), implicit multipliers (1.5x, 2x),
+// arithmetic (x/2, x+y, 2x+z) and parens ((x+y)/2). Case-insensitive.
+function evalFormula(expr, vars) {
+  if (expr == null) return NaN;
+  let s = String(expr).trim().toLowerCase();
+  if (!s) return 0;
+  if (!/^[0-9a-z.+\-*/()\s]+$/.test(s)) return NaN;
+  // Insert * between number→letter (1.5x → 1.5*x) and number→paren (2(x+1) → 2*(x+1))
+  s = s.replace(/(\d(?:\.\d+)?)\s*([a-z(])/g, '$1*$2');
+  // Insert * between )→letter and )→( and letter→(
+  s = s.replace(/\)\s*([a-z(])/g, ')*$1');
+  s = s.replace(/([a-z])\s*\(/g, '$1*(');
+  const allVars = Object.assign({}, STRIP_CONSTANTS, vars || {});
+  const usedIdents = s.match(/[a-z]+/g) || [];
+  for (const id of usedIdents) {
+    if (!Object.prototype.hasOwnProperty.call(allVars, id)) return NaN;
+  }
+  const names = Object.keys(allVars);
+  const values = names.map(n => allVars[n]);
+  try {
+    const fn = new Function(...names, '"use strict"; return (' + s + ');');
+    const out = fn(...values);
+    return typeof out === 'number' && isFinite(out) ? out : NaN;
+  } catch { return NaN; }
+}
+// Ensure every strip entry has a formula string. Migrates old saves where strips
+// were just {speciesIdx, width} — width becomes a literal-number formula.
+function ensureStripFormulas() {
+  stripPattern.forEach(s => {
+    if (typeof s.formula !== 'string' || !s.formula.length) {
+      const w = +s.width;
+      s.formula = isFinite(w) ? String(Math.round(w * 16) / 16) : '0';
+    }
+  });
+}
+// Recompute every strip width from its formula + current stripVars. 1/16" snap.
+function recomputeAllStripWidths() {
+  stripPattern.forEach(s => {
+    const w = evalFormula(s.formula, stripVars);
+    s.width = isFinite(w) && w >= 0 ? Math.max(0, Math.round(w * 16) / 16) : 0;
+  });
+}
 
 const STORAGE_KEY = 'woodshop-planner-v4';
 const PRESETS = {
@@ -2576,25 +2641,6 @@ function updateUnitsMenuLabel() {
   if (btn) btn.textContent = (unitSystem === 'metric' ? '⇄ Metric (mm)' : '⇄ Imperial (in)');
 }
 
-// ═════════════════════════════ HAPTIC FEEDBACK ════════════════════════════
-// Subtle vibration on key interactions. iOS Safari ignores navigator.vibrate;
-// Android and most desktop browsers support it. Toggle stored in localStorage.
-const HAPTIC_KEY = 'woodshop-haptic';
-let hapticOn = true;
-function loadHaptic() { try { hapticOn = localStorage.getItem(HAPTIC_KEY) !== '0'; } catch { hapticOn = true; } }
-function saveHaptic() { try { localStorage.setItem(HAPTIC_KEY, hapticOn ? '1' : '0'); } catch {} }
-function haptic(ms = 6) {
-  if (!hapticOn) return;
-  try { if (navigator.vibrate) navigator.vibrate(ms); } catch {}
-}
-function toggleHaptic() {
-  hapticOn = !hapticOn;
-  saveHaptic();
-  haptic(10);  // confirm with a single tick
-  const btn = document.getElementById('haptic-btn');
-  if (btn) btn.textContent = hapticOn ? '📳 Haptic On' : '📴 Haptic Off';
-}
-
 // ═════════════════════════════ DRUM PICKER ════════════════════════════════
 // Tap any input.measure-input to open this bottom-sheet drum wheel.
 // Two columns: whole + fraction (imperial) or cm + mm (metric). Scroll-snap.
@@ -2702,7 +2748,6 @@ function _renderDrumSheet({ label, cols, toInchesFn, sourceInput }) {
     if (el) el.textContent = dim(inches);
   }
   function markSelected(colEl, i, idx) {
-    if (selected[i] !== idx) haptic(3);  // soft tick on each snap change
     colEl.querySelectorAll('.drum-item').forEach((it, j) => it.classList.toggle('selected', j === idx));
     selected[i] = idx;
     updateCurrent();
@@ -2784,7 +2829,7 @@ const SAVED_KEYS = ['finalL','finalW','finalT','quantity','tileSize','stockL','s
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      mode, pattern, furnType, cabType, uiMode, species, stripPattern,
+      mode, pattern, furnType, cabType, uiMode, species, stripPattern, stripVars,
       inputs: SAVED_KEYS.reduce((a, k) => {
         const el = document.getElementById(k); if (!el) return a;
         // Measurement values persist as inches so unit changes don't corrupt saved data.
@@ -2810,6 +2855,10 @@ function load() {
     if (data.uiMode) uiMode = data.uiMode;
     if (Array.isArray(data.species) && data.species.length) species = data.species;
     if (Array.isArray(data.stripPattern)) stripPattern = data.stripPattern;
+    if (data.stripVars && typeof data.stripVars === 'object') stripVars = data.stripVars;
+    // Migrate old saves (strip rows without formulas) and recompute widths from formulas.
+    ensureStripFormulas();
+    recomputeAllStripWidths();
     return true;
   } catch { return false; }
 }
@@ -2982,7 +3031,6 @@ function _patternThumb(key) {
 }
 
 function setPattern(p) {
-  if (pattern !== p) haptic(8);
   pattern = p;
   // Update the trigger card UI (replaces the old segmented buttons)
   const thumb = document.getElementById('pattern-trigger-thumb');
@@ -3123,53 +3171,117 @@ document.addEventListener('click', (e) => {
 });
 
 // ═════════════════════════════ FACE STRIP PATTERN ══════════════════════════
-// Set a strip's width AND ripple to all other strips that currently match it.
-// Two strips at the same width are treated as implicitly linked — changing one
-// changes them all. Set linkMatched=false to bypass (used by ratio presets).
-function setStripWidth(idx, newWidth, linkMatched) {
-  newWidth = Math.max(0, parseFloat(newWidth) || 0);
-  const oldWidth = stripPattern[idx] ? stripPattern[idx].width : null;
-  if (oldWidth === null) return;
-  if (linkMatched === false || oldWidth === 0) {
-    stripPattern[idx].width = newWidth;
-  } else {
-    stripPattern.forEach(s => {
-      if (Math.abs(s.width - oldWidth) < 0.001) s.width = newWidth;
-    });
-  }
+// Set a strip's formula. Width re-computes from formula + current stripVars.
+// Implicit linking is via formula equality (handled in stripLinkCount); strips
+// sharing the same formula naturally re-evaluate together when a var changes.
+function setStripFormula(idx, formula) {
+  if (!stripPattern[idx]) return;
+  stripPattern[idx].formula = String(formula || '').trim();
+  const w = evalFormula(stripPattern[idx].formula, stripVars);
+  stripPattern[idx].width = isFinite(w) && w >= 0 ? Math.max(0, Math.round(w * 16) / 16) : 0;
   save();
   refreshStripList();
   updateStripTotal();
   scheduleRunPlanner();
 }
 
-// Count how many strips share the same width as strip at idx (including self).
+// Legacy entry point still used by the planner if a strip is set numerically
+// (drum picker isn't on strip rows anymore, but kept for safety). A direct
+// width assignment clobbers the formula with the new literal value.
+function setStripWidth(idx, newWidth) {
+  if (!stripPattern[idx]) return;
+  newWidth = Math.max(0, parseFloat(newWidth) || 0);
+  const snapped = Math.round(newWidth * 16) / 16;
+  stripPattern[idx].width = snapped;
+  stripPattern[idx].formula = String(snapped);
+  save();
+  refreshStripList();
+  updateStripTotal();
+  scheduleRunPlanner();
+}
+
+// Strips share an implicit link if they have the same formula (case-insensitive,
+// trimmed). Replaces the old "same-width" linking — changing a variable now
+// propagates automatically through any strip referencing it.
 function stripLinkCount(idx) {
   if (!stripPattern[idx]) return 1;
-  const w = stripPattern[idx].width;
-  return stripPattern.filter(s => Math.abs(s.width - w) < 0.001).length;
+  const f = (stripPattern[idx].formula || '').trim().toLowerCase();
+  if (!f) return 1;
+  return stripPattern.filter(s => (s.formula || '').trim().toLowerCase() === f).length;
+}
+
+function renderVarList() {
+  const el = document.getElementById('var-list');
+  if (!el) return;
+  const names = Object.keys(stripVars);
+  el.innerHTML = names.map(name => `
+    <div class="var-row">
+      <span class="var-name">${escapeHtml(name)}</span>
+      <input type="number" class="measure-input" readonly inputmode="none"
+        data-measure-label="Variable ${escapeHtml(name)}"
+        value="${fromInches(stripVars[name])}"
+        min="${unitMin()}" step="${unitStep()}"
+        oninput="setVariable('${escapeHtml(name)}', toInches(this.value))">
+      <button class="icon-btn" onclick="removeVariable('${escapeHtml(name)}')" title="Remove ${escapeHtml(name)}"${names.length <= 1 ? ' disabled' : ''}>&#215;</button>
+    </div>
+  `).join('');
+}
+
+function setVariable(name, inches) {
+  if (!Object.prototype.hasOwnProperty.call(stripVars, name)) return;
+  stripVars[name] = Math.max(0, parseFloat(inches) || 0);
+  recomputeAllStripWidths();
+  save();
+  refreshStripList();
+  scheduleRunPlanner();
+}
+
+function addVariable() {
+  const used = new Set([...Object.keys(stripVars), ...Object.keys(STRIP_CONSTANTS)]);
+  const letters = 'xyzabcdefghijklmnopqrstuvw';
+  let name = null;
+  for (const ch of letters) { if (!used.has(ch)) { name = ch; break; } }
+  if (!name) { if (typeof showToast === 'function') showToast('Out of single-letter variable names'); return; }
+  stripVars[name] = 0.5;
+  renderVarList();
+  save();
+}
+
+function removeVariable(name) {
+  if (Object.keys(stripVars).length <= 1) return;
+  if (!Object.prototype.hasOwnProperty.call(stripVars, name)) return;
+  delete stripVars[name];
+  recomputeAllStripWidths();
+  renderVarList();
+  refreshStripList();
+  save();
+  scheduleRunPlanner();
 }
 
 function refreshStripList() {
   if (mode !== 'face') return;
+  renderVarList();
   const list = document.getElementById('strip-list');
+  if (!list) return;
   list.innerHTML = stripPattern.map((s, i) => {
     const linked = stripLinkCount(i) > 1;
-    const linkHint = linked ? `<span class="strip-link-pill" title="${stripLinkCount(i)} strips matched at this width — change one, change them all">⛓ ×${stripLinkCount(i)}</span>` : '';
+    const linkHint = linked ? `<span class="strip-link-pill" title="${stripLinkCount(i)} strips share this formula — they update together">⛓ ×${stripLinkCount(i)}</span>` : '';
+    const evalW = evalFormula(s.formula, stripVars);
+    const valid = isFinite(evalW) && evalW > 0;
     return `
     <div class="strip-row${linked ? ' linked' : ''}">
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
         ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${sp.name}</option>`).join('')}
       </select>
-      <input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Strip ${i + 1} width" value="${fromInches(s.width)}" min="${unitMin()}" step="${unitStep()}" oninput="setStripWidth(${i}, toInches(this.value), !event.altKey)">
+      <input type="text" class="formula-input${valid ? '' : ' invalid'}" value="${escapeHtml(s.formula || '')}" placeholder="e.g. x" oninput="setStripFormula(${i}, this.value)" title="Formula — literals, variables, +, −, ×, ÷, parens">
+      <span class="strip-width-display${valid ? '' : ' invalid'}">${valid ? dim(s.width) : '—'}</span>
       ${linkHint}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
   `;
   }).join('');
-  // Keep stripCount input synced with actual strip count
   const countEl = document.getElementById('stripCount');
-  if (countEl) countEl.value = stripPattern.length;
+  if (countEl && document.activeElement !== countEl) countEl.value = stripPattern.length;
   updateStripTotal();
 }
 function updateStripTotal() {
@@ -3190,7 +3302,7 @@ function updateStripTotal() {
   el.innerHTML = txt;
 }
 function addStrip() {
-  stripPattern.push({ speciesIdx: 0, width: 0.5 });
+  stripPattern.push({ speciesIdx: 0, formula: '0.5', width: 0.5 });
   refreshStripList();
   save();
   scheduleRunPlanner();
@@ -3208,129 +3320,78 @@ function faceLayoutPreset(kind) {
   const A = 0, B = nSp > 1 ? 1 : 0, C = nSp > 2 ? 2 : B;
   const accent = 0.25;
   const r16 = n => Math.max(0.0625, Math.round(n * 16) / 16);
+  // Pairs are [speciesIdx, formula]. Parametric presets seed stripVars first; non-parametric
+  // ones use literal-number formulas so widths show up unchanged but the row still has a
+  // formula the user can edit later. Widths get computed below from formula + stripVars.
+  let pairs = [];
+  let parametric = false;
   if (kind === 'solid') {
-    stripPattern = [{ speciesIdx: A, width: W }];
+    pairs = [[A, String(W)]];
   } else if (kind === 'single') {
-    // bg | accent | bg — slightly off-center for visual interest
     const left = r16(W * 0.6 - accent / 2);
     const right = r16(W - left - accent);
-    stripPattern = [
-      { speciesIdx: A, width: left },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: right },
-    ];
+    pairs = [[A, String(left)], [B, String(accent)], [A, String(right)]];
   } else if (kind === 'paired') {
-    // bg | accent | bg | accent | bg — symmetric
     const bg = r16((W - accent * 2) / 3);
     const mid = r16(W - 2 * bg - 2 * accent);
-    stripPattern = [
-      { speciesIdx: A, width: bg },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: mid },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: bg },
-    ];
+    pairs = [[A, String(bg)], [B, String(accent)], [A, String(mid)], [B, String(accent)], [A, String(bg)]];
   } else if (kind === 'triple') {
-    // bg | acc1 | acc2 | bg | acc2 | acc1 | bg — paired accents (like your image 3)
     const sideBg = r16(W * 0.25);
     const centerBg = r16(W - 2 * sideBg - 4 * accent);
-    stripPattern = [
-      { speciesIdx: A, width: sideBg },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: C, width: accent },
-      { speciesIdx: A, width: centerBg },
-      { speciesIdx: C, width: accent },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: sideBg },
-    ];
+    pairs = [[A, String(sideBg)], [B, String(accent)], [C, String(accent)], [A, String(centerBg)], [C, String(accent)], [B, String(accent)], [A, String(sideBg)]];
   } else if (kind === 'etsy') {
-    // 7-piece kit: outer | accent | inner | center | inner | accent | outer
     const center = r16(W * 0.25);
     const inner = r16(W * 0.12);
     const outer = r16((W - 2 * accent - center - 2 * inner) / 2);
     const adjust = r16(W - (2 * outer + 2 * accent + 2 * inner + center));
-    stripPattern = [
-      { speciesIdx: A, width: outer + adjust },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: inner },
-      { speciesIdx: C, width: center },
-      { speciesIdx: A, width: inner },
-      { speciesIdx: B, width: accent },
-      { speciesIdx: A, width: outer },
-    ];
+    pairs = [[A, String(outer + adjust)], [B, String(accent)], [A, String(inner)], [C, String(center)], [A, String(inner)], [B, String(accent)], [A, String(outer)]];
   } else if (kind === 'uniform') {
     const n = Math.max(4, Math.round(W / 1.5));
     const w = r16(W / n);
-    stripPattern = [];
-    for (let i = 0; i < n; i++) stripPattern.push({ speciesIdx: i % nSp, width: w });
-    // Fix last strip to ensure exact total
-    const total = stripPattern.reduce((s, x) => s + x.width, 0);
-    stripPattern[stripPattern.length - 1].width = r16(stripPattern[stripPattern.length - 1].width + (W - total));
+    for (let i = 0; i < n; i++) pairs.push([i % nSp, String(w)]);
+    const total = pairs.reduce((s, p) => s + parseFloat(p[1]), 0);
+    if (pairs.length) pairs[pairs.length - 1][1] = String(r16(parseFloat(pairs[pairs.length - 1][1]) + (W - total)));
   } else if (kind === 'halves') {
-    // 3-strip: outer x · middle x/2 · outer x. Sum = 2.5x. x = W / 2.5.
-    const x = r16(W / 2.5);
-    stripPattern = [
-      { speciesIdx: A, width: x },
-      { speciesIdx: B, width: r16(x / 2) },
-      { speciesIdx: A, width: x },
-    ];
+    // outer x · middle x/2 · outer x. Sum = 2.5x → x = W/2.5
+    stripVars = { x: r16(W / 2.5) };
+    pairs = [[A, 'x'], [B, 'x/2'], [A, 'x']];
+    parametric = true;
   } else if (kind === 'sym5') {
-    // 5-strip Michael's symmetric: outer x · divider x/4 · middle x/2 · divider x/4 · outer x.
-    // Sum = 2x + 2(x/4) + x/2 = 3x. x = W/3.
-    const x = r16(W / 3);
-    const q = r16(x / 4);
-    const h = r16(x / 2);
-    stripPattern = [
-      { speciesIdx: A, width: x },
-      { speciesIdx: B, width: q },
-      { speciesIdx: C, width: h },
-      { speciesIdx: B, width: q },
-      { speciesIdx: A, width: x },
-    ];
+    // x · x/4 · x/2 · x/4 · x. Sum = 3x → x = W/3
+    stripVars = { x: r16(W / 3) };
+    pairs = [[A, 'x'], [B, 'x/4'], [C, 'x/2'], [B, 'x/4'], [A, 'x']];
+    parametric = true;
   } else if (kind === 'sym7') {
-    // 7-strip symmetric: outer x · ÷ · middle x/2 · ÷ · middle x/2 · ÷ · outer x where ÷ = x/4.
-    // Sum = 2x + 3(x/4) + 2(x/2) = 3.75x. x = W/3.75.
-    const x = r16(W / 3.75);
-    const q = r16(x / 4);
-    const h = r16(x / 2);
-    stripPattern = [
-      { speciesIdx: A, width: x },
-      { speciesIdx: B, width: q },
-      { speciesIdx: C, width: h },
-      { speciesIdx: B, width: q },
-      { speciesIdx: C, width: h },
-      { speciesIdx: B, width: q },
-      { speciesIdx: A, width: x },
-    ];
+    // x · x/4 · x/2 · x/4 · x/2 · x/4 · x. Sum = 3.75x → x = W/3.75
+    stripVars = { x: r16(W / 3.75) };
+    pairs = [[A, 'x'], [B, 'x/4'], [C, 'x/2'], [B, 'x/4'], [C, 'x/2'], [B, 'x/4'], [A, 'x']];
+    parametric = true;
   } else if (kind === 'golden') {
-    // 3-strip golden: outer 1 · middle φ (~1.618) · outer 1. Sum = 2 + 1.618 = 3.618. base = W/3.618.
-    const PHI = 1.618033988749;
-    const base = W / (2 + PHI);
-    stripPattern = [
-      { speciesIdx: A, width: r16(base) },
-      { speciesIdx: B, width: r16(base * PHI) },
-      { speciesIdx: A, width: r16(base) },
-    ];
+    // x · x*phi · x. Sum = (2+phi)x → x = W/(2+phi)
+    stripVars = { x: r16(W / (2 + STRIP_CONSTANTS.phi)) };
+    pairs = [[A, 'x'], [B, 'x*phi'], [A, 'x']];
+    parametric = true;
   } else if (kind === 'goldenAccent') {
-    // 5-strip golden accent: outer φ · accent 1 · middle 1 · accent 1 · outer φ.
-    // Sum = 2φ + 3. base = W / (2*1.618 + 3) = W / 6.236.
-    const PHI = 1.618033988749;
-    const base = W / (2 * PHI + 3);
-    stripPattern = [
-      { speciesIdx: A, width: r16(base * PHI) },
-      { speciesIdx: B, width: r16(base) },
-      { speciesIdx: C, width: r16(base) },
-      { speciesIdx: B, width: r16(base) },
-      { speciesIdx: A, width: r16(base * PHI) },
-    ];
+    // x*phi · x · x · x · x*phi. Sum = (2*phi+3)x → x = W/(2*phi+3)
+    stripVars = { x: r16(W / (2 * STRIP_CONSTANTS.phi + 3)) };
+    pairs = [[A, 'x*phi'], [B, 'x'], [C, 'x'], [B, 'x'], [A, 'x*phi']];
+    parametric = true;
   }
-  // Snap last to exact total when totals drift due to 1/16" rounding
-  if (stripPattern.length > 1) {
+  stripPattern = pairs.map(([si, formula]) => {
+    const w = evalFormula(formula, stripVars);
+    return { speciesIdx: si, formula, width: isFinite(w) && w > 0 ? r16(w) : 0.0625 };
+  });
+  // For non-parametric presets, snap the last strip to absorb 1/16" rounding drift so
+  // total == finalW exactly. For parametric presets we leave the formula honest — any
+  // drift becomes visible in the total bar and the user can nudge x to fix it.
+  if (!parametric && stripPattern.length > 1) {
     const sum = stripPattern.reduce((s, x) => s + x.width, 0);
     const diff = W - sum;
     if (Math.abs(diff) > 0.0001 && Math.abs(diff) < 0.5) {
       const last = stripPattern.length - 1;
-      stripPattern[last].width = Math.max(0.0625, r16(stripPattern[last].width + diff));
+      const newW = r16(stripPattern[last].width + diff);
+      stripPattern[last].width = newW;
+      stripPattern[last].formula = String(newW);
     }
   }
   refreshStripList();
@@ -3338,36 +3399,40 @@ function faceLayoutPreset(kind) {
   scheduleRunPlanner();
 }
 function setStripCount(n) {
-  // User-driven strip count: distribute evenly across N strips, cycling through species.
+  // Even strip distribution across N rows, cycling through species. Each strip gets a
+  // literal-number formula so the row still has something editable in the formula field.
   n = Math.max(1, Math.min(20, parseInt(n) || 1));
   const W = v('finalW');
   const nSp = species.length;
   const r16 = x => Math.max(0.0625, Math.round(x * 16) / 16);
   const w = r16(W / n);
   stripPattern = [];
-  for (let i = 0; i < n; i++) stripPattern.push({ speciesIdx: i % nSp, width: w });
+  for (let i = 0; i < n; i++) stripPattern.push({ speciesIdx: i % nSp, formula: String(w), width: w });
   // Adjust last strip to make total exact
   const sum = stripPattern.reduce((s, x) => s + x.width, 0);
-  stripPattern[n - 1].width = r16(stripPattern[n - 1].width + (W - sum));
-  if (stripPattern[n - 1].width < 0.0625) stripPattern[n - 1].width = 0.0625;
+  const lastW = r16(stripPattern[n - 1].width + (W - sum));
+  stripPattern[n - 1].width = Math.max(0.0625, lastW);
+  stripPattern[n - 1].formula = String(stripPattern[n - 1].width);
   refreshStripList();
   save();
   scheduleRunPlanner();
 }
 function faceLayoutFit() {
-  // Scale strips proportionally to fit current finalW, with exact remainder on last strip
+  // Scale strips proportionally to fit current finalW, with exact remainder on last strip.
+  // Auto-fit overwrites each strip's formula with its new literal width — the user opted out
+  // of parametric for this layout and wants exact numbers locked in.
   const W = v('finalW');
   const total = stripPattern.reduce((s, x) => s + x.width, 0);
   if (total <= 0 || stripPattern.length === 0) return;
   const factor = W / total;
   stripPattern.forEach(s => { s.width = Math.max(0.0625, Math.round(s.width * factor * 16) / 16); });
-  // Adjust last strip to make total exact (within 1/16")
   const newTotal = stripPattern.reduce((s, x) => s + x.width, 0);
   const diff = W - newTotal;
   if (Math.abs(diff) < 1 && stripPattern.length > 0) {
     const last = stripPattern[stripPattern.length - 1];
     last.width = Math.max(0.0625, Math.round((last.width + diff) * 16) / 16);
   }
+  stripPattern.forEach(s => { s.formula = String(s.width); });
   refreshStripList();
   save();
   scheduleRunPlanner();
@@ -4435,7 +4500,6 @@ function calcBackspace() {
   renderCalc();
 }
 function calcOperator(op) {
-  haptic(5);
   // If we just computed, continue from result
   if (calcJustComputed && calcResult !== null) { calcA = calcResult; calcResult = null; calcJustComputed = false; }
   // If user is chaining (A + B then taps another op), compute first
@@ -4455,7 +4519,6 @@ function calcEquals() {
   if (calcA === null || calcOp === null || calcB === null) return;
   const r = calcCompute(calcA, calcOp, calcB);
   if (r === null) return;
-  haptic(15);  // satisfying click on result
   calcHistory.unshift({ a: calcA, op: calcOp, b: calcB, result: r });
   if (calcHistory.length > 12) calcHistory.length = 12;
   calcResult = r;
@@ -4881,7 +4944,6 @@ function savePlanFromBoard() {
   plans.unshift(newPlan);
   persistPlans();
   renderPlans();
-  haptic(20);  // confirmation pulse
   showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
 }
 
@@ -4917,7 +4979,6 @@ function savePlanFromFurniture() {
   plans.unshift(newPlan);
   persistPlans();
   renderPlans();
-  haptic(20);  // confirmation pulse
   showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
 }
 
@@ -6692,9 +6753,6 @@ function unsubscribeCloud() {
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
   loadUnits();
-  loadHaptic();
-  const hbtn = document.getElementById('haptic-btn');
-  if (hbtn) hbtn.textContent = hapticOn ? '📳 Haptic On' : '📴 Haptic Off';
   loadCustomSpecies();
   loadLumberPrices();
   // Convert static HTML defaults (in inches) to the current unit BEFORE load() restores saved values.
