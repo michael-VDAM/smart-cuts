@@ -755,6 +755,19 @@
     .lib-search:focus { outline: none; border-color: var(--accent); }
     .wood-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
     .lib-empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; font-size: 13px; }
+    /* Region + tree-identification sections inside each wood card */
+    .wood-tree-section { display: grid; grid-template-columns: 80px 1fr; gap: 12px; padding: 12px 12px 10px; margin-top: 8px; background: rgba(212,160,86,0.06); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-radius: 8px; align-items: center; }
+    .wood-tree-section .wood-tree-art { width: 80px; height: 96px; color: #6b4525; flex-shrink: 0; }
+    [data-theme="light"] .wood-tree-section .wood-tree-art { color: #5a3920; }
+    .wood-tree-section .wood-tree-art svg { width: 100%; height: 100%; display: block; }
+    .wood-tree-heading, .wood-region-heading { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--accent); margin-bottom: 5px; }
+    .wood-tree-copy p, .wood-region-section p { font-size: 11.5px; color: var(--text); line-height: 1.55; margin: 0; }
+    .wood-region-section { padding: 10px 12px; margin-top: 6px; }
+    @media (max-width: 600px) {
+      .wood-tree-section { grid-template-columns: 64px 1fr; gap: 10px; }
+      .wood-tree-section .wood-tree-art { width: 64px; height: 76px; }
+    }
+
     .wood-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; overflow: hidden; transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
     .wood-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow); }
     .wood-swatch { height: 110px; position: relative; overflow: hidden; }
@@ -2320,6 +2333,113 @@ const WOOD_ENCYCLOPEDIA = {
     notes: 'Striped pattern means grain orientation must be consistent when glued. Visually striking.'
   },
 };
+// Stock tree silhouettes — small ~80×96 SVGs in a single accent color (tree-trunk brown).
+// Each species in WOOD_TREE_DATA references one of these by key.
+const TREE_ART = {
+  broad: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="36" y="60" width="8" height="32" rx="1"/><ellipse cx="40" cy="38" rx="34" ry="26"/><ellipse cx="22" cy="46" rx="14" ry="12"/><ellipse cx="58" cy="46" rx="14" ry="12"/></g></svg>`,
+  oval: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="36" y="58" width="8" height="34" rx="1"/><ellipse cx="40" cy="36" rx="26" ry="32"/></g></svg>`,
+  narrow: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="37" y="56" width="6" height="36" rx="1"/><ellipse cx="40" cy="32" rx="18" ry="28"/></g></svg>`,
+  conifer: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="37" y="68" width="6" height="24" rx="1"/><polygon points="40,4 22,30 30,30 18,52 28,52 14,72 66,72 52,52 62,52 50,30 58,30"/></g></svg>`,
+  cypress: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="37" y="74" width="6" height="18" rx="1"/><polygon points="40,8 30,32 36,32 26,52 34,52 22,72 58,72 46,52 54,52 44,32 50,32"/></g></svg>`,
+  spreading: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g fill="currentColor"><rect x="36" y="60" width="8" height="32" rx="1"/><ellipse cx="40" cy="40" rx="38" ry="22"/><ellipse cx="20" cy="36" rx="14" ry="14"/><ellipse cx="60" cy="36" rx="14" ry="14"/><ellipse cx="40" cy="24" rx="16" ry="14"/></g></svg>`,
+  birch: `<svg viewBox="0 0 80 96" xmlns="http://www.w3.org/2000/svg"><g><rect x="36" y="44" width="8" height="48" fill="#e8ddc8"/><rect x="36" y="50" width="8" height="2" fill="#3a2818"/><rect x="36" y="62" width="8" height="2" fill="#3a2818"/><rect x="36" y="78" width="8" height="2" fill="#3a2818"/><ellipse cx="40" cy="28" rx="24" ry="22" fill="currentColor"/></g></svg>`,
+};
+
+// Detailed regional + arborist data per species. Used by the Wood Library card.
+// Not every species is in here yet — entries are progressively added.
+const WOOD_TREE_DATA = {
+  'Walnut': {
+    region: 'Native from southern Ontario down to Texas, and from Pennsylvania west to Nebraska. Highest concentrations through the so-called "Walnut Belt" — Missouri, Kentucky, Indiana, Ohio. Prized old-growth wild stock matures 80–100 years; plantation timber rarely matches the figure of stream-bottom trees.',
+    tree: '60–100 ft tall, 2–3 ft trunk diameter. Compound pinnate leaves with 15–23 lance-shaped leaflets that yellow in fall. Bark is rough dark gray-brown with deep diamond-pattern furrows. In fall, round green husks the size of tennis balls contain the famous nut — and stain skin and hands jet-black.',
+    art: 'oval',
+  },
+  'Maple': {
+    region: 'Northeast US (Vermont, New York, Pennsylvania, Maine) and southeastern Canada (Ontario, Quebec, New Brunswick). Cold winters required — same trees that yield maple syrup. Best lumber comes from northern slopes with rocky, well-drained soil where trees grow slow and dense.',
+    tree: '60–80 ft tall, 1–2 ft trunk diameter. Distinctive 5-lobed palmate leaves that turn brilliant orange, red, and yellow in autumn. Smooth gray bark on young trees, deeply furrowed and scaly on mature ones. Helicopter-blade seed samaras spin to the ground in pairs.',
+    art: 'oval',
+  },
+  'Soft Maple': {
+    region: 'Wider range than Sugar Maple — eastern US from Florida to southern Canada. Faster-growing on river bottoms and wet ground. Generally cheaper than hard maple, slightly softer (Janka ~950 vs 1450).',
+    tree: 'Includes red maple (Acer rubrum) and silver maple (A. saccharinum). 50–75 ft tall. Leaves smaller and more deeply lobed than sugar maple. Red flowers in very early spring before leaves emerge — one of the first signs of the season.',
+    art: 'oval',
+  },
+  'Cherry': {
+    region: 'Eastern US — Pennsylvania, Virginia, West Virginia, Ohio, New York are the heartland. Wild forest understory tree; doesn\'t plant well in plantations. Clear lumber demands selective harvest because galls and pin-knots are common.',
+    tree: '60–80 ft tall, 2 ft trunk diameter. Long lance-shaped serrated leaves, glossy dark green on top. Mature bark is dark gray-black, peeling in horizontal strips with a characteristic "burnt potato chip" look. White flower clusters in spring become small black cherries by midsummer (bitter but edible).',
+    art: 'oval',
+  },
+  'White Oak': {
+    region: 'Eastern North America — Maine to Florida, west to Texas and Minnesota. Quercus alba dominates upland forests. The dense, closed-pore structure that makes it watertight is why every bourbon barrel and wine cask in America is white oak.',
+    tree: '80–100 ft tall, 3–4 ft diameter. Massive spreading crown when grown in the open. Rounded-lobe leaves (5–9 lobes, no bristles on the tips) turn deep red in fall. Bark is light ash-gray with shallow vertical strips. Acorns mature in a single season.',
+    art: 'spreading',
+  },
+  'Red Oak': {
+    region: 'Eastern US and Canada — Maine to Georgia, west to Iowa. Faster-growing than white oak and more abundant. Quercus rubra. Open pores mean it\'s NOT water-tight (don\'t use for outdoor furniture without sealing).',
+    tree: '70–100 ft tall, 2–3 ft diameter. Pointed-lobe leaves with bristle tips (3–11 lobes) — easiest way to tell from white oak. Bark is dark gray-brown with broad flat-topped ridges. Acorns take 2 years to mature.',
+    art: 'spreading',
+  },
+  'Ash': {
+    region: 'Eastern US (especially the Midwest), Canada. Fraxinus americana for white ash; F. nigra for black ash. The species hit hard by the Emerald Ash Borer since 2002 — most commercial ash today comes from salvage cuts ahead of the borer\'s spread.',
+    tree: '60–80 ft tall. Compound leaves with 5–9 leaflets, opposite branching (rare among trees — only Maple, Ash, Dogwood, Horse chestnut). Bark has distinctive diamond-shaped ridges. Tall straight trunks made this the historical wood for baseball bats and tool handles.',
+    art: 'oval',
+  },
+  'Hickory': {
+    region: 'Eastern US — Pennsylvania, Indiana, Kentucky, Tennessee, North Carolina. Carya ovata (shagbark) and C. tomentosa (mockernut) are the commercial workhorses. Famously hard and tough — used for tool handles, ladder rungs, and wagon wheels.',
+    tree: '70–100 ft tall, 1–2 ft diameter. Compound leaves with 5–9 lance-shaped leaflets. Shagbark hickory has the unmistakable peeling-plate bark — long strips that curl outward, looking like the tree is shedding. Sweet edible nuts; smoke chips made from this wood are prized for BBQ.',
+    art: 'narrow',
+  },
+  'Alder': {
+    region: 'Pacific Northwest — Oregon, Washington, British Columbia, northern California. Red alder (Alnus rubra) grows along streams and recently-disturbed clearcuts. Fast-growing pioneer species that conditions soil for conifers to follow.',
+    tree: '40–80 ft tall, 1–2 ft diameter. Smooth, almost-white bark when young, becoming gray and lightly furrowed. Oval, double-serrated leaves stay green into fall. Small cone-like fruits persist on bare branches through winter — distinctive in the leafless season.',
+    art: 'oval',
+  },
+  'Birch': {
+    region: 'Northern US and Canada — New England, the Great Lakes, Maritime provinces. Yellow birch (Betula alleghaniensis) for lumber; paper birch (B. papyrifera) is the iconic white one. Cold-climate tree; gets stressed and dies south of Pennsylvania.',
+    tree: '60–80 ft tall. Paper birch has the famous chalk-white bark that peels in horizontal sheets — used historically for canoes and writing surfaces. Diamond-shaped leaves with serrated edges. Catkins hang in spring. Yellow birch has shiny bronze bark.',
+    art: 'birch',
+  },
+  'Cedar': {
+    region: 'Western red cedar (Thuja plicata) grows in coastal Pacific Northwest — Oregon, Washington, BC. Eastern red cedar (Juniperus virginiana, technically a juniper) is across the eastern US. Both are highly rot-resistant — naturally weatherproof outdoor lumber.',
+    tree: 'Western: 100–200 ft tall, massive 3–10 ft diameter. Scale-like flat needles in fan-shaped sprays. Stringy reddish-brown bark peels in vertical strips. Eastern red cedar is smaller (40–60 ft), pyramidal, with blue-gray berries that flavor gin.',
+    art: 'conifer',
+  },
+  'Cypress': {
+    region: 'Bald cypress (Taxodium distichum) — southeastern US wetlands. Louisiana, Florida, Georgia, Mississippi. Lives in standing water. The fluted base and "knees" (root protrusions above the water line) are unmistakable.',
+    tree: '80–120 ft tall, 3–6 ft diameter. Soft, feathery needles that turn rust-red and drop in winter (rare for a conifer to be deciduous). Buttressed trunk base. Massive specimens in Louisiana swamps are 1500+ years old.',
+    art: 'cypress',
+  },
+  'Pine': {
+    region: 'Eastern white pine (Pinus strobus) — New England, Great Lakes, Appalachians, Canada. The "King\'s Pine" tree of the colonial era; tallest tree in eastern North America (up to 220 ft historically). Yellow pine (P. taeda, P. echinata) covers the southeastern US.',
+    tree: 'Eastern white: 80–200 ft tall. Long bluish-green needles in bundles of FIVE — easy ID. Smooth gray bark when young, deeply furrowed and dark brown when old. Long cylindrical cones 4–8 in. Soft, easy to work; the prototypical "softwood."',
+    art: 'conifer',
+  },
+  'Poplar': {
+    region: 'Eastern US — virtually everywhere from Florida to Maine, west to Texas. Yellow poplar / tulip poplar (Liriodendron tulipifera) is misleadingly named — not a true poplar (Populus) but a tulip-tree (Magnoliaceae). Massive forest trees, often the tallest hardwood in eastern North America.',
+    tree: '90–150 ft tall, 3–6 ft diameter. Distinctive 4-lobed tulip-shaped leaves. Spectacular yellow-green tulip flowers with orange bases in late spring — high in the canopy, often unnoticed from the ground. Straight clear trunks; one of the easiest hardwoods to find clear 20-ft lumber from.',
+    art: 'narrow',
+  },
+  'Sapele': {
+    region: 'West African tropical rainforest — Cameroon, Ghana, Ivory Coast, Nigeria. Entandrophragma cylindricum. A mahogany substitute since Honduran/Cuban mahogany became scarce; ribbon-figured quarter-sawn boards are particularly prized.',
+    tree: '100–150 ft tall, 3–6 ft diameter. Compound leaves with 8–12 lance-shaped leaflets. Buttressed trunk. Distinctive cedar-like scent when freshly cut. CITES-listed since 2022 — sustainable certification matters.',
+    art: 'broad',
+  },
+  'Purpleheart': {
+    region: 'Central and South American tropical rainforests — Suriname, Brazil, Guyana, French Guiana, Venezuela. Peltogyne genus. Fresh-cut wood is grayish brown; turns brilliant purple within days of exposure to air and UV.',
+    tree: '100–150 ft tall, 3–4 ft diameter. Compound leaves with 2–4 pairs of leaflets. Pinkish-white flowers. Slow-growing and densely packed wood — Janka 1860, harder than hickory. Resists most rot and insects.',
+    art: 'broad',
+  },
+  'Padauk': {
+    region: 'Central and West African tropical forests — Cameroon, Gabon, Democratic Republic of the Congo. Pterocarpus soyauxii. Distinctive bright red-orange when freshly cut, mellows to deep burgundy-brown over months of air exposure.',
+    tree: '100 ft tall, 3 ft diameter. Compound leaves with 5–11 leaflets. Yellow pea-like flowers and round flat seed pods. The dust is a known sensitizer — respiratory protection essential when sanding.',
+    art: 'broad',
+  },
+  'Wenge': {
+    region: 'Central African swamp forests — Cameroon, Gabon, Tanzania, Mozambique. Millettia laurentii. Strikingly dark wood with near-black stripes; almost ebony-like but at half the cost. CITES-listed; sustainable sourcing matters.',
+    tree: '60–90 ft tall. Compound pinnate leaves. Naturally durable, but the dust is one of the most irritating to lungs and skin in commercial use — many woodworkers won\'t even work it.',
+    art: 'broad',
+  },
+};
+
 const DEFAULT_SPECIES = [{ ...SPECIES_PALETTE[0] }, { ...SPECIES_PALETTE[1] }];
 
 // ═════════════════════════════ UNITS ══════════════════════════════════════
@@ -6095,7 +6215,21 @@ function renderWoodLibrary() {
   }
   grid.innerHTML = filtered.map(w => {
     const enc = WOOD_ENCYCLOPEDIA[w.name] || {};
+    const treeData = WOOD_TREE_DATA[w.name];
     const jankaPct = Math.min(100, ((enc.janka || 0) / jankaMax) * 100);
+    const treeBlock = treeData ? `
+      <div class="wood-tree-section">
+        <div class="wood-tree-art">${TREE_ART[treeData.art] || TREE_ART.oval}</div>
+        <div class="wood-tree-copy">
+          <div class="wood-tree-heading">The tree</div>
+          <p>${treeData.tree}</p>
+        </div>
+      </div>
+      <div class="wood-region-section">
+        <div class="wood-region-heading">Where it grows</div>
+        <p>${treeData.region}</p>
+      </div>
+    ` : '';
     return `
       <div class="wood-card">
         <div class="wood-swatch" style="background:${w.color}">
@@ -6112,6 +6246,7 @@ function renderWoodLibrary() {
           ${enc.workability ? `<div class="wood-row"><span class="lbl">Working</span><span class="val">${enc.workability}</span></div>` : ''}
           ${enc.uses ? `<div class="wood-row"><span class="lbl">Uses</span><span class="val">${enc.uses}</span></div>` : ''}
           ${enc.notes ? `<div class="wood-row"><span class="lbl">Notes</span><span class="val">${enc.notes}</span></div>` : ''}
+          ${treeBlock}
         </div>
       </div>
     `;
