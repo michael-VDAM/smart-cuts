@@ -190,6 +190,28 @@
     .strip-row.linked input { border-color: var(--accent); background: var(--accent-soft); }
     .strip-link-pill { font-size: 9.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.3px; white-space: nowrap; cursor: default; user-select: none; }
 
+    /* Pattern picker trigger card + bottom-sheet picker */
+    .pattern-trigger { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color 0.12s; text-align: left; }
+    .pattern-trigger:hover { border-color: var(--accent); }
+    .pattern-trigger:active { transform: scale(0.98); }
+    .pattern-trigger-thumb { width: 72px; height: 48px; border-radius: 6px; overflow: hidden; flex-shrink: 0; background: var(--panel3); display: block; }
+    .pattern-trigger-thumb svg { width: 100%; height: 100%; display: block; }
+    .pattern-trigger-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .pattern-trigger-name { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: 0.1px; }
+    .pattern-trigger-hint { font-size: 10px; color: var(--muted); letter-spacing: 0.3px; }
+    .pattern-trigger-chev { font-size: 22px; color: var(--muted); font-weight: 700; line-height: 1; padding-right: 4px; }
+
+    .pattern-sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 600px) { .pattern-sheet-grid { grid-template-columns: repeat(3, 1fr); } }
+    .pattern-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; transition: all 0.12s; display: flex; flex-direction: column; gap: 5px; text-align: left; }
+    .pattern-card:hover { border-color: var(--accent); }
+    .pattern-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .pattern-card-thumb { width: 100%; aspect-ratio: 3 / 2; border-radius: 6px; overflow: hidden; background: var(--panel3); }
+    .pattern-card-thumb svg { width: 100%; height: 100%; display: block; }
+    .pattern-card-label { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: 0.1px; padding: 0 2px; }
+    .pattern-card-desc { font-size: 10px; color: var(--muted); padding: 0 2px; line-height: 1.3; }
+    .pattern-card.selected .pattern-card-label { color: var(--accent); }
+
     /* Ratio templates above the strip list — formula-driven layouts */
     .ratio-presets { margin-bottom: 12px; padding: 9px 10px 10px; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; }
     .ratio-presets-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
@@ -1113,20 +1135,17 @@
         </div>
       </div>
 
-      <!-- End grain pattern -->
+      <!-- End grain pattern — tap the card to open the picker sheet -->
       <div class="section" id="pattern-section">
         <div class="section-label">End Grain Pattern</div>
-        <div class="seg-toggle cols3" style="margin-bottom:4px">
-          <button class="seg-btn active" id="pat-checker" onclick="setPattern('checker')">Checker</button>
-          <button class="seg-btn" id="pat-brick" onclick="setPattern('brick')">Brick</button>
-          <button class="seg-btn" id="pat-stripe" onclick="setPattern('stripe')">Stripe</button>
-        </div>
-        <div class="seg-toggle cols4">
-          <button class="seg-btn" id="pat-plaid" onclick="setPattern('plaid')">Plaid</button>
-          <button class="seg-btn" id="pat-cube3d" onclick="setPattern('cube3d')">3D Cube</button>
-          <button class="seg-btn" id="pat-herring" onclick="setPattern('herring')">Herring.</button>
-          <button class="seg-btn" id="pat-random" onclick="setPattern('random')">Random</button>
-        </div>
+        <button class="pattern-trigger" id="pattern-trigger" onclick="openPatternPicker()">
+          <span class="pattern-trigger-thumb" id="pattern-trigger-thumb"></span>
+          <span class="pattern-trigger-text">
+            <span class="pattern-trigger-name" id="pattern-trigger-name">Checker</span>
+            <span class="pattern-trigger-hint">Tap to pick a pattern</span>
+          </span>
+          <span class="pattern-trigger-chev">›</span>
+        </button>
       </div>
 
       <!-- Standard sizes — only shown in Standard mode -->
@@ -2651,13 +2670,148 @@ function setMode(m) {
   }
   save(); scheduleRunPlanner();
 }
+// Pattern catalog: visible label, description, and a thumbnail-SVG factory.
+// Adding a new end-grain pattern? Add an entry here + the rendering in the
+// real pattern renderer + the build-step description.
+const PATTERN_CATALOG = [
+  { key: 'checker',  label: 'Checker',     desc: 'Classic alternating tiles' },
+  { key: 'brick',    label: 'Brick',       desc: 'Offset rows like masonry' },
+  { key: 'stripe',   label: 'Stripe',      desc: 'Long horizontal bands' },
+  { key: 'plaid',    label: 'Plaid',       desc: 'Three-species woven check' },
+  { key: 'cube3d',   label: '3D Cube',     desc: 'Tumbling-block illusion' },
+  { key: 'herring',  label: 'Herringbone', desc: 'Angled V-shape stripes' },
+  { key: 'random',   label: 'Random',      desc: 'Irregular puzzle layout' },
+];
+
+// Small SVG thumbnail per pattern, walnut + maple (+ oak on plaid/cube).
+function _patternThumb(key) {
+  const dk = '#5d3a1a', lt = '#d4b896', md = '#a07e4e';
+  const W = 72, H = 48;
+  const wrap = inner => `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><rect width="${W}" height="${H}" fill="${lt}"/>${inner}</svg>`;
+  if (key === 'checker') {
+    let s = '';
+    const cols = 8, rows = 5, cw = W / cols, ch = H / rows;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
+      if ((c + r) % 2) s += `<rect x="${(c*cw).toFixed(2)}" y="${(r*ch).toFixed(2)}" width="${cw.toFixed(2)}" height="${ch.toFixed(2)}" fill="${dk}"/>`;
+    return wrap(s);
+  }
+  if (key === 'brick') {
+    let s = '';
+    const rows = 4, bw = W / 3, bh = H / rows;
+    for (let r = 0; r < rows; r++) {
+      const off = (r % 2) * (bw / 2);
+      for (let c = -1; c < 4; c++) {
+        const x = c * bw + off;
+        s += `<rect x="${x.toFixed(2)}" y="${(r*bh).toFixed(2)}" width="${(bw - 1).toFixed(2)}" height="${(bh - 1).toFixed(2)}" fill="${(c + r) % 2 ? dk : md}"/>`;
+      }
+    }
+    return wrap(s);
+  }
+  if (key === 'stripe') {
+    let s = '';
+    const rows = 6, bh = H / rows;
+    for (let r = 0; r < rows; r++)
+      s += `<rect x="0" y="${(r*bh).toFixed(2)}" width="${W}" height="${bh.toFixed(2)}" fill="${r % 2 ? dk : lt}"/>`;
+    return wrap(s);
+  }
+  if (key === 'plaid') {
+    // Repeating 3-row × 4-col plaid: dk / lt / md / lt
+    let s = '';
+    const colors = [dk, lt, md, lt];
+    const cw = W / 8, ch = H / 5;
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 8; c++) {
+      s += `<rect x="${(c*cw).toFixed(2)}" y="${(r*ch).toFixed(2)}" width="${cw.toFixed(2)}" height="${ch.toFixed(2)}" fill="${colors[(c + r) % 4]}"/>`;
+    }
+    return wrap(s);
+  }
+  if (key === 'cube3d') {
+    // Tumbling block: a row of rhombus cubes (top diamond, dark-left, light-right)
+    let s = '';
+    const cw = 18, rows = 3, off = cw / 2;
+    for (let r = 0; r < rows; r++) {
+      const yo = r * cw * 0.866;
+      const xshift = (r % 2) * (cw * 0.75);
+      for (let c = -1; c < 5; c++) {
+        const cx = c * (cw * 1.5) + xshift;
+        const cy = yo + cw * 0.866;
+        // top
+        s += `<polygon points="${cx},${cy - cw*0.866} ${cx+cw*0.75},${cy - cw*0.433} ${cx},${cy} ${cx-cw*0.75},${cy - cw*0.433}" fill="${md}"/>`;
+        // left
+        s += `<polygon points="${cx-cw*0.75},${cy - cw*0.433} ${cx},${cy} ${cx},${cy + cw*0.866} ${cx-cw*0.75},${cy + cw*0.433}" fill="${dk}"/>`;
+        // right
+        s += `<polygon points="${cx+cw*0.75},${cy - cw*0.433} ${cx},${cy} ${cx},${cy + cw*0.866} ${cx+cw*0.75},${cy + cw*0.433}" fill="${lt}"/>`;
+      }
+    }
+    return wrap(s);
+  }
+  if (key === 'herring') {
+    // Herringbone: alternating angled bars
+    let s = '';
+    const bw = 10, bh = 22;
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 6; c++) {
+        const x = c * bw;
+        const y = r * (bh / 2);
+        const fill = (c + r) % 2 ? dk : lt;
+        const angle = (c + r) % 2 ? 35 : -35;
+        s += `<rect x="${x}" y="${y - 5}" width="${bw - 1}" height="${(bh / 2) - 1}" fill="${fill}" transform="rotate(${angle} ${x + bw/2} ${y + bh/4})"/>`;
+      }
+    }
+    return wrap(`<g>${s}</g>`);
+  }
+  if (key === 'random') {
+    // Pseudo-random irregular cells
+    let s = '';
+    const seed = [
+      [0,0,18,18,dk], [18,0,14,12,lt], [32,0,16,18,md], [48,0,12,12,dk], [60,0,12,14,lt],
+      [18,12,14,16,dk], [48,12,12,12,lt],
+      [0,18,12,16,lt], [12,18,12,14,md], [32,18,16,14,dk],
+      [60,14,12,18,md],
+      [0,34,18,14,md], [18,28,18,20,lt], [36,28,12,20,dk], [48,24,24,24,md],
+    ];
+    seed.forEach(([x,y,w,h,c]) => { s += `<rect x="${x}" y="${y}" width="${w-1}" height="${h-1}" fill="${c}"/>`; });
+    return wrap(s);
+  }
+  return wrap('');
+}
+
 function setPattern(p) {
   pattern = p;
-  ['checker','brick','stripe','plaid','cube3d','herring','random'].forEach(x => {
-    const el = document.getElementById('pat-' + x);
-    if (el) el.classList.toggle('active', p === x);
-  });
+  // Update the trigger card UI (replaces the old segmented buttons)
+  const thumb = document.getElementById('pattern-trigger-thumb');
+  const name = document.getElementById('pattern-trigger-name');
+  const def = PATTERN_CATALOG.find(d => d.key === p) || PATTERN_CATALOG[0];
+  if (thumb) thumb.innerHTML = _patternThumb(p);
+  if (name) name.textContent = def.label;
   save(); scheduleRunPlanner();
+}
+
+function openPatternPicker() {
+  closeDrumPicker();  // close any existing sheet
+  const cards = PATTERN_CATALOG.map(d => `
+    <button class="pattern-card${d.key === pattern ? ' selected' : ''}" onclick="setPattern('${d.key}'); closeDrumPicker()">
+      <div class="pattern-card-thumb">${_patternThumb(d.key)}</div>
+      <div class="pattern-card-label">${d.label}</div>
+      <div class="pattern-card-desc">${d.desc}</div>
+    </button>
+  `).join('');
+  const overlay = document.createElement('div');
+  overlay.className = 'drum-overlay';
+  overlay.id = 'drum-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeDrumPicker(); });
+  overlay.innerHTML = `
+    <div class="drum-sheet" role="dialog" aria-label="Pick a pattern">
+      <div class="drum-handle"></div>
+      <div class="drum-header">
+        <button class="drum-cancel" onclick="closeDrumPicker()">Cancel</button>
+        <span class="drum-label">End Grain Pattern</span>
+        <button class="drum-done" onclick="closeDrumPicker()">Done</button>
+      </div>
+      <div class="pattern-sheet-grid" style="padding:4px 0">${cards}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
 }
 function setFurnType(t) {
   furnType = t;
