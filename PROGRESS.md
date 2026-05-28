@@ -131,6 +131,28 @@ Twenty-six commits in one session. Major themes:
 8. Drum picker on every length/width/thickness field
 9. Pattern picker overhaul — bottom-sheet with thumbnails
 10. Wood Library: regional detail + tree-identification per species
+11. Wave 5: Custom species + Build timer + Shop-ready print + Haptic feedback
+
+### Wave 5 (the last thing shipped in this session)
+- **Custom species** — "+ Add custom species" on Lumber Prices opens a modal with name + color picker + Janka + $/bf. Custom entries get `cat:'custom'`, "★ CUSTOM" badge, and blend into the cutting-board species picker alongside the 56 Mimms species via a new `allSpecies()` helper. Edit/delete inline. New cloud collection `customSpecies`.
+- **Build timer per Plan** — `{ accumulated: ms, startedAt: ts|null }` per plan. Start / Pause / Reset on every Plan card with live ticking display. Only ONE plan times at once. Header pill shows "● 12m 34s" when any timer is running. Assigning a plan to a Project auto-fills the project's hours field from the timer.
+- **Shop-ready print** — `🖨 Print cut sheet` button next to Save Plan. @page letter, 0.5in margin. Hides every interactive control. Branded print-header injected via `beforeprint` hook with weekday-formatted date.
+- **Haptic feedback** — `navigator.vibrate()` at low ms on tab switches, pattern picks, drum snaps, calculator operators, save plan. Toggle in ⋯ menu. Android honors it; iOS Safari silently ignores.
+
+## Queue for next session (in priority order)
+
+1. **#35 Parametric stripe pattern** — Michael's idea: replace ratio-template chips with a real parametric system. Variable panel (x = 1.5", y = 0.5", z = 0.25"), each strip has a FORMULA field that accepts literals ("0.5"), variables ("x"), multipliers ("1.5x"), arithmetic ("x/2", "x+y"). Changing a variable propagates to every strip referencing it. Same formula = implicitly linked (replaces same-width linking). Existing Sym 5 / Halves / Golden templates get rewritten to seed this system instead of producing fixed widths. The current ratio templates "aren't working as intended" — this is the fix.
+2. **New end-grain patterns** — Chevron, Basketweave, Diagonal Stripe. Each needs the cutting-render math in `svgFinishedBoard` + step descriptions, not just a thumbnail. Pattern picker UI already scales.
+3. **Academy lessons → quizzes curriculum** — Michael will write content, I scaffold. Beginner → Apprentice → Journeyman → Master tracks. Each lesson = text + diagrams → quiz at the end. Progressive unlock.
+4. **Photo annotation on Projects** — canvas drawing on uploaded build photos: arrows, circles, text labels. Turns Projects into a learning journal.
+5. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
+6. **Wood movement calculator** — given species + width + seasonal humidity range, predict expansion in inches/mm. Pairs with Wood Library.
+7. **Global search (⌘K)** — one bar searches plans, projects, species, supplies.
+8. **Hardware database** — fasteners, glues, finishes with prices. Pairs with Lumber Prices for true total cost.
+9. **Fill out remaining ~40 species** with tree+region data (currently 18/58 covered).
+
+## Voice features explicitly OFF the table (per Michael)
+- No "Hey Sparky" voice commands. No Web Speech API. He didn't want them.
 
 ## Session 3 visual + feature overhaul (2026-05-27)
 

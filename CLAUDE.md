@@ -1,9 +1,9 @@
-# CLAUDE.md — Smart Cuts Project Briefing
+# CLAUDE.md — Bright Cuts Project Briefing
 
 **Read this first** at the start of every session. Then read PROGRESS.md (what's done) and DECISIONS.md (why we built it this way).
 
 ## What this is
-**Smart Cuts** — a single-file HTML app for woodworking, installable on phone via Add to Home Screen (PWA). By **Michael Makes It Work** (Michael Ross's personal woodworking brand). Lives in `~/code/woodshop/` locally (folder name unchanged), pushed to https://github.com/michael-VDAM/smart-cuts, deployed to https://michael-vdam.github.io/smart-cuts/. (Renamed from "Bright Cuts" → "Smart Cuts" on 2026-05-27, repo + URL slug renamed too.)
+**Bright Cuts** — a single-file HTML app for woodworking, installable on phone via Add to Home Screen (PWA). By **Michael Makes It Work** (Michael Ross's personal woodworking brand). Lives in `~/code/woodshop/` locally (folder name unchanged), pushed to https://github.com/michael-VDAM/smart-cuts (legacy slug from a brief 2026-05-27 rename that's since been undone), deployed to https://michael-vdam.github.io/smart-cuts/. The app's display name is **Bright Cuts**; the `smart-cuts/` URL is kept only to avoid breaking the existing PWA install on Michael's phone.
 
 ## Tech stack
 - **One file**: `index.html` (~4600 lines including inline CSS + JS) + a few static assets (icons, manifest)
