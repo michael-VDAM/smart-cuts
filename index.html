@@ -1153,6 +1153,7 @@
     <button class="tab" data-tab="academy">Academy</button>
     <button class="tab" data-tab="shop">My Shop</button>
     <button class="tab" data-tab="prices">Lumber Prices</button>
+    <button class="tab" data-tab="hardware">Hardware</button>
     <button class="tab" data-tab="calc">Calculator</button>
   </div>
   <div class="header-spacer"></div>
@@ -1662,6 +1663,13 @@
 <div id="tab-prices" style="display:none" class="workspace single-col">
   <div class="output-col prices-col">
     <div id="prices-content"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ TAB: HARDWARE ════════════════════════════════ -->
+<div id="tab-hardware" style="display:none" class="workspace single-col">
+  <div class="output-col prices-col">
+    <div id="hardware-content"></div>
   </div>
 </div>
 
@@ -5278,6 +5286,153 @@ function renderLumberPrices() {
   renderPricesSummary();
 }
 
+// ═════════════════════════════ HARDWARE DATABASE ══════════════════════════
+// Pre-populated catalog of fasteners, glues, finishes, and hardware. Default
+// prices are ballpark — user can override per-item; overrides persist locally
+// (and sync via cloudPush) just like Lumber Prices. Search by name/brand/cat.
+// Item shape: { id, cat, name, brand, unit, price, notes? }
+const HARDWARE_CATALOG = [
+  // Wood glue
+  { id: 'glue-tb2',      cat: 'glue', name: 'Wood Glue (Type II — water resistant)',  brand: 'Titebond II Premium',        unit: '16 oz',   price: 10 },
+  { id: 'glue-tb3',      cat: 'glue', name: 'Wood Glue (Type III — waterproof)',      brand: 'Titebond III Ultimate',      unit: '16 oz',   price: 12 },
+  { id: 'glue-tb-orig',  cat: 'glue', name: 'Wood Glue (interior)',                   brand: 'Titebond Original',          unit: '16 oz',   price: 8 },
+  { id: 'glue-gorilla',  cat: 'glue', name: 'Wood Glue',                              brand: 'Gorilla Wood Glue',          unit: '18 oz',   price: 11 },
+  { id: 'glue-ca-thin',  cat: 'glue', name: 'CA Glue (thin)',                         brand: 'Starbond / Bob Smith',       unit: '2 oz',    price: 12 },
+  { id: 'glue-ca-med',   cat: 'glue', name: 'CA Glue (medium)',                       brand: 'Starbond / Bob Smith',       unit: '2 oz',    price: 12 },
+  { id: 'glue-epoxy',    cat: 'glue', name: 'Epoxy (2-part, 5-min)',                  brand: 'Devcon / Loctite',           unit: '0.85 oz', price: 8 },
+  { id: 'glue-epoxy-clear', cat: 'glue', name: 'Epoxy (table-top, clear pour)',       brand: 'TotalBoat / Ecopoxy',        unit: '1 gal',   price: 90 },
+  { id: 'glue-hide',     cat: 'glue', name: 'Liquid Hide Glue',                       brand: 'Titebond / Old Brown Glue',  unit: '8 oz',    price: 14 },
+  // Fasteners
+  { id: 'screw-pocket',  cat: 'fastener', name: 'Pocket Screws (#7 × 1-1/4")',        brand: 'Kreg',                       unit: '100 ct',  price: 12 },
+  { id: 'screw-pocket-fine', cat: 'fastener', name: 'Pocket Screws (fine, hardwoods)',brand: 'Kreg fine-thread',           unit: '100 ct',  price: 13 },
+  { id: 'screw-wood-1',  cat: 'fastener', name: 'Wood Screws #8 × 1-1/4"',            brand: 'GRK / Spax',                 unit: '100 ct',  price: 14 },
+  { id: 'screw-wood-2',  cat: 'fastener', name: 'Wood Screws #8 × 2"',                brand: 'GRK / Spax',                 unit: '100 ct',  price: 18 },
+  { id: 'screw-wood-25', cat: 'fastener', name: 'Wood Screws #10 × 2-1/2"',           brand: 'GRK / Spax',                 unit: '50 ct',   price: 16 },
+  { id: 'brad-1',        cat: 'fastener', name: 'Brad Nails 18ga × 1"',               brand: 'Senco / Porter-Cable',       unit: '5000 ct', price: 18 },
+  { id: 'brad-15',       cat: 'fastener', name: 'Brad Nails 18ga × 1-1/2"',           brand: 'Senco / Porter-Cable',       unit: '5000 ct', price: 22 },
+  { id: 'pin-1',         cat: 'fastener', name: 'Pin Nails 23ga × 1"',                brand: 'Grex / Senco',               unit: '2000 ct', price: 14 },
+  { id: 'dowel-14',      cat: 'fastener', name: 'Dowels 1/4" × 1-1/2"',               brand: 'Woodcraft / generic',        unit: '100 ct',  price: 8 },
+  { id: 'dowel-38',      cat: 'fastener', name: 'Dowels 3/8" × 2"',                   brand: 'Woodcraft / generic',        unit: '100 ct',  price: 11 },
+  { id: 'biscuit-20',    cat: 'fastener', name: 'Biscuits #20',                       brand: 'Lamello / Porter-Cable',     unit: '125 ct',  price: 16 },
+  { id: 'plug-wood',     cat: 'fastener', name: 'Wood Plugs (3/8")',                  brand: 'mixed species',              unit: '100 ct',  price: 9 },
+  // Finishes — food-safe / cutting boards
+  { id: 'fin-walrus',    cat: 'finish', name: 'Cutting Board Oil + Beeswax',          brand: 'Walrus Oil',                 unit: '16 oz',   price: 22 },
+  { id: 'fin-mineral',   cat: 'finish', name: 'Mineral Oil (food-grade)',             brand: 'Howard / generic',           unit: '16 oz',   price: 9 },
+  { id: 'fin-paste-wax', cat: 'finish', name: 'Beeswax Paste (food-safe)',            brand: 'Howard Feed-N-Wax',          unit: '16 oz',   price: 14 },
+  { id: 'fin-tried',     cat: 'finish', name: 'Tried & True (food-safe)',             brand: 'Original Wood Finish',       unit: '8 oz',    price: 20 },
+  // Finishes — furniture
+  { id: 'fin-danish',    cat: 'finish', name: 'Danish Oil (natural)',                 brand: 'Watco',                      unit: '32 oz',   price: 16 },
+  { id: 'fin-osmo',      cat: 'finish', name: 'Polyx Hard-Wax Oil',                   brand: 'Osmo',                       unit: '750 ml',  price: 70 },
+  { id: 'fin-armrseal',  cat: 'finish', name: 'Arm-R-Seal Topcoat (satin)',           brand: 'General Finishes',           unit: '32 oz',   price: 28 },
+  { id: 'fin-wipe-poly', cat: 'finish', name: 'Wipe-On Polyurethane',                 brand: 'Minwax',                     unit: '32 oz',   price: 16 },
+  { id: 'fin-shellac',   cat: 'finish', name: 'Shellac (amber)',                      brand: 'Zinsser SealCoat',           unit: '32 oz',   price: 18 },
+  { id: 'fin-tung',      cat: 'finish', name: 'Pure Tung Oil',                        brand: 'Real Milk Paint',            unit: '32 oz',   price: 30 },
+  // Stains
+  { id: 'stain-walnut',  cat: 'finish', name: 'Stain — Special Walnut',               brand: 'Minwax',                     unit: '8 oz',    price: 9 },
+  { id: 'stain-provincial', cat: 'finish', name: 'Stain — Provincial',                brand: 'Minwax',                     unit: '8 oz',    price: 9 },
+  { id: 'stain-ebony',   cat: 'finish', name: 'Stain — Ebony',                        brand: 'Minwax',                     unit: '8 oz',    price: 9 },
+  { id: 'stain-golden',  cat: 'finish', name: 'Stain — Golden Oak',                   brand: 'Minwax',                     unit: '8 oz',    price: 9 },
+  // Drawer / cabinet hardware
+  { id: 'slide-14',      cat: 'hardware', name: 'Drawer Slides 14" full-extension',   brand: 'Blum / Accuride',            unit: 'pair',    price: 18 },
+  { id: 'slide-20',      cat: 'hardware', name: 'Drawer Slides 20" full-extension',   brand: 'Blum / Accuride',            unit: 'pair',    price: 24 },
+  { id: 'slide-undermount', cat: 'hardware', name: 'Drawer Slides 18" undermount soft-close', brand: 'Blum Tandem', unit: 'pair', price: 42 },
+  { id: 'hinge-euro',    cat: 'hardware', name: 'Euro Hinges (35mm, soft-close)',     brand: 'Blum / Salice',              unit: 'pair',    price: 9 },
+  { id: 'hinge-butt',    cat: 'hardware', name: 'Butt Hinges 2-1/2" (brass)',         brand: 'Stanley',                    unit: 'pair',    price: 11 },
+  { id: 'pull-bar',      cat: 'hardware', name: 'Bar Pulls 4" (brushed nickel)',      brand: 'Amerock / Liberty',          unit: 'each',    price: 5 },
+  { id: 'knob-mush',     cat: 'hardware', name: 'Mushroom Knobs 1-1/4" (brass)',      brand: 'Liberty / Schaub',           unit: 'each',    price: 4 },
+  { id: 'shelfpin',      cat: 'hardware', name: 'Shelf Pins 1/4" (brass)',            brand: 'Rockler',                    unit: '50 ct',   price: 8 },
+  { id: 'magcatch',      cat: 'hardware', name: 'Magnetic Catches',                   brand: 'generic',                    unit: 'pair',    price: 4 },
+  // Abrasives
+  { id: 'sand-80',       cat: 'abrasive', name: 'Sandpaper 80 grit',                  brand: '3M / Mirka',                 unit: '20-pack', price: 14 },
+  { id: 'sand-120',      cat: 'abrasive', name: 'Sandpaper 120 grit',                 brand: '3M / Mirka',                 unit: '20-pack', price: 14 },
+  { id: 'sand-180',      cat: 'abrasive', name: 'Sandpaper 180 grit',                 brand: '3M / Mirka',                 unit: '20-pack', price: 14 },
+  { id: 'sand-220',      cat: 'abrasive', name: 'Sandpaper 220 grit',                 brand: '3M / Mirka',                 unit: '20-pack', price: 14 },
+  { id: 'sand-320',      cat: 'abrasive', name: 'Sandpaper 320 grit',                 brand: '3M / Mirka',                 unit: '20-pack', price: 16 },
+  { id: 'steel-0000',    cat: 'abrasive', name: 'Steel Wool #0000 (super-fine)',      brand: 'Liberon / Rhodes',           unit: '12-pack', price: 12 },
+  { id: 'sponge-med',    cat: 'abrasive', name: 'Sanding Sponge (med/fine)',          brand: '3M',                         unit: '6-pack',  price: 12 },
+];
+const HARDWARE_CATS = [
+  { key: 'glue',     label: 'Glue',     icon: '🧴' },
+  { key: 'fastener', label: 'Fasteners', icon: '🔩' },
+  { key: 'finish',   label: 'Finish',   icon: '🪵' },
+  { key: 'hardware', label: 'Hardware', icon: '⚙️' },
+  { key: 'abrasive', label: 'Abrasives', icon: '✨' },
+];
+const HARDWARE_PRICES_KEY = 'woodshop-hardware-prices-v1';
+let hardwarePrices = {};      // { itemId: number } — user overrides
+let hardwareFilter = 'all';
+let hardwareSearch = '';
+function loadHardwarePrices() {
+  try { hardwarePrices = JSON.parse(localStorage.getItem(HARDWARE_PRICES_KEY) || '{}') || {}; }
+  catch { hardwarePrices = {}; }
+}
+function saveHardwarePrices() {
+  try { localStorage.setItem(HARDWARE_PRICES_KEY, JSON.stringify(hardwarePrices)); } catch {}
+  if (typeof cloudPush === 'function') cloudPush('hardware');
+}
+function hardwarePriceFor(id) {
+  if (Object.prototype.hasOwnProperty.call(hardwarePrices, id)) return hardwarePrices[id];
+  return (HARDWARE_CATALOG.find(h => h.id === id) || {}).price || 0;
+}
+function updateHardwarePrice(id, val) {
+  const n = Math.max(0, parseFloat(val) || 0);
+  hardwarePrices[id] = n;
+  saveHardwarePrices();
+  // Light DOM update so the user doesn't lose focus on the input they're editing.
+  const row = document.querySelector(`.price-row[data-hwid="${id}"]`);
+  if (row) row.classList.add('modified');
+}
+function setHardwareFilter(k) { hardwareFilter = k; renderHardware(); }
+function setHardwareSearch(q) { hardwareSearch = q || ''; renderHardware(); }
+function resetAllHardwarePrices() {
+  if (!confirm('Reset all hardware prices to defaults?')) return;
+  hardwarePrices = {};
+  saveHardwarePrices();
+  renderHardware();
+}
+function renderHardware() {
+  const el = document.getElementById('hardware-content');
+  if (!el) return;
+  const q = hardwareSearch.trim().toLowerCase();
+  const inFilter = h => hardwareFilter === 'all' || h.cat === hardwareFilter;
+  const matchesQ = h => !q || `${h.name} ${h.brand} ${h.cat}`.toLowerCase().includes(q);
+  const counts = { all: HARDWARE_CATALOG.length };
+  HARDWARE_CATS.forEach(c => { counts[c.key] = HARDWARE_CATALOG.filter(h => h.cat === c.key).length; });
+  const filter = (k, label) => `<button class="lib-filter${hardwareFilter === k ? ' active' : ''}" onclick="setHardwareFilter('${k}')">${label} <span class="lib-count">${counts[k]}</span></button>`;
+  const filtered = HARDWARE_CATALOG.filter(h => inFilter(h) && matchesQ(h));
+  const modifiedCount = Object.keys(hardwarePrices).length;
+  const rows = filtered.map(h => {
+    const current = hardwarePriceFor(h.id);
+    const modified = Object.prototype.hasOwnProperty.call(hardwarePrices, h.id);
+    const catMeta = HARDWARE_CATS.find(c => c.key === h.cat) || {};
+    return `<div class="price-row${modified ? ' modified' : ''}" data-hwid="${h.id}">
+      <div class="swatch" style="background:var(--panel3);display:flex;align-items:center;justify-content:center;font-size:13px">${catMeta.icon || '·'}</div>
+      <div class="name">${escapeHtml(h.name)}<div style="font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px">${escapeHtml(h.brand)} · ${escapeHtml(h.unit)}</div></div>
+      <span class="cat-tag">${escapeHtml(catMeta.label || h.cat)}</span>
+      <div class="price-input-wrap">
+        <span class="unit">$</span>
+        <input type="number" min="0" step="0.5" value="${current}" oninput="updateHardwarePrice('${h.id}', this.value)" onchange="renderHardware()">
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `
+    <div class="prices-header">
+      <h2><img src="sparky/screws.png" class="tab-hero-icon" alt="">Hardware</h2>
+      <p>Fasteners, glues, finishes, and cabinet hardware with ballpark prices. Edit any field — your overrides save instantly and sync across devices. Pair with Lumber Prices for full project cost.</p>
+    </div>
+    <div class="prices-filter-row">
+      ${filter('all', 'All')}
+      ${HARDWARE_CATS.map(c => filter(c.key, c.label)).join('')}
+      <input class="lib-search" type="search" placeholder="Search hardware…" value="${escapeHtml(hardwareSearch)}" oninput="setHardwareSearch(this.value)" style="flex:1;min-width:140px;margin-left:auto">
+    </div>
+    <div class="prices-summary"><span class="num">${filtered.length}</span> item${filtered.length === 1 ? '' : 's'} shown · <span class="num">${modifiedCount}</span> overridden</div>
+    <div class="prices-list">${rows || `<div style="text-align:center;padding:30px 18px;color:var(--muted);font-size:13px">No matches.</div>`}</div>
+    <div class="prices-actions">
+      <button class="prices-reset-btn" onclick="resetAllHardwarePrices()">Reset all to defaults</button>
+    </div>
+  `;
+}
+
 // ═════════════════════════════ PLANS (Design catalog) ═════════════════════
 // A plan = a saved design (cutting board or furniture) that may or may not be
 // linked to a real-world Project. Unassigned plans live in their own inbox;
@@ -7402,6 +7557,16 @@ function _searchAll(query) {
     sub: [s.brand, s.amount].filter(Boolean).join(' · ') || 'Supply',
   }));
   if (supplyMatches.length) groups.push({ title: 'Supplies', items: supplyMatches });
+  // Hardware catalog
+  const hardwareMatches = (typeof HARDWARE_CATALOG !== 'undefined' ? HARDWARE_CATALOG : []).filter(h =>
+    _searchMatch(q, h.name, h.brand, h.cat, h.unit)
+  ).slice(0, 8).map(h => ({
+    kind: 'hardware',
+    id: h.id,
+    title: h.name,
+    sub: `${h.brand} · ${h.unit} · $${hardwarePriceFor(h.id)}`,
+  }));
+  if (hardwareMatches.length) groups.push({ title: 'Hardware', items: hardwareMatches });
   return groups;
 }
 function _searchNavigate(item) {
@@ -7425,6 +7590,11 @@ function _searchNavigate(item) {
   } else if (item.kind === 'supply') {
     switchTab('shop');
     if (typeof setShopFilter === 'function') setShopFilter('supplies');
+  } else if (item.kind === 'hardware') {
+    switchTab('hardware');
+    setTimeout(() => {
+      document.querySelector(`.price-row[data-hwid="${item.id}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 80);
   }
   closeSearch();
 }
@@ -7457,6 +7627,10 @@ function _renderSearch() {
           : item.kind === 'species' ? `<div class="swatch" style="background:${item.color || '#888'}"></div>`
           : item.kind === 'plan' ? `<img src="sparky/${item.iconKey || 'plans'}.png" alt="">`
           : item.kind === 'supply' ? '🧴'
+          : item.kind === 'hardware' ? (HARDWARE_CATS.find(c => {
+              const h = HARDWARE_CATALOG.find(x => x.id === item.id);
+              return h && c.key === h.cat;
+            })?.icon || '🔩')
           : '·';
         const payload = encodeURIComponent(JSON.stringify(item));
         return `<button class="search-row${focused ? ' focused' : ''}" onclick="_searchNavigate(JSON.parse(decodeURIComponent('${payload}')))">
@@ -7563,6 +7737,8 @@ function init() {
   renderPlans();
   updateHeaderTimer();
   renderLumberPrices();
+  loadHardwarePrices();
+  renderHardware();
   renderCalc();
   loadMovementState();
   renderMovement();
