@@ -12,7 +12,9 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1f1812" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#faf5ea" media="(prefers-color-scheme: light)">
   <meta name="apple-mobile-web-app-title" content="Bright Cuts">
   <!-- Cloud sync (optional): Supabase JS client. App works fully without it. -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -101,13 +103,15 @@
     .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
     .brand-text h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.1px; color: var(--text); }
     .brand-sub { font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 0.7px; text-transform: uppercase; font-weight: 600; }
-    .tab-row { display: flex; gap: 2px; margin-left: 6px; }
-    .tab { padding: 5px 12px; border-radius: 6px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.12s; }
+    .tab-row { display: flex; gap: 2px; margin-left: 6px; overflow-x: auto; scrollbar-width: none; }
+    .tab-row::-webkit-scrollbar { display: none; }
+    .tab { padding: 5px 12px; border-radius: 6px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
     .tab.active { background: var(--panel2); border-color: var(--border); color: var(--text); }
     .tab:hover:not(.active) { color: var(--text); }
     .header-spacer { flex: 1; }
     .header-tools { display: flex; align-items: center; gap: 6px; }
-    .header-action { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; transition: all 0.12s; }
+    .header-action { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
+    .brand-sub { white-space: nowrap; }
     .header-action:hover { color: var(--text); border-color: var(--muted); }
     .header-menu-btn { display: none; background: none; border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 9px; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; align-items: center; justify-content: center; flex-shrink: 0; }
     .header-menu-btn:active { background: var(--panel2); }
@@ -400,6 +404,8 @@
        a regular input but with cursor:pointer to signal interactivity. */
     input.measure-input { cursor: pointer; caret-color: transparent; }
     input.measure-input::selection { background: transparent; }
+    /* Small unit pill next to each measurement field label (in / mm) */
+    .field label .unit-pill, label .unit-pill { display: inline-block; margin-left: 5px; padding: 1px 6px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); background: var(--panel3); border-radius: 6px; vertical-align: 1px; }
 
     /* DRUM PICKER — iOS-style bottom sheet with scroll-snap wheels */
     .drum-overlay {
@@ -606,8 +612,13 @@
     .home-hero-logo { width: 84px; height: 84px; margin-bottom: 10px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
     .home-greeting { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; line-height: 1.1; }
     .home-tagline { color: var(--muted); margin-top: 8px; font-size: 13px; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.5; }
-    /* Tile grid: 2-col on phone, 3 on tablet, 4 on desktop */
+    /* Tile grid: 2-col on phone, 3 on tablet, 4 on desktop.
+       Sections with 3 tiles use 3-col on phone too to avoid a lonely third tile. */
     .home-tile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .home-tile-grid.cols-3 { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .home-tile-grid.cols-3 .home-tile { padding: 10px 8px 8px; }
+    .home-tile-grid.cols-3 .home-tile-icon { width: 90%; }
+    .home-tile-grid.cols-3 .home-tile h3 { font-size: 12px; }
     .home-tile {
       background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
       padding: 12px 10px 10px; text-align: center; cursor: pointer; color: var(--text);
@@ -941,7 +952,7 @@
 
     <div class="home-section">
       <div class="home-section-title">Design</div>
-      <div class="home-tile-grid">
+      <div class="home-tile-grid cols-3">
         <button class="home-tile" data-tile-tab="board">
           <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
           <h3>Cutting Board</h3>
@@ -1440,7 +1451,7 @@
   <div class="output-col library-col">
     <div class="library-header">
       <h2><img src="sparky/wood-selection.png" class="tab-hero-icon" alt="">Wood Library</h2>
-      <p>Reference encyclopedia for every species in the catalog. Inventory based on <strong>Mimms Lumber</strong> (Nashville, TN) — 56 species across domestic, figured, and exotic categories. Edit prices in the Cutting Board tab.</p>
+      <p>Reference encyclopedia for every species in the catalog. Inventory based on <strong>Mimms Lumber</strong> (Nashville, TN) — 56 species across domestic, figured, and exotic categories. Edit prices in the <a href="#" onclick="event.preventDefault(); switchTab('prices')" style="color:var(--accent);font-weight:600;text-decoration:underline">Lumber Prices</a> tab.</p>
       <div class="lib-filter-row">
         <button class="lib-filter active" data-filter="all" onclick="setLibFilter('all')">All <span class="lib-count" id="lib-count-all"></span></button>
         <button class="lib-filter" data-filter="common" onclick="setLibFilter('common')">Common <span class="lib-count" id="lib-count-common"></span></button>
@@ -1465,6 +1476,14 @@ function switchTab(name) {
   document.querySelectorAll('[id^="tab-"]').forEach(x => x.style.display = 'none');
   const target = document.getElementById('tab-' + name);
   if (target) target.style.display = 'grid';
+  // Center the active tab within the horizontal tab strip (mobile-only need)
+  requestAnimationFrame(() => {
+    const activeTab = document.querySelector('.tab.active');
+    const strip = activeTab && activeTab.parentElement;
+    if (!strip || strip.scrollWidth <= strip.clientWidth) return;
+    const offset = activeTab.offsetLeft - (strip.clientWidth - activeTab.offsetWidth) / 2;
+    strip.scrollLeft = Math.max(0, offset);
+  });
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 document.addEventListener('click', e => {
@@ -2274,7 +2293,17 @@ function toggleUnitSystem() {
   updateUnitsMenuLabel();
 }
 function applyUnitSuffixes() {
-  // Each measurement input may have an adjacent ".unit-suffix" element to update.
+  // Append a small unit pill to every measurement-input's label so users can
+  // see at a glance whether they're working in inches or mm.
+  MEASURE_KEYS.forEach(id => {
+    const inp = document.getElementById(id);
+    if (!inp) return;
+    const field = inp.closest('.field');
+    const lab = field && field.querySelector('label');
+    if (!lab) return;
+    if (!lab.dataset.baseText) lab.dataset.baseText = lab.textContent.trim();
+    lab.innerHTML = `${escapeHtml(lab.dataset.baseText)} <span class="unit-pill">${unitLabel()}</span>`;
+  });
   document.querySelectorAll('.unit-suffix').forEach(el => { el.textContent = unitLabel(); });
 }
 function updateUnitsMenuLabel() {
@@ -3850,8 +3879,8 @@ function optCard(item, i, type) {
   return `<div class="opt-card">
     <div class="opt-card-head"><span class="opt-card-label">${dot}${type === 'stock' ? 'Stock' : 'Piece'} ${i+1}${matLabel}</span><button class="icon-btn" onclick="${remove}(${item.id})">&#215;</button></div>
     <div class="field-grid cols3" style="margin-bottom:5px">
-      <div class="field"><label>L</label><input type="number" value="${item.length}" step="0.25" oninput="optInput(${arr},${item.id},'length',this.value)"></div>
-      <div class="field"><label>W</label><input type="number" value="${item.width}" step="0.25" oninput="optInput(${arr},${item.id},'width',this.value)"></div>
+      <div class="field"><label>L <span class="unit-pill">${unitLabel()}</span></label><input class="measure-input" readonly inputmode="none" data-measure-label="${type === 'stock' ? 'Stock' : 'Piece'} ${i+1} length" type="number" value="${fromInches(item.length)}" step="${unitStep()}" min="${unitMin()}" oninput="optInput(${arr},${item.id},'length',toInches(this.value))"></div>
+      <div class="field"><label>W <span class="unit-pill">${unitLabel()}</span></label><input class="measure-input" readonly inputmode="none" data-measure-label="${type === 'stock' ? 'Stock' : 'Piece'} ${i+1} width" type="number" value="${fromInches(item.width)}" step="${unitStep()}" min="${unitMin()}" oninput="optInput(${arr},${item.id},'width',toInches(this.value))"></div>
       <div class="field"><label>Qty</label><input type="number" value="${item.qty}" step="1" oninput="optInput(${arr},${item.id},'qty',this.value)"></div>
     </div>
     <div class="field"><label>Name</label><input type="text" value="${item.name}" oninput="optInput(${arr},${item.id},'name',this.value)"></div>
