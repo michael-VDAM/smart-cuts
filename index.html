@@ -543,6 +543,9 @@
     .drum-sheet {
       width: 100%;
       max-width: 480px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
       background: var(--panel);
       border-top: 1px solid var(--border);
       border-radius: 20px 20px 0 0;
@@ -550,6 +553,8 @@
       animation: drum-slide 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
       box-shadow: 0 -10px 36px rgba(0,0,0,0.42);
     }
+    .drum-sheet .pattern-sheet-grid { overflow-y: auto; flex: 1; min-height: 0; }
+    .drum-sheet .drum-handle, .drum-sheet .drum-header { flex-shrink: 0; }
     @keyframes drum-slide { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .drum-handle { width: 38px; height: 4px; background: var(--border2); border-radius: 2px; margin: 6px auto 10px; opacity: 0.6; }
     .drum-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
@@ -1038,6 +1043,8 @@
       .ratio-presets, .pattern-trigger, .add-btn, .icon-btn,
       .proj-detail-actions, .proj-add-btn, .prices-actions,
       .copy-btn, button { display: none !important; }
+      /* Hide every modal/overlay so an accidentally-open picker or annotator never prints */
+      .drum-overlay, .modal-backdrop, #annot-modal { display: none !important; }
       /* Keep critical content readable */
       .scard, .step-card, .finished-preview, .parts-table, .cost-breakdown { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
       .step-card { margin-bottom: 8px !important; }
