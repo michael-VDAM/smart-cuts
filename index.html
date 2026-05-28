@@ -266,6 +266,68 @@
     .proj-empty .icon { font-size: 56px; opacity: 0.4; margin-bottom: 16px; }
     .proj-empty p { font-size: 14px; line-height: 1.6; max-width: 480px; margin: 0 auto; }
 
+    /* PLANS TAB — design catalog */
+    .plans-col { padding: 28px 36px; max-width: 1300px; margin: 0 auto; width: 100%; }
+    .plans-header { margin-bottom: 22px; }
+    .plans-header h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; display: flex; align-items: center; }
+    .plans-header p { color: var(--muted); font-size: 13px; max-width: 600px; line-height: 1.5; }
+    .plans-section { margin-bottom: 32px; }
+    .plans-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .plans-section-title .count { background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+    .plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .plan-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s, box-shadow 0.15s; }
+    .plan-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+    .plan-card-top { display: flex; align-items: flex-start; gap: 12px; }
+    .plan-card-icon { width: 54px; height: 54px; border-radius: 10px; background: var(--panel3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .plan-card-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .plan-card-meta { flex: 1; min-width: 0; }
+    .plan-card-title { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.25; margin-bottom: 4px; word-break: break-word; }
+    .plan-card-sub { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .plan-card-date { font-size: 10px; color: var(--muted2); letter-spacing: 0.3px; margin-top: 4px; }
+    .plan-card-assigned { font-size: 11px; color: var(--money); font-weight: 600; background: rgba(143,184,120,0.10); border: 1px solid rgba(143,184,120,0.25); padding: 5px 9px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; }
+    .plan-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .plan-btn-primary, .plan-btn-secondary, .plan-btn-danger { padding: 7px 11px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.12s; border: 1px solid transparent; letter-spacing: 0.2px; }
+    .plan-btn-primary { background: var(--accent); color: #1a1a1a; border-color: var(--accent); flex: 1; }
+    .plan-btn-primary:hover { opacity: 0.92; }
+    .plan-btn-secondary { background: none; color: var(--muted); border-color: var(--border); }
+    .plan-btn-secondary:hover { color: var(--text); border-color: var(--muted); }
+    .plan-btn-danger { background: none; color: var(--muted); border-color: var(--border); }
+    .plan-btn-danger:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* Save Plan button on Cutting Board / Furniture (next to Copy) */
+    .save-plan-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); padding: 5px 11px; border-radius: 5px; cursor: pointer; font-size: 11px; transition: all 0.12s; font-weight: 700; letter-spacing: 0.2px; }
+    .save-plan-btn:hover { background: var(--accent); color: #1a1a1a; }
+
+    /* Assign-to-project modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+    .modal-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 18px; max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .modal-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .modal-card .sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .modal-card .project-pick-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; max-height: 50vh; overflow-y: auto; }
+    .modal-card .project-pick { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 12px; transition: border-color 0.12s; }
+    .modal-card .project-pick:hover { border-color: var(--accent); }
+    .modal-card .project-pick .ttl { font-weight: 700; color: var(--text); font-size: 13px; }
+    .modal-card .project-pick .date { color: var(--muted); font-size: 11px; }
+    .modal-card .actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .modal-card .actions button { padding: 9px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--muted); }
+    .modal-card .actions button.primary { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+
+    /* Project detail — linked plans section */
+    .proj-linked-plans { margin-top: 20px; }
+    .proj-linked-plans h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 10px; }
+    .linked-plan-row { background: var(--panel3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; gap: 12px; align-items: center; }
+    .linked-plan-row .icon { width: 38px; height: 38px; border-radius: 7px; overflow: hidden; flex-shrink: 0; background: var(--panel2); }
+    .linked-plan-row .icon img { width: 100%; height: 100%; object-fit: cover; }
+    .linked-plan-row .body { flex: 1; min-width: 0; }
+    .linked-plan-row .ttl { font-size: 13px; font-weight: 700; color: var(--text); }
+    .linked-plan-row .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .linked-plan-row .unlink { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 9px; border-radius: 6px; font-size: 11px; cursor: pointer; }
+    .linked-plan-row .unlink:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* Toast / save confirmation */
+    .toast { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); background: var(--accent); color: #1a1a1a; padding: 11px 18px; border-radius: 10px; font-weight: 700; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); cursor: pointer; z-index: 250; opacity: 0; transition: opacity 0.2s ease; max-width: calc(100vw - 32px); text-align: center; }
+    .toast.show { opacity: 1; }
+
     /* Project form */
     .proj-form { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 26px 28px; margin-bottom: 22px; }
     .proj-form h3 { font-size: 18px; font-weight: 700; margin-bottom: 18px; }
@@ -694,10 +756,11 @@
     <button class="tab" data-tab="board">Cutting Board</button>
     <button class="tab" data-tab="furniture">Furniture</button>
     <button class="tab" data-tab="optimizer">Optimizer</button>
+    <button class="tab" data-tab="plans">Plans</button>
+    <button class="tab" data-tab="projects">Projects</button>
     <button class="tab" data-tab="library">Wood Library</button>
     <button class="tab" data-tab="academy">Academy</button>
     <button class="tab" data-tab="shop">My Shop</button>
-    <button class="tab" data-tab="projects">Projects</button>
   </div>
   <div class="header-spacer"></div>
   <div class="header-tools">
@@ -760,6 +823,13 @@
         <h3>My Shop</h3>
         <p>Your tool inventory + tool-for-the-job matrix. Quick reference for which tool to grab.</p>
         <span class="home-tile-cta">Browse shop →</span>
+      </button>
+
+      <button class="home-tile" data-tile-tab="plans">
+        <div class="home-tile-icon"><img src="sparky/plans.png" alt=""></div>
+        <h3>Plans</h3>
+        <p>Save designs to build later. Assign them to projects when you finish — your design catalog grows over time.</p>
+        <span class="home-tile-cta">Open plans →</span>
       </button>
 
       <button class="home-tile" data-tile-tab="projects">
@@ -1089,6 +1159,13 @@
   </div>
   <div class="output-col" id="optimizer-output">
     <div class="empty-state"><div class="icon">&#9634;</div><p>Add stock and pieces, or send from Furniture tab.</p></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ TAB: PLANS ═══════════════════════════════════ -->
+<div id="tab-plans" style="display:none" class="workspace single-col">
+  <div class="output-col plans-col">
+    <div id="plans-content"></div>
   </div>
 </div>
 
@@ -2774,6 +2851,9 @@ function renderEndGrain(p) {
       <span class="dims">${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} · ${patternLabel(p.pattern)} · ${p.species.map(s => s.name).join(' + ')}</span>
     </div>
     <div class="preview-svg-wrap">${svgFinishedBoard(p)}</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="save-plan-btn" onclick="savePlanFromBoard()">+ Save Plan</button>
+    </div>
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
   const bufPct = Math.round(p.bufferPct * 100);
@@ -3130,6 +3210,9 @@ function renderFurniture(c) {
       <span class="dims">${c.type === 'drawer' ? `${dim(c.W)} × ${dim(c.D)} × ${dim(c.H)}` : `${dim(c.W)} × ${dim(c.H)} × ${dim(c.D)} deep${doorLabel}`}</span>
     </div>
     <div class="preview-svg-wrap">${preview}</div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="save-plan-btn" onclick="savePlanFromFurniture()">+ Save Plan</button>
+    </div>
   </div>`;
 
   const totalParts = c.parts.reduce((s, p) => s + p.qty, 0);
@@ -3319,6 +3402,293 @@ function runOptimizer() {
   document.getElementById('optimizer-output').innerHTML = html;
 }
 
+// ═════════════════════════════ PLANS (Design catalog) ═════════════════════
+// A plan = a saved design (cutting board or furniture) that may or may not be
+// linked to a real-world Project. Unassigned plans live in their own inbox;
+// when you finish building, you assign the plan to a Project.
+const PLAN_STORAGE_KEY = 'woodshop-plans-v1';
+let plans = [];
+let pendingAssignPlanId = null;
+
+function loadPlans() {
+  try {
+    const raw = localStorage.getItem(PLAN_STORAGE_KEY);
+    if (raw) plans = JSON.parse(raw) || [];
+  } catch { plans = []; }
+}
+function persistPlans() {
+  try { localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(plans)); }
+  catch (e) {
+    alert('Could not save the plan — localStorage may be full.');
+    console.error(e);
+  }
+  if (typeof cloudPush === 'function') cloudPush('plans');
+}
+function getPlanById(id) { return plans.find(p => p.id === id); }
+
+function showToast(text, onTap) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = text;
+  t.onclick = onTap || null;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// Build a plan from the current Cutting Board state (lastPlan global)
+function savePlanFromBoard() {
+  if (typeof lastPlan === 'undefined' || !lastPlan) {
+    alert('Design a board first — fill in the dimensions and pick species, then try again.');
+    return;
+  }
+  const p = lastPlan;
+  const speciesNames = (p.species || []).filter(s => s && s.name).map(s => s.name).slice(0, 3).join(' + ');
+  const patternStr = mode === 'end' ? patternLabel(p.pattern) : 'Strip';
+  const title = `${speciesNames || 'Wood'} ${patternStr} ${dim(p.finalL)}×${dim(p.finalW)}`;
+  const newPlan = {
+    id: 'plan_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    type: 'board',
+    title,
+    createdAt: new Date().toISOString(),
+    iconKey: 'cutting-board',
+    spec: {
+      mode,
+      pattern: p.pattern,
+      finalL: p.finalL, finalW: p.finalW, finalT: p.finalT,
+      qty: p.qty,
+      species: (p.species || []).map(s => ({ name: s.name, color: s.color || s.hex || '#a87a4a', price: s.price })),
+      edgeProfile: p.edgeProfile,
+      juiceGroove: p.juiceGroove,
+      stripPattern: p.stripPattern,
+      bufferPct: p.bufferPct,
+      bufferedBoards: p.bufferedBoards,
+      bufferedBf: p.bufferedBf,
+      totalCostBuffered: p.totalCostBuffered,
+      kerf: p.kerf,
+    },
+    projectId: null,
+  };
+  plans.unshift(newPlan);
+  persistPlans();
+  renderPlans();
+  showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
+}
+
+// Build a plan from the current Furniture state (lastFurniturePlan global)
+function savePlanFromFurniture() {
+  if (typeof lastFurniturePlan === 'undefined' || !lastFurniturePlan) {
+    alert('Design a piece first — pick a type and fill in dimensions, then try again.');
+    return;
+  }
+  const c = lastFurniturePlan;
+  const typeLabel = { cabinet: 'Cabinet', shelf: 'Bookshelf', drawer: 'Drawer Box' }[c.type] || c.type;
+  const dims = c.type === 'drawer'
+    ? `${dim(c.W)}×${dim(c.D)}×${dim(c.H)}`
+    : `${dim(c.W)}×${dim(c.H)}×${dim(c.D)}d`;
+  const title = `${typeLabel} ${dims}`;
+  const newPlan = {
+    id: 'plan_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    type: 'furniture',
+    title,
+    createdAt: new Date().toISOString(),
+    iconKey: 'furniture',
+    spec: {
+      furnType: c.type,
+      cabType: c.cabType,
+      W: c.W, H: c.H, D: c.D,
+      qty: c.qty,
+      doorStyle: c.doorStyle,
+      nDoors: c.nDoors,
+      parts: c.parts,
+    },
+    projectId: null,
+  };
+  plans.unshift(newPlan);
+  persistPlans();
+  renderPlans();
+  showToast(`Plan saved: ${title}  ·  Tap to open Plans`, () => switchTab('plans'));
+}
+
+function deletePlan(id) {
+  const plan = getPlanById(id);
+  if (!plan) return;
+  if (!confirm(`Delete plan "${plan.title}"? This cannot be undone.`)) return;
+  plans = plans.filter(p => p.id !== id);
+  persistPlans();
+  renderPlans();
+}
+
+function renamePlan(id) {
+  const plan = getPlanById(id);
+  if (!plan) return;
+  const next = prompt('Rename plan:', plan.title);
+  if (next == null) return;
+  const trimmed = next.trim();
+  if (!trimmed) return;
+  plan.title = trimmed;
+  persistPlans();
+  renderPlans();
+}
+
+function unassignPlan(id) {
+  const plan = getPlanById(id);
+  if (!plan) return;
+  plan.projectId = null;
+  persistPlans();
+  renderPlans();
+  if (typeof renderProjects === 'function') renderProjects();
+}
+
+// Open the assign-to-project modal for a given plan
+function openAssignModal(planId) {
+  pendingAssignPlanId = planId;
+  const plan = getPlanById(planId);
+  if (!plan) return;
+  let backdrop = document.getElementById('assign-modal');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'assign-modal';
+    backdrop.className = 'modal-backdrop';
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) closeAssignModal(); });
+    document.body.appendChild(backdrop);
+  }
+  const projectList = projects.length
+    ? projects.map(p => `<button class="project-pick" onclick="assignPlanToProject(${JSON.stringify(p.id)})">
+        <span class="ttl">${p.title || '(untitled project)'}</span>
+        <span class="date">${p.date || ''}</span>
+      </button>`).join('')
+    : `<p style="color:var(--muted);font-size:12px;text-align:center;padding:18px 8px">No projects yet. Create one first.</p>`;
+  backdrop.innerHTML = `
+    <div class="modal-card" role="dialog" aria-label="Assign plan to project">
+      <h3>Assign plan to a project</h3>
+      <div class="sub">Pick the project this plan was built for. It'll move from Unassigned into that project's page.</div>
+      <div style="font-size:12px;color:var(--accent);font-weight:700;margin-bottom:10px">${plan.title}</div>
+      <div class="project-pick-list">${projectList}</div>
+      <div class="actions">
+        <button onclick="closeAssignModal()">Cancel</button>
+        <button class="primary" onclick="createProjectFromPlan()">+ New project</button>
+      </div>
+    </div>
+  `;
+}
+function closeAssignModal() {
+  pendingAssignPlanId = null;
+  const m = document.getElementById('assign-modal');
+  if (m) m.remove();
+}
+function assignPlanToProject(projectId) {
+  const plan = getPlanById(pendingAssignPlanId);
+  if (!plan) { closeAssignModal(); return; }
+  plan.projectId = projectId;
+  persistPlans();
+  closeAssignModal();
+  renderPlans();
+  if (typeof renderProjects === 'function') renderProjects();
+  showToast('Plan assigned to project');
+}
+function createProjectFromPlan() {
+  const plan = getPlanById(pendingAssignPlanId);
+  if (!plan) { closeAssignModal(); return; }
+  const draft = newProjectDraft();
+  draft.title = plan.title;
+  if (plan.spec) {
+    if (plan.type === 'board') {
+      draft.type = 'cutting-board';
+      draft.dimL = plan.spec.finalL || '';
+      draft.dimW = plan.spec.finalW || '';
+      draft.dimT = plan.spec.finalT || '';
+      draft.species = (plan.spec.species || []).filter(s => s.name).map(s => ({ name: s.name, color: s.color || '#a87a4a' }));
+    } else if (plan.type === 'furniture') {
+      draft.type = 'cabinet';
+      draft.dimL = plan.spec.W || '';
+      draft.dimW = plan.spec.D || '';
+      draft.dimT = plan.spec.H || '';
+    }
+  }
+  editingDraft = draft;
+  projectsView = 'form';
+  // After project is saved, the user can come back here and assign — for now just open the form
+  // We pass through a flag so saveProjectForm hooks up assignment.
+  editingDraft._pendingPlanId = plan.id;
+  closeAssignModal();
+  switchTab('projects');
+  renderProjects();
+}
+
+function renderPlans() {
+  const el = document.getElementById('plans-content');
+  if (!el) return;
+  const unassigned = plans.filter(p => !p.projectId);
+  const assigned = plans.filter(p => p.projectId);
+  const planCard = (plan) => {
+    const dateStr = new Date(plan.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const sub = plan.type === 'board'
+      ? `${plan.spec.mode === 'end' ? 'End grain' : 'Face grain'} · ${(plan.spec.species || []).filter(s => s.name).map(s => s.name).join(' + ') || 'Wood'}`
+      : `${({cabinet:'Cabinet',shelf:'Bookshelf',drawer:'Drawer Box'})[plan.spec.furnType] || 'Furniture'} · ${(plan.spec.parts || []).reduce((s,p)=>s+(p.qty||0),0)} parts`;
+    const assignedProject = plan.projectId ? projects.find(pr => pr.id === plan.projectId) : null;
+    return `
+      <div class="plan-card">
+        <div class="plan-card-top">
+          <div class="plan-card-icon"><img src="sparky/${plan.iconKey || 'plans'}.png" alt=""></div>
+          <div class="plan-card-meta">
+            <div class="plan-card-title">${escapeHtml(plan.title)}</div>
+            <div class="plan-card-sub">${sub}</div>
+            <div class="plan-card-date">${dateStr}</div>
+          </div>
+        </div>
+        ${assignedProject
+          ? `<div class="plan-card-assigned">✓ Built as: ${escapeHtml(assignedProject.title || 'project')}</div>
+             <div class="plan-card-actions">
+               <button class="plan-btn-secondary" onclick="switchTab('projects'); viewProject(${assignedProject.id})">View project →</button>
+               <button class="plan-btn-secondary" onclick="unassignPlan('${plan.id}')">Unassign</button>
+               <button class="plan-btn-danger" onclick="deletePlan('${plan.id}')">Delete</button>
+             </div>`
+          : `<div class="plan-card-actions">
+               <button class="plan-btn-primary" onclick="openAssignModal('${plan.id}')">Assign to project →</button>
+               <button class="plan-btn-secondary" onclick="renamePlan('${plan.id}')">Rename</button>
+               <button class="plan-btn-danger" onclick="deletePlan('${plan.id}')">Delete</button>
+             </div>`
+        }
+      </div>
+    `;
+  };
+  let html = `<div class="plans-header">
+    <h2><img src="sparky/plans.png" class="tab-hero-icon" alt="">Plans</h2>
+    <p>Designs you've saved. Plans start here as <strong>Unassigned</strong> — once you build one and log it as a Project, assign the plan to that Project and it'll move into your build history.</p>
+  </div>`;
+
+  if (plans.length === 0) {
+    html += `<div class="proj-empty">
+      <div class="icon">📐</div>
+      <p><strong>No plans saved yet.</strong><br>Design a cutting board or piece of furniture, then tap <strong>Save Plan</strong> at the top of the preview to drop it here.</p>
+    </div>`;
+  } else {
+    html += `<div class="plans-section">
+      <div class="plans-section-title">Unassigned <span class="count">${unassigned.length}</span></div>
+      ${unassigned.length
+        ? `<div class="plans-grid">${unassigned.map(planCard).join('')}</div>`
+        : `<p style="color:var(--muted);font-size:12px">Nothing waiting to be assigned — every plan is linked to a project. Nice work.</p>`}
+    </div>`;
+    if (assigned.length) {
+      html += `<div class="plans-section">
+        <div class="plans-section-title">Built ✓ <span class="count">${assigned.length}</span></div>
+        <div class="plans-grid">${assigned.map(planCard).join('')}</div>
+      </div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 // ═════════════════════════════ PROJECTS (Portfolio) ════════════════════════
 const PROJECT_TYPES = [
   ['cutting-board', '🔪 Cutting Board'],
@@ -3488,14 +3858,26 @@ function saveProjectForm() {
     const el = document.getElementById('pf-' + k); if (el) editingDraft[k] = parseFloat(el.value) || '';
   });
   if (!editingDraft.title || !editingDraft.title.trim()) { alert('Project title is required.'); return; }
+  // If this project was created from a plan, link the plan to the new project id.
+  const pendingPlanId = editingDraft._pendingPlanId;
+  delete editingDraft._pendingPlanId;
   // Insert or update
   const idx = projects.findIndex(p => p.id === editingDraft.id);
   if (idx >= 0) projects[idx] = editingDraft;
   else projects.unshift(editingDraft);
   saveProjects();
+  if (pendingPlanId) {
+    const plan = getPlanById(pendingPlanId);
+    if (plan) { plan.projectId = editingDraft.id; persistPlans(); }
+  }
+  const savedId = editingDraft.id;
   editingDraft = null;
   projectsView = 'list';
   renderProjects();
+  if (pendingPlanId) {
+    renderPlans();
+    showToast('Project created and plan linked');
+  }
 }
 function toggleProjectSpecies(name, color) {
   if (!editingDraft) return;
@@ -3724,6 +4106,24 @@ function renderProjectDetail() {
     ['Sale Price', p.salePrice ? '$' + p.salePrice : '—'],
     ['Sold', p.soldAt || (p.salePrice ? 'Listed' : '—')],
   ];
+  const linkedPlans = (typeof plans !== 'undefined' ? plans : []).filter(pl => pl.projectId === p.id);
+  const linkedHtml = linkedPlans.length
+    ? linkedPlans.map(pl => {
+        const dateStr = new Date(pl.createdAt).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+        const sub = pl.type === 'board'
+          ? `${pl.spec.mode === 'end' ? 'End grain' : 'Face grain'} · ${dim(pl.spec.finalL)}×${dim(pl.spec.finalW)}×${dim(pl.spec.finalT)}`
+          : `${({cabinet:'Cabinet',shelf:'Bookshelf',drawer:'Drawer Box'})[pl.spec.furnType] || 'Furniture'} · ${(pl.spec.parts || []).reduce((s,x)=>s+(x.qty||0),0)} parts`;
+        return `<div class="linked-plan-row">
+          <div class="icon"><img src="sparky/${pl.iconKey || 'plans'}.png" alt=""></div>
+          <div class="body">
+            <div class="ttl">${escapeHtml(pl.title)}</div>
+            <div class="sub">${sub} · saved ${dateStr}</div>
+          </div>
+          <button class="unlink" onclick="unassignPlan('${pl.id}')">Unlink</button>
+        </div>`;
+      }).join('')
+    : `<div class="linked-plan-row" style="background:none;border:1px dashed var(--border);color:var(--muted);justify-content:center;padding:18px"><span style="font-size:12px">No plans linked to this project yet. <button class="proj-add-btn" style="font-size:11px;padding:6px 12px;margin-left:8px" onclick="switchTab('plans')">Open Plans →</button></span></div>`;
+
   return `
     <button class="proj-detail-back" onclick="backToProjectsList()">← Back to projects</button>
     <div class="proj-detail">
@@ -3741,6 +4141,10 @@ function renderProjectDetail() {
             <button class="proj-delete-btn" onclick="deleteProject(${p.id})">Delete</button>
           </div>
         </div>
+      </div>
+      <div class="proj-linked-plans">
+        <h3>Linked plans</h3>
+        ${linkedHtml}
       </div>
     </div>
   `;
@@ -4640,6 +5044,10 @@ const CLOUD_COLLECTIONS = {
     get: () => userShopPhotos,
     set: v => { if (v && typeof v === 'object') { userShopPhotos = v; try { localStorage.setItem(SHOP_PHOTOS_KEY, JSON.stringify(userShopPhotos)); } catch {} renderShop(); } },
   },
+  plans: {
+    get: () => plans,
+    set: v => { if (Array.isArray(v)) { plans = v; try { localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(plans)); } catch {} renderPlans(); } },
+  },
 };
 
 function cloudInit() {
@@ -4771,6 +5179,8 @@ function init() {
   renderShop();
   loadProjects();
   renderProjects();
+  loadPlans();
+  renderPlans();
   loadAcademyScores();
   runPlanner();
   runFurniture();
