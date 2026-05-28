@@ -7567,6 +7567,10 @@ const CLOUD_COLLECTIONS = {
     get: () => customSpecies,
     set: v => { if (Array.isArray(v)) { customSpecies = v; try { localStorage.setItem(CUSTOM_SPECIES_KEY, JSON.stringify(customSpecies)); } catch {} renderLumberPrices(); } },
   },
+  hardware: {
+    get: () => hardwarePrices,
+    set: v => { if (v && typeof v === 'object') { hardwarePrices = v; try { localStorage.setItem(HARDWARE_PRICES_KEY, JSON.stringify(hardwarePrices)); } catch {} renderHardware(); } },
+  },
 };
 
 function cloudInit() {
