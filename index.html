@@ -116,10 +116,38 @@
     .header-menu-btn { display: none; background: none; border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 9px; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; align-items: center; justify-content: center; flex-shrink: 0; }
     .header-menu-btn:active { background: var(--panel2); }
     /* Calc shortcut sits next to the menu — visible on phone AND desktop */
-    .header-calc-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); width: 38px; height: 38px; border-radius: 9px; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
-    .header-calc-btn:hover { background: var(--accent); }
-    .header-calc-btn:active { transform: scale(0.94); }
-    .header-calc-btn span { filter: saturate(1.2); }
+    .header-calc-btn, .header-search-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); width: 38px; height: 38px; border-radius: 9px; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
+    .header-calc-btn:hover, .header-search-btn:hover { background: var(--accent); }
+    .header-calc-btn:active, .header-search-btn:active { transform: scale(0.94); }
+    .header-calc-btn span, .header-search-btn span { filter: saturate(1.2); }
+
+    /* Global search modal */
+    .search-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 400; display: flex; align-items: flex-start; justify-content: center; padding: 80px 16px 16px; animation: drum-fade 0.16s ease-out; }
+    .search-modal { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 620px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.6); overflow: hidden; }
+    .search-modal .search-input-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .search-modal .search-input-row .icon { color: var(--muted); font-size: 16px; }
+    .search-modal input.search-input { flex: 1; background: none; border: none; color: var(--text); font-size: 15px; padding: 4px 0; outline: none; }
+    .search-modal input.search-input::placeholder { color: var(--muted2); }
+    .search-modal .kbd { background: var(--panel3); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; }
+    .search-results { flex: 1; overflow-y: auto; padding: 4px 0 10px; }
+    .search-group { padding: 4px 0 4px; }
+    .search-group-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); padding: 8px 16px 4px; }
+    .search-row { display: flex; align-items: center; gap: 10px; padding: 9px 16px; cursor: pointer; transition: background 0.1s; border: none; background: none; width: 100%; text-align: left; color: var(--text); }
+    .search-row:hover, .search-row.focused { background: var(--accent-soft); }
+    .search-row .icon { width: 28px; height: 28px; border-radius: 6px; background: var(--panel3); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; overflow: hidden; }
+    .search-row .icon img { width: 100%; height: 100%; object-fit: cover; }
+    .search-row .icon .swatch { width: 18px; height: 18px; border-radius: 3px; }
+    .search-row .body { flex: 1; min-width: 0; }
+    .search-row .ttl { font-size: 13px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .search-row .sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .search-row mark { background: rgba(212,160,86,0.30); color: var(--text); padding: 0 1px; border-radius: 2px; }
+    .search-row .row-kind { font-size: 9.5px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+    .search-empty { text-align: center; padding: 28px 18px; color: var(--muted); font-size: 13px; }
+    .search-empty strong { color: var(--text); }
+    @media (max-width: 820px) {
+      .search-overlay { padding: 40px 12px 12px; }
+      .search-modal { max-height: 92vh; }
+    }
     .live-indicator { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-right: 5px; vertical-align: middle; box-shadow: 0 0 6px var(--success); animation: pulse 2.4s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
 
@@ -1138,6 +1166,9 @@
   </div>
   <button class="header-timer-btn" id="header-timer" style="display:none" onclick="switchTab('plans')" title="A build timer is running — tap to view">
     <span class="header-timer-label" aria-live="polite">0s</span>
+  </button>
+  <button class="header-search-btn" onclick="openSearch()" aria-label="Search" title="Search — ⌘K">
+    <span aria-hidden="true">🔍</span>
   </button>
   <button class="header-calc-btn" onclick="switchTab('calc')" aria-label="Open calculator" title="Calculator — fraction math">
     <span aria-hidden="true">🧮</span>
@@ -7274,6 +7305,203 @@ function subscribeCloud() {
 function unsubscribeCloud() {
   if (cloudChannel && sb) { sb.removeChannel(cloudChannel); cloudChannel = null; }
 }
+
+// ═════════════════════════════ GLOBAL SEARCH (⌘K) ═══════════════════════════
+// One bar across plans / projects / species / supplies. ⌘K (Mac) or Ctrl+K
+// (Windows/Linux) toggles; the header 🔍 button also opens. Case-insensitive
+// substring match across multiple fields per kind. Esc / backdrop click /
+// pressing ⌘K again closes. Up/Down/Enter for keyboard nav.
+let searchState = null;
+function openSearch() {
+  searchState = { query: '', focusedIdx: 0, results: [] };
+  _renderSearch();
+}
+function closeSearch() {
+  searchState = null;
+  document.getElementById('search-overlay')?.remove();
+}
+function _searchHighlight(text, q) {
+  if (!q || !text) return escapeHtml(text || '');
+  const s = String(text);
+  const lower = s.toLowerCase();
+  const lowerQ = q.toLowerCase();
+  let out = '', i = 0;
+  while (i < s.length) {
+    const found = lower.indexOf(lowerQ, i);
+    if (found < 0) { out += escapeHtml(s.slice(i)); break; }
+    out += escapeHtml(s.slice(i, found));
+    out += '<mark>' + escapeHtml(s.slice(found, found + lowerQ.length)) + '</mark>';
+    i = found + lowerQ.length;
+  }
+  return out;
+}
+function _searchMatch(q, ...fields) {
+  if (!q) return false;
+  const lowerQ = q.toLowerCase();
+  return fields.some(f => f && String(f).toLowerCase().includes(lowerQ));
+}
+function _searchAll(query) {
+  const q = (query || '').trim();
+  if (!q) return [];
+  const groups = [];
+  // Plans
+  const planSrc = (typeof plans !== 'undefined' ? plans : []);
+  const planMatches = planSrc.filter(p => {
+    const speciesStr = (p.spec?.species || []).map(s => s.name).join(' ');
+    return _searchMatch(q, p.title, p.type, speciesStr, p.spec?.mode, p.spec?.furnType, p.spec?.pattern);
+  }).slice(0, 8).map(p => ({
+    kind: 'plan',
+    id: p.id,
+    title: p.title || '(untitled)',
+    sub: p.type === 'board'
+      ? `${p.spec?.mode === 'end' ? 'End grain' : 'Face grain'} · ${(p.spec?.species || []).map(s => s.name).join(' + ') || '—'}`
+      : `Furniture · ${p.spec?.furnType || ''}`,
+    iconKey: p.iconKey || 'plans',
+  }));
+  if (planMatches.length) groups.push({ title: 'Plans', items: planMatches });
+  // Projects
+  const projectMatches = projects.filter(p => {
+    const speciesStr = (p.species || []).map(s => s.name).join(' ');
+    return _searchMatch(q, p.title, p.type, speciesStr, p.stain, p.finish, p.description);
+  }).slice(0, 8).map(p => ({
+    kind: 'project',
+    id: p.id,
+    title: p.title || '(untitled)',
+    sub: `${(PROJECT_TYPES.find(t => t[0] === p.type) || [, p.type])[1] || p.type}${p.date ? ' · ' + p.date : ''}`,
+    photo: p.photo,
+  }));
+  if (projectMatches.length) groups.push({ title: 'Projects', items: projectMatches });
+  // Species — combine catalog + custom + encyclopedia
+  const allSp = typeof allSpecies === 'function' ? allSpecies() : SPECIES_PALETTE;
+  const seenSp = new Set();
+  const speciesMatches = [];
+  for (const sp of allSp) {
+    if (seenSp.has(sp.name)) continue;
+    seenSp.add(sp.name);
+    const enc = WOOD_ENCYCLOPEDIA[sp.name];
+    const tree = (typeof WOOD_TREE_DATA !== 'undefined') ? WOOD_TREE_DATA[sp.name] : null;
+    if (_searchMatch(q, sp.name, enc?.latin, enc?.origin, enc?.uses, enc?.color, enc?.workability, tree?.tree, tree?.region)) {
+      speciesMatches.push({
+        kind: 'species',
+        id: sp.name,
+        title: sp.name,
+        sub: enc?.latin ? `${enc.latin}${enc.origin ? ' · ' + enc.origin : ''}` : (sp.cat ? sp.cat : 'Wood species'),
+        color: sp.color,
+      });
+    }
+    if (speciesMatches.length >= 10) break;
+  }
+  if (speciesMatches.length) groups.push({ title: 'Species', items: speciesMatches });
+  // Supplies
+  const supplyMatches = supplies.filter(s =>
+    _searchMatch(q, s.name, s.brand, s.notes, s.purchasedFrom, s.amount)
+  ).slice(0, 8).map(s => ({
+    kind: 'supply',
+    id: s.id,
+    title: s.name || '(unnamed supply)',
+    sub: [s.brand, s.amount].filter(Boolean).join(' · ') || 'Supply',
+  }));
+  if (supplyMatches.length) groups.push({ title: 'Supplies', items: supplyMatches });
+  return groups;
+}
+function _searchNavigate(item) {
+  if (item.kind === 'plan') {
+    switchTab('plans');
+  } else if (item.kind === 'project') {
+    viewProject(item.id);
+    switchTab('projects');
+  } else if (item.kind === 'species') {
+    switchTab('library');
+    // Scroll to the matching wood card by name match
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.wood-card .wood-name');
+      for (const c of cards) {
+        if (c.textContent.trim() === item.id) {
+          c.closest('.wood-card')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          break;
+        }
+      }
+    }, 80);
+  } else if (item.kind === 'supply') {
+    switchTab('shop');
+    if (typeof setShopFilter === 'function') setShopFilter('supplies');
+  }
+  closeSearch();
+}
+function _renderSearch() {
+  if (!searchState) return;
+  let overlay = document.getElementById('search-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'search-overlay';
+    overlay.className = 'search-overlay';
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeSearch(); });
+    document.body.appendChild(overlay);
+  }
+  const q = searchState.query;
+  searchState.results = _searchAll(q);
+  const flat = searchState.results.flatMap(g => g.items);
+  if (searchState.focusedIdx >= flat.length) searchState.focusedIdx = Math.max(0, flat.length - 1);
+  let body;
+  if (!q) {
+    body = `<div class="search-empty">Search plans, projects, species, supplies. Press <strong>Esc</strong> to close.</div>`;
+  } else if (!flat.length) {
+    body = `<div class="search-empty">No matches for <strong>${escapeHtml(q)}</strong></div>`;
+  } else {
+    let flatIdx = 0;
+    body = searchState.results.map(g => {
+      const rows = g.items.map(item => {
+        const focused = flatIdx === searchState.focusedIdx;
+        flatIdx++;
+        const iconHtml = (item.kind === 'project' && item.photo) ? `<img src="${item.photo}" alt="">`
+          : item.kind === 'species' ? `<div class="swatch" style="background:${item.color || '#888'}"></div>`
+          : item.kind === 'plan' ? `<img src="sparky/${item.iconKey || 'plans'}.png" alt="">`
+          : item.kind === 'supply' ? '🧴'
+          : '·';
+        const payload = encodeURIComponent(JSON.stringify(item));
+        return `<button class="search-row${focused ? ' focused' : ''}" onclick="_searchNavigate(JSON.parse(decodeURIComponent('${payload}')))">
+          <div class="icon">${iconHtml}</div>
+          <div class="body">
+            <div class="ttl">${_searchHighlight(item.title, q)}</div>
+            <div class="sub">${_searchHighlight(item.sub, q)}</div>
+          </div>
+          <span class="row-kind">${item.kind}</span>
+        </button>`;
+      }).join('');
+      return `<div class="search-group"><div class="search-group-title">${escapeHtml(g.title)}</div>${rows}</div>`;
+    }).join('');
+  }
+  overlay.innerHTML = `
+    <div class="search-modal" onclick="event.stopPropagation()">
+      <div class="search-input-row">
+        <span class="icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search plans, projects, species, supplies…" value="${escapeHtml(q)}" oninput="_searchUpdate(this.value)" onkeydown="_searchKey(event)" autocomplete="off" spellcheck="false">
+        <span class="kbd">Esc</span>
+      </div>
+      <div class="search-results">${body}</div>
+    </div>
+  `;
+  const input = overlay.querySelector('input.search-input');
+  if (input) {
+    input.focus();
+    try { input.setSelectionRange(input.value.length, input.value.length); } catch {}
+  }
+}
+function _searchUpdate(q) { searchState.query = q; searchState.focusedIdx = 0; _renderSearch(); }
+function _searchKey(e) {
+  if (e.key === 'Escape') { e.preventDefault(); closeSearch(); return; }
+  const flat = searchState.results.flatMap(g => g.items);
+  if (e.key === 'ArrowDown') { e.preventDefault(); searchState.focusedIdx = Math.min(flat.length - 1, searchState.focusedIdx + 1); _renderSearch(); }
+  else if (e.key === 'ArrowUp')   { e.preventDefault(); searchState.focusedIdx = Math.max(0, searchState.focusedIdx - 1); _renderSearch(); }
+  else if (e.key === 'Enter')     { e.preventDefault(); if (flat[searchState.focusedIdx]) _searchNavigate(flat[searchState.focusedIdx]); }
+}
+// Global ⌘K / Ctrl+K toggle
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+    e.preventDefault();
+    if (searchState) closeSearch(); else openSearch();
+  }
+});
 
 // ═════════════════════════════ INIT ════════════════════════════════════════
 function init() {
