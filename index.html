@@ -4122,6 +4122,50 @@ function tileColorFor(col, row, p) {
   return p.species[idx % n] || p.species[0];
 }
 
+// True tumbling-block (3D cube) tessellation. A square tile grid CAN'T make the
+// cube illusion — this pattern needs its own rhombille tiling, matching the
+// picker icon. Each cube = 3 rhombi (top / left / right) mapped to species 0/1/2
+// (cycled if fewer); per-face lighting overlays keep the 3D read with any species
+// count. Fills the rect [x0,y0,W,H]; caller clips to the board outline.
+function _cube3dTiles(x0, y0, W, H, p, opts) {
+  opts = opts || {};
+  const sp = p.species || [];
+  const n = sp.length || 1;
+  const colOf = i => (sp[((i % n) + n) % n] || { color: '#888' }).color;
+  const topC = colOf(0), leftC = colOf(1), rightC = colOf(2);
+  const f = v => v.toFixed(2);
+  // Cube width ≈ 2× the chosen tile size (a cube spans two tiles), so the
+  // Tile Size control still drives how big/many the cubes are. Clamp to sane range.
+  const cubeIn = Math.max(0.5, (p.tileSize || 1.5) * 2);
+  let N = Math.round((p.finalL || 12) / cubeIn);
+  N = Math.max(3, Math.min(16, N || 6));
+  const xPer = W / N;            // horizontal cube period
+  const cw = xPer / 1.5;         // cube "diameter"
+  const hw = cw * 0.75;          // rhombus half-width (√3/2 · s)
+  const s3 = cw * 0.8660254;     // center → top/bottom vertex (s = √3/2 · cw)
+  const qh = s3 / 2;             // center → side vertex (vertical)
+  const yPer = s3 * 1.5;         // vertical cube period (honeycomb tiling)
+  const stk = opts.stroke === false ? '' : ' stroke="rgba(0,0,0,0.30)" stroke-width="0.6"';
+  let out = '';
+  const rEnd = Math.ceil(H / yPer) + 2;
+  const cEnd = N + 2;
+  for (let r = -2; r <= rEnd; r++) {
+    const cy = y0 + r * yPer;
+    const xs = (r & 1) ? hw : 0;
+    for (let c = -2; c <= cEnd; c++) {
+      const cx = x0 + c * xPer + xs;
+      const top = `${f(cx)},${f(cy-s3)} ${f(cx+hw)},${f(cy-qh)} ${f(cx)},${f(cy)} ${f(cx-hw)},${f(cy-qh)}`;
+      const left = `${f(cx-hw)},${f(cy-qh)} ${f(cx)},${f(cy)} ${f(cx)},${f(cy+s3)} ${f(cx-hw)},${f(cy+qh)}`;
+      const right = `${f(cx+hw)},${f(cy-qh)} ${f(cx)},${f(cy)} ${f(cx)},${f(cy+s3)} ${f(cx+hw)},${f(cy+qh)}`;
+      // top = lightest (lit from above), left = darkest, right = mid
+      out += `<polygon points="${top}" fill="${topC}"${stk}/><polygon points="${top}" fill="rgba(255,255,255,0.10)"/>`;
+      out += `<polygon points="${left}" fill="${leftC}"${stk}/><polygon points="${left}" fill="rgba(0,0,0,0.24)"/>`;
+      out += `<polygon points="${right}" fill="${rightC}"${stk}/><polygon points="${right}" fill="rgba(0,0,0,0.08)"/>`;
+    }
+  }
+  return out;
+}
+
 // ═════════════════════════════ PREVIEWS ════════════════════════════════════
 function svgFinishedBoard(p) {
   // Cap preview cell count for performance on huge boards
@@ -4147,6 +4191,9 @@ function svgFinishedBoard(p) {
   s += `<rect x="${padX-2}" y="${padY+2}" width="${W+4}" height="${H+4}" fill="rgba(0,0,0,0.45)" rx="${cornerR}"/>`;
   s += `<defs><clipPath id="bd"><rect x="${padX}" y="${padY}" width="${W}" height="${H}" rx="${cornerR}"/></clipPath></defs>`;
   s += `<g clip-path="url(#bd)">`;
+  if (p.pattern === 'cube3d') {
+    s += _cube3dTiles(padX, padY, W, H, p);
+  } else {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const x = padX + col * tileW, y = padY + row * tileH;
@@ -4203,6 +4250,7 @@ function svgFinishedBoard(p) {
         s += `<rect x="${x}" y="${y}" width="${tileW}" height="${tileH}" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="0.4"/>`;
       }
     }
+  }
   }
   if (p.juiceGroove !== 'none') {
     const inset = p.juiceGroove === 'standard' ? 12 : 18;
@@ -4374,20 +4422,25 @@ function diagPhase2(p) {
   const offX = (W - dW) / 2;
   const tileW = dW / cols, tileH = dH / rows;
   let inner = `<g transform="translate(${offX},0)">`;
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const x = col * tileW, y = row * tileH;
-      const spec = tileColorFor(col, row, p);
-      inner += `<rect x="${x}" y="${y}" width="${tileW}" height="${tileH}" fill="${spec.color}"/>`;
-      const r = Math.min(tileW, tileH) * 0.1;
-      if (r > 1) inner += `<circle cx="${x + tileW/2}" cy="${y + tileH/2}" r="${r}" fill="rgba(0,0,0,0.18)"/>`;
+  if (p.pattern === 'cube3d') {
+    inner += _cube3dTiles(0, 0, dW, dH, p);
+  } else {
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = col * tileW, y = row * tileH;
+        const spec = tileColorFor(col, row, p);
+        inner += `<rect x="${x}" y="${y}" width="${tileW}" height="${tileH}" fill="${spec.color}"/>`;
+        const r = Math.min(tileW, tileH) * 0.1;
+        if (r > 1) inner += `<circle cx="${x + tileW/2}" cy="${y + tileH/2}" r="${r}" fill="rgba(0,0,0,0.18)"/>`;
+      }
     }
+    for (let row = 1; row < rows; row++) inner += `<line x1="0" y1="${row * tileH}" x2="${dW}" y2="${row * tileH}" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>`;
   }
-  for (let row = 1; row < rows; row++) inner += `<line x1="0" y1="${row * tileH}" x2="${dW}" y2="${row * tileH}" stroke="rgba(0,0,0,0.5)" stroke-width="1"/>`;
   inner += `<rect x="0" y="0" width="${dW}" height="${dH}" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>`;
   inner += svgDimX(0, dW, dH + 12, dim(p.finalL));
   inner += `<text x="${dW + 12}" y="${dH/2 + 3}" fill="${LABEL_COLOR}" font-size="10" font-family="system-ui">${dim(p.finalW)}</text>`;
-  inner += `<text x="${dW/2}" y="-8" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="system-ui">${rows} slabs standing on edge · end grain up</text>`;
+  const phase2Caption = p.pattern === 'cube3d' ? 'tumbling-block cubes · 60° bevel strips, 3 species' : `${rows} slabs standing on edge · end grain up`;
+  inner += `<text x="${dW/2}" y="-8" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="system-ui">${phase2Caption}</text>`;
   inner += `</g>`;
   return buildSvg(W, dH + 22, inner, 22);
 }
