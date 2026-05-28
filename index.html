@@ -2311,11 +2311,12 @@ const DEFAULT_SPECIES = [{ ...SPECIES_PALETTE[0] }, { ...SPECIES_PALETTE[1] }];
 const UNITS_KEY = 'woodshop-units';
 let unitSystem = 'imperial';
 const MM_PER_INCH = 25.4;
-const MEASURE_KEYS = ['finalL','finalW','finalT','tileSize','stockL','stockW','stockT','kerf','surfaceAllowance',
+const MEASURE_KEYS = ['finalL','finalW','finalT','finalT-std','tileSize','stockL','stockW','stockT','kerf','surfaceAllowance',
   'cab-W','cab-H','cab-D','cab-T','cab-back','cab-toe',
   'bsh-W','bsh-H','bsh-D','bsh-T',
   'drw-W','drw-D','drw-H','drw-T',
-  'furn-sheetL','furn-sheetW'];
+  'furn-sheetL','furn-sheetW',
+  'opt-kerf'];
 function loadUnits() {
   try { unitSystem = localStorage.getItem(UNITS_KEY) === 'metric' ? 'metric' : 'imperial'; }
   catch { unitSystem = 'imperial'; }
@@ -4797,7 +4798,12 @@ function saveProjectForm() {
   ['title','date','description','salePrice'].forEach(k => {
     const el = document.getElementById('pf-' + k); if (el) editingDraft[k] = el.value;
   });
-  ['dimL','dimW','dimT','hours','coats'].forEach(k => {
+  // dimL/dimW/dimT are measurements (store as inches); hours/coats are plain numbers.
+  ['dimL','dimW','dimT'].forEach(k => {
+    const el = document.getElementById('pf-' + k);
+    if (el) editingDraft[k] = el.value === '' ? '' : toInches(el.value);
+  });
+  ['hours','coats'].forEach(k => {
     const el = document.getElementById('pf-' + k); if (el) editingDraft[k] = parseFloat(el.value) || '';
   });
   if (!editingDraft.title || !editingDraft.title.trim()) { alert('Project title is required.'); return; }
@@ -4895,7 +4901,7 @@ function renderProjectsList() {
           </div>
           <div class="proj-tags">
             <span class="proj-tag">${PROJECT_TYPES.find(t => t[0] === p.type)?.[1] || p.type || '?'}</span>
-            ${p.dimL ? `<span class="proj-tag">${p.dimL}×${p.dimW}${p.dimT ? '×' + p.dimT : ''}"</span>` : ''}
+            ${p.dimL ? `<span class="proj-tag">${dim(p.dimL)} × ${dim(p.dimW)}${p.dimT ? ' × ' + dim(p.dimT) : ''}</span>` : ''}
             ${p.soldAt && p.salePrice ? `<span class="proj-tag money">$${p.salePrice}</span>` : ''}
           </div>
         </div>
@@ -4991,16 +4997,16 @@ function renderProjectForm() {
           <input type="number" id="pf-coats" value="${d.coats}" min="0" step="1" oninput="editingDraft.coats=parseInt(this.value)||0">
         </div>
         <div class="proj-form-row" style="margin:0">
-          <label class="lbl">Length (in)</label>
-          <input type="number" id="pf-dimL" value="${d.dimL}" step="0.25" min="0" oninput="editingDraft.dimL=parseFloat(this.value)||''">
+          <label class="lbl">Length <span class="unit-pill">${unitLabel()}</span></label>
+          <input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Length" id="pf-dimL" value="${d.dimL === '' ? '' : fromInches(parseFloat(d.dimL) || 0)}" step="${unitStep()}" min="0" oninput="editingDraft.dimL = this.value === '' ? '' : toInches(this.value)">
         </div>
         <div class="proj-form-row" style="margin:0">
-          <label class="lbl">Width (in)</label>
-          <input type="number" id="pf-dimW" value="${d.dimW}" step="0.25" min="0" oninput="editingDraft.dimW=parseFloat(this.value)||''">
+          <label class="lbl">Width <span class="unit-pill">${unitLabel()}</span></label>
+          <input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Width" id="pf-dimW" value="${d.dimW === '' ? '' : fromInches(parseFloat(d.dimW) || 0)}" step="${unitStep()}" min="0" oninput="editingDraft.dimW = this.value === '' ? '' : toInches(this.value)">
         </div>
         <div class="proj-form-row" style="margin:0">
-          <label class="lbl">Thickness (in)</label>
-          <input type="number" id="pf-dimT" value="${d.dimT}" step="0.125" min="0" oninput="editingDraft.dimT=parseFloat(this.value)||''">
+          <label class="lbl">Thickness <span class="unit-pill">${unitLabel()}</span></label>
+          <input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Thickness" id="pf-dimT" value="${d.dimT === '' ? '' : fromInches(parseFloat(d.dimT) || 0)}" step="${unitStep()}" min="0" oninput="editingDraft.dimT = this.value === '' ? '' : toInches(this.value)">
         </div>
       </div>
 
@@ -5044,7 +5050,7 @@ function renderProjectDetail() {
     ['Stain', p.stain],
     ['Finish', p.finish],
     ['Coats', p.coats || '—'],
-    ['Dimensions', (p.dimL || p.dimW || p.dimT) ? `${p.dimL || '?'}" × ${p.dimW || '?'}" × ${p.dimT || '?'}"` : '—'],
+    ['Dimensions', (p.dimL || p.dimW || p.dimT) ? `${p.dimL ? dim(p.dimL) : '?'} × ${p.dimW ? dim(p.dimW) : '?'} × ${p.dimT ? dim(p.dimT) : '?'}` : '—'],
     ['Hours', p.hours || '—'],
     ['Sale Price', p.salePrice ? '$' + p.salePrice : '—'],
     ['Sold', p.soldAt || (p.salePrice ? 'Listed' : '—')],
