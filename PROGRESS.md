@@ -1,17 +1,29 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-28 (Session 5 — Parametric stripe + input fix + haptic removed)
+Last updated: 2026-05-28 (Session 5 — Waves 6→9 + debug pass)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~5100 lines, single `index.html` + static assets (icons, manifest, sparky/)
+- **File**: ~5800 lines, single `index.html` + static assets (icons, manifest, sparky/)
 - **Theme**: dark mode default on desktop, light mode default on phone (manual toggle persists). Both modes now **wood-forward** (warm walnut/espresso dark, parchment/oak light) — no more cold charcoal + cyber-yellow.
 - **App icon**: square Sparky General (the bare character, no name/text). Used as the favicon, PWA icon, and home-page hero avatar.
 - **Sparky icons**: 19 character icons in `sparky/` (256px each) — placed on every home tile, plus inline next to Wood Library / Projects / My Shop / Academy / Plans headers.
 - **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen opens full-screen with the Sparky app icon.
 
-## Features shipped (9 tabs)
+## Session 5 wrap (2026-05-28) — 5 waves shipped, queue 9 → 5
+
+| Wave | Commit | Ships |
+|------|--------|-------|
+| 6 | [d2256c7](https://github.com/michael-VDAM/smart-cuts/commit/d2256c7) | Parametric stripe formulas + strip-count input fix + drop haptic |
+| 7 | [430d2d1](https://github.com/michael-VDAM/smart-cuts/commit/430d2d1) | Chevron / Basketweave / Diagonal end-grain patterns |
+| 8 | [cf5fec1](https://github.com/michael-VDAM/smart-cuts/commit/cf5fec1) | Photo annotation on Projects |
+| 8.1 | [7a1fafd](https://github.com/michael-VDAM/smart-cuts/commit/7a1fafd) | Debug-pass fixes (mobile picker scroll, print CSS hardening) |
+| 9 | [fd6c8aa](https://github.com/michael-VDAM/smart-cuts/commit/fd6c8aa) | Wood Movement Calculator |
+
+**Now 11 tabs** (added Movement). **Pattern picker has 10 patterns** (added Chevron / Basketweave / Diagonal). **Projects can hold annotations** (arrows, circles, text labels — non-destructive SVG overlay). **Parametric stripes** with formula textboxes + drum-pickable variables + 5 parametric presets that seed `x` and rewire on the fly.
+
+## Features shipped (11 tabs)
 
 ### 1. Home
 - App logo (lightbulb PNG) + title
