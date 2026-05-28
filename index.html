@@ -627,7 +627,9 @@
     .drum-header .drum-cancel:hover { color: var(--text); }
     .drum-header .drum-done { color: var(--accent); }
     .drum-header .drum-done:active { background: var(--accent-soft); }
-    .drum-current { text-align: center; font-size: 30px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 4px 0 12px; letter-spacing: 0.5px; line-height: 1; }
+    .drum-current { text-align: center; font-size: 30px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; margin: 4px 0 12px; letter-spacing: 0.5px; line-height: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .drum-current-main { font-size: 30px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: 0.5px; line-height: 1; }
+    .drum-current-sub { font-size: 14px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: 0.3px; line-height: 1; }
     .drum-cylinders {
       display: flex; align-items: center; justify-content: center; gap: 4px;
       height: 232px;
@@ -3043,6 +3045,17 @@ function _drumApplyValue(input, inches) {
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.dispatchEvent(new Event('change', { bubbles: true }));
 }
+// The big readout above the wheels shows BOTH forms of the selected value:
+// imperial → fraction (1 ¾") on top, decimal (1.75 in) below.
+// metric   → mm (45 mm) on top, cm (4.5 cm) below.
+function _drumDualLabel(inches) {
+  if (unitSystem === 'metric') {
+    const mm = Math.round((inches || 0) * MM_PER_INCH);
+    return { main: mm + ' mm', sub: Number((mm / 10).toFixed(2)) + ' cm' };
+  }
+  const snapped = Math.round((inches || 0) * 16) / 16;
+  return { main: frac(snapped), sub: Number(snapped.toFixed(4)) + ' in' };
+}
 // Build the drum columns + a converter back to inches, for a given current
 // value (in inches) and a max. Shared by the auto picker (measure-inputs) and
 // the strip-width picker (formula rows). Imperial = whole + 1/16ths; metric = cm + mm.
@@ -3141,7 +3154,9 @@ function _renderDrumSheet({ label, cols, toInchesFn, sourceInput, onApply }) {
     const args = cols.map((c, i) => c.values[selected[i]]);
     const inches = toInchesFn(...args);
     const el = document.getElementById('drum-current');
-    if (el) el.textContent = dim(inches);
+    if (!el) return;
+    const { main, sub } = _drumDualLabel(inches);
+    el.innerHTML = `<span class="drum-current-main">${main}</span><span class="drum-current-sub">${sub}</span>`;
   }
   function markSelected(colEl, i, idx) {
     colEl.querySelectorAll('.drum-item').forEach((it, j) => it.classList.toggle('selected', j === idx));
