@@ -214,7 +214,7 @@
     .wood-option .price { color: var(--money); font-size: 11px; font-variant-numeric: tabular-nums; }
 
     /* STRIP PATTERN (face grain custom layout) */
-    .strip-row { display: grid; grid-template-columns: 1fr 90px 60px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .strip-row { display: grid; grid-template-columns: minmax(0,1fr) 78px 50px 22px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
     .strip-row.linked .formula-input { border-color: var(--accent); background: var(--accent-soft); }
     .strip-link-pill { font-size: 9.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.3px; white-space: nowrap; cursor: default; user-select: none; }
     .formula-input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: left; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
@@ -3043,40 +3043,65 @@ function _drumApplyValue(input, inches) {
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.dispatchEvent(new Event('change', { bubbles: true }));
 }
+// Build the drum columns + a converter back to inches, for a given current
+// value (in inches) and a max. Shared by the auto picker (measure-inputs) and
+// the strip-width picker (formula rows). Imperial = whole + 1/16ths; metric = cm + mm.
+function _buildMeasureCols(inches, max) {
+  if (unitSystem === 'metric') {
+    const totalMm = Math.max(0, Math.min(max, Math.round(inches * MM_PER_INCH)));
+    const cm = Math.floor(totalMm / 10);
+    const mm = totalMm % 10;
+    return {
+      cols: [
+        { values: _range(0, Math.ceil(max / 10) + 1), valueLabels: null, start: cm, unit: 'cm' },
+        { values: _range(0, 10), valueLabels: null, start: mm, unit: 'mm' },
+      ],
+      toInchesFn: (c, m) => (c * 10 + m) / MM_PER_INCH,
+    };
+  }
+  let whole = Math.floor(inches);
+  let fracIdx = Math.round((inches - whole) * 16);
+  if (fracIdx >= 16) { whole += 1; fracIdx = 0; }
+  whole = Math.max(0, Math.min(max, whole));
+  const fracs = []; const fracLabels = [];
+  // 0, 1/16, 1/8, 3/16, 1/4, 5/16, 3/8, 7/16, 1/2, 9/16, 5/8, 11/16, 3/4, 13/16, 7/8, 15/16
+  for (let n = 0; n < 16; n++) { fracs.push(n / 16); fracLabels.push(_frac16Label(n)); }
+  return {
+    cols: [
+      { values: _range(0, max + 1), valueLabels: null, start: whole, unit: 'in' },
+      { values: fracs, valueLabels: fracLabels, start: fracIdx, unit: '' },
+    ],
+    toInchesFn: (w, f) => w + f,
+  };
+}
 function openDrumPicker(input) {
   if (!input) return;
   const label = _drumLabelFor(input);
   const inches = toInches(input.value);
   const max = parseFloat(input.dataset.max || (unitSystem === 'metric' ? 5000 : 200));
-
-  let cols, toInchesFn;
-  if (unitSystem === 'metric') {
-    const totalMm = Math.max(0, Math.min(max, Math.round(inches * MM_PER_INCH)));
-    const cm = Math.floor(totalMm / 10);
-    const mm = totalMm % 10;
-    cols = [
-      { values: _range(0, Math.ceil(max / 10) + 1), valueLabels: null, start: cm, unit: 'cm' },
-      { values: _range(0, 10), valueLabels: null, start: mm, unit: 'mm' },
-    ];
-    toInchesFn = (c, m) => (c * 10 + m) / MM_PER_INCH;
-  } else {
-    let whole = Math.floor(inches);
-    let fracIdx = Math.round((inches - whole) * 16);
-    if (fracIdx >= 16) { whole += 1; fracIdx = 0; }
-    whole = Math.max(0, Math.min(max, whole));
-    const fracs = []; const fracLabels = [];
-    // 0, 1/16, 1/8, 3/16, 1/4, 5/16, 3/8, 7/16, 1/2, 9/16, 5/8, 11/16, 3/4, 13/16, 7/8, 15/16
-    for (let n = 0; n < 16; n++) { fracs.push(n / 16); fracLabels.push(_frac16Label(n)); }
-    cols = [
-      { values: _range(0, max + 1), valueLabels: null, start: whole, unit: 'in' },
-      { values: fracs, valueLabels: fracLabels, start: fracIdx, unit: '' },
-    ];
-    toInchesFn = (w, f) => w + f;
-  }
-
+  const { cols, toInchesFn } = _buildMeasureCols(inches, max);
   _renderDrumSheet({ label, cols, toInchesFn, sourceInput: input });
 }
-function _renderDrumSheet({ label, cols, toInchesFn, sourceInput }) {
+// Open the scroll-wheel drum on a face-grain strip's width. Strip widths are
+// formula text inputs (Wave 6 parametric change), so they don't get the auto
+// drum that .measure-input fields do — this restores the scroll wheel. Picking
+// a value writes it back as a literal-number formula (replacing any variable).
+function openStripDrum(idx) {
+  const s = stripPattern[idx];
+  if (!s) return;
+  const inches = (isFinite(s.width) && s.width > 0) ? s.width : (toInches(unitStep()) || 1.5);
+  const max = (unitSystem === 'metric' ? 5000 : 200);
+  const { cols, toInchesFn } = _buildMeasureCols(inches, max);
+  _renderDrumSheet({
+    label: `Strip ${idx + 1} width`,
+    cols, toInchesFn,
+    onApply: (picked) => {
+      const snapped = Math.round(Math.max(0, picked) * 16) / 16;
+      setStripFormula(idx, String(snapped));
+    },
+  });
+}
+function _renderDrumSheet({ label, cols, toInchesFn, sourceInput, onApply }) {
   closeDrumPicker();
   const overlay = document.createElement('div');
   overlay.className = 'drum-overlay';
@@ -3145,7 +3170,8 @@ function _renderDrumSheet({ label, cols, toInchesFn, sourceInput }) {
   document.getElementById('drum-done-btn').onclick = () => {
     const args = cols.map((c, i) => c.values[selected[i]]);
     const inches = toInchesFn(...args);
-    _drumApplyValue(sourceInput, inches);
+    if (typeof onApply === 'function') onApply(inches);
+    else _drumApplyValue(sourceInput, inches);
     closeDrumPicker();
   };
 }
@@ -3721,7 +3747,8 @@ function refreshStripList() {
       </select>
       <input type="text" class="formula-input${valid ? '' : ' invalid'}" value="${escapeHtml(s.formula || '')}" placeholder="e.g. x" oninput="setStripFormula(${i}, this.value)" title="Formula — literals, variables, +, −, ×, ÷, parens">
       <span class="strip-width-display${valid ? '' : ' invalid'}">${valid ? dim(s.width) : '—'}</span>
-      ${linkHint}
+      <button class="icon-btn pick" onclick="openStripDrum(${i})" title="Set width on scroll wheel">&#9776;</button>
+      ${linkHint || '<span></span>'}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
   `;
