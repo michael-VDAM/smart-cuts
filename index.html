@@ -115,6 +115,11 @@
     .header-action:hover { color: var(--text); border-color: var(--muted); }
     .header-menu-btn { display: none; background: none; border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 9px; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; align-items: center; justify-content: center; flex-shrink: 0; }
     .header-menu-btn:active { background: var(--panel2); }
+    /* Calc shortcut sits next to the menu — visible on phone AND desktop */
+    .header-calc-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); width: 38px; height: 38px; border-radius: 9px; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
+    .header-calc-btn:hover { background: var(--accent); }
+    .header-calc-btn:active { transform: scale(0.94); }
+    .header-calc-btn span { filter: saturate(1.2); }
     .live-indicator { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-right: 5px; vertical-align: middle; box-shadow: 0 0 6px var(--success); animation: pulse 2.4s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
 
@@ -976,6 +981,9 @@
     <button class="header-action" onclick="window.print()">Print</button>
     <button class="header-action" onclick="resetDefaults()">Reset</button>
   </div>
+  <button class="header-calc-btn" onclick="switchTab('calc')" aria-label="Open calculator" title="Calculator — fraction math">
+    <span aria-hidden="true">🧮</span>
+  </button>
   <button class="header-menu-btn" onclick="toggleHeaderMenu(event)" aria-label="Menu">⋯</button>
 </header>
 
