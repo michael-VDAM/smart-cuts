@@ -464,6 +464,35 @@
       .move-result .total { font-size: 30px; }
     }
 
+    /* PICTURE FRAME TAB */
+    .frame-col { padding: 28px 36px 60px; max-width: 680px; margin: 0 auto; width: 100%; }
+    .frame-header { margin-bottom: 18px; }
+    .frame-header h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 4px; display: flex; align-items: center; }
+    .frame-header p { color: var(--muted); font-size: 13px; max-width: 600px; line-height: 1.5; }
+    .frame-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .frame-preset { background: var(--panel3); border: 1px solid var(--border); border-radius: 7px; padding: 6px 11px; font-size: 12px; font-weight: 600; color: var(--text); cursor: pointer; transition: border-color .12s, background .12s; }
+    .frame-preset:hover { border-color: var(--accent); }
+    .frame-preset.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .frame-svg-wrap { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; display: flex; justify-content: center; }
+    .frame-svg-wrap svg { width: 100%; max-width: 420px; height: auto; }
+    .frame-cutlist { background: linear-gradient(135deg, var(--accent-soft), var(--panel2)); border: 1px solid var(--accent); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+    .frame-cutlist h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--accent); margin-bottom: 10px; }
+    .frame-rail { display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+    .frame-rail:last-child { border-bottom: none; }
+    .frame-rail .rname { font-size: 13px; font-weight: 600; color: var(--text); }
+    .frame-rail .rsub { font-size: 11px; color: var(--muted); }
+    .frame-rail .rlen { font-size: 19px; font-weight: 800; color: var(--accent); text-align: right; line-height: 1.05; }
+    .frame-rail .rlen small { font-size: 10px; font-weight: 600; color: var(--muted); display: block; text-align: right; }
+    .frame-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap: 10px; margin-bottom: 14px; }
+    .frame-stat { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .frame-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px; }
+    .frame-stat .val { font-size: 18px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+    .frame-note { font-size: 11px; color: var(--muted2); line-height: 1.5; }
+    .frame-warn { background: rgba(212,120,58,.12); border: 1px solid rgba(212,120,58,.4); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #d4783a; margin-bottom: 14px; line-height: 1.45; }
+    @media (max-width: 820px) {
+      .frame-col { padding: 18px 14px 40px; }
+    }
+
     /* LUMBER PRICES TAB */
     .prices-col { padding: 28px 36px; max-width: 1000px; margin: 0 auto; width: 100%; }
     .prices-header { margin-bottom: 18px; }
@@ -1208,6 +1237,12 @@
           <p>Cabinets, bookshelves, drawer boxes with 9 joinery options. Parts lists feed the optimizer.</p>
           <span class="home-tile-cta">Open furniture →</span>
         </button>
+        <button class="home-tile" data-tile-tab="frame">
+          <div class="home-tile-icon" style="font-size:72px">🖼️</div>
+          <h3>Picture Frame</h3>
+          <p>Miter cut-list calculator. Photo size + molding profile → rail lengths, glass size, molding to buy.</p>
+          <span class="home-tile-cta">Size a frame →</span>
+        </button>
         <button class="home-tile" data-tile-tab="optimizer">
           <div class="home-tile-icon"><img src="sparky/measuring-tools.png" alt=""></div>
           <h3>Optimizer</h3>
@@ -1666,6 +1701,13 @@
   </div>
 </div>
 
+<!-- ════════════════════════════ TAB: PICTURE FRAME ═══════════════════════════ -->
+<div id="tab-frame" style="display:none" class="workspace single-col">
+  <div class="output-col frame-col">
+    <div id="frame-content"></div>
+  </div>
+</div>
+
 <!-- ════════════════════════════ TAB: LUMBER PRICES ═══════════════════════════ -->
 <div id="tab-prices" style="display:none" class="workspace single-col">
   <div class="output-col prices-col">
@@ -1756,6 +1798,7 @@ const NAV_GROUPS = [
   { id: 'design', label: 'Design', tabs: [
     ['board', 'Cutting Board', '🔪'],
     ['furniture', 'Furniture', '🪑'],
+    ['frame', 'Picture Frame', '🖼️'],
     ['optimizer', 'Optimizer', '📐'],
     ['movement', 'Wood Movement', '📏'],
     ['calc', 'Calculator', '🧮'],
@@ -3092,6 +3135,8 @@ function toggleUnitSystem() {
   if (typeof refreshStripList === 'function') refreshStripList();
   if (typeof scheduleRunPlanner === 'function') scheduleRunPlanner();
   if (typeof runFurniture === 'function') runFurniture();
+  if (typeof renderFrame === 'function') renderFrame();
+  if (typeof renderMovement === 'function') renderMovement();
   updateUnitsMenuLabel();
 }
 function applyUnitSuffixes() {
@@ -5524,6 +5569,183 @@ function renderMovement() {
       Coefficients sourced from the USDA Forest Products Lab <em>Wood Handbook</em> (Chapter 4). Species without published data use a moderate hardwood average (T: 0.00300, R: 0.00170). Tap any measurement-input field to open the drum picker.
     </div>
   `;
+}
+
+// ═════════════════════════════ PICTURE FRAME ══════════════════════════════
+// Miter cut-list calculator. Internal model: every dim in inches. Given the
+// artwork/glass size + molding profile (face width, rabbet lip, depth), derive
+// the sight (visible) opening, the rabbet opening (glass size), the outer frame
+// size, and the four 45° mitered rail lengths (measured to the long point).
+const FRAME_STATE_KEY = 'woodshop-frame-v1';
+let frameState = {
+  artW: 8, artH: 10,   // artwork / glass size (inches)
+  moldW: 2,            // molding face width
+  rabW: 0.25,          // rabbet lip — overlap onto art, each side
+  rabD: 0.375,         // rabbet depth (holds glass+mat+backing) — informational
+  clear: 0.125,        // total drop-in clearance for glass in the rabbet
+  stockT: 0.75,        // stock thickness, for a board-foot estimate
+  qty: 1,
+};
+const FRAME_PRESETS = [
+  ['4×6', 4, 6], ['5×7', 5, 7], ['8×10', 8, 10], ['8.5×11', 8.5, 11],
+  ['11×14', 11, 14], ['12×12', 12, 12], ['16×20', 16, 20], ['18×24', 18, 24], ['24×36', 24, 36],
+];
+function loadFrameState() {
+  try { const raw = localStorage.getItem(FRAME_STATE_KEY); if (raw) frameState = { ...frameState, ...JSON.parse(raw) }; } catch {}
+}
+function saveFrameState() { try { localStorage.setItem(FRAME_STATE_KEY, JSON.stringify(frameState)); } catch {} }
+
+function calcFrame() {
+  const s = frameState;
+  const p = { qty: Math.max(1, Math.round(s.qty || 1)) };
+  // Rabbet opening (back hole the glass drops into) = art + clearance
+  p.rabbetW = s.artW + s.clear;
+  p.rabbetH = s.artH + s.clear;
+  // Sight (visible) opening = rabbet opening minus the lip on each side
+  p.sightW = p.rabbetW - 2 * s.rabW;
+  p.sightH = p.rabbetH - 2 * s.rabW;
+  // Outer frame size = sight opening + molding face width on each side
+  p.outerW = p.sightW + 2 * s.moldW;
+  p.outerH = p.sightH + 2 * s.moldW;
+  // Rail lengths — long point (outer corner) and short point (inner / sight edge)
+  p.railTopLong = p.outerW;  p.railTopShort = p.sightW;
+  p.railSideLong = p.outerH; p.railSideShort = p.sightH;
+  // Linear molding per frame = sum of the four long points
+  p.linearPer = 2 * p.outerW + 2 * p.outerH;
+  // Recommended purchase: +15% for miter offcuts + safe cutting, rounded up, × qty
+  p.linearBuy = Math.ceil(p.linearPer * 1.15) * p.qty;
+  p.linearFeet = p.linearBuy / 12;
+  // Board feet (if milling rails from a board)
+  p.boardFeet = bf(p.linearBuy, s.moldW, s.stockT);
+  p.warnings = [];
+  if (p.sightW <= 0 || p.sightH <= 0) p.warnings.push('Rabbet lip is wider than the artwork — the frame would cover the whole picture. Reduce the rabbet lip or use larger art.');
+  if (s.moldW <= s.rabW) p.warnings.push('Molding face width should be wider than the rabbet lip, or the frame has no visible face.');
+  if (s.rabD < 0.25) p.warnings.push('Rabbet depth under ¼″ may not hold glass + backing. ⅜″ is typical; ½″ if you add a mat.');
+  return p;
+}
+
+function _frameSVG(p) {
+  const s = frameState;
+  const oW = p.outerW, oH = p.outerH;
+  if (!(oW > 0) || !(oH > 0) || p.sightW <= 0 || p.sightH <= 0) {
+    return '<div style="color:var(--muted);font-size:12px;padding:24px;text-align:center">Adjust the inputs to preview the frame.</div>';
+  }
+  const pad = Math.max(oW, oH) * 0.16 + 0.6;
+  const vbW = oW + pad * 2, vbH = oH + pad * 2;
+  const ox = pad, oy = pad, mw = s.moldW;
+  const sx = ox + mw, sy = oy + mw, sw = p.sightW, sh = p.sightH;
+  const sk = Math.max(oW, oH) / 240;
+  const fs = Math.max(oW, oH) * 0.05;
+  const f = n => n.toFixed(2);
+  const miters = `
+    <line x1="${f(ox)}" y1="${f(oy)}" x2="${f(sx)}" y2="${f(sy)}"/>
+    <line x1="${f(ox+oW)}" y1="${f(oy)}" x2="${f(sx+sw)}" y2="${f(sy)}"/>
+    <line x1="${f(ox)}" y1="${f(oy+oH)}" x2="${f(sx)}" y2="${f(sy+sh)}"/>
+    <line x1="${f(ox+oW)}" y1="${f(oy+oH)}" x2="${f(sx+sw)}" y2="${f(sy+sh)}"/>`;
+  return `<svg viewBox="0 0 ${f(vbW)} ${f(vbH)}" role="img" aria-label="Picture frame preview">
+    <defs><linearGradient id="frmwood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c89358"/><stop offset="1" stop-color="#9a6a35"/>
+    </linearGradient></defs>
+    <path d="M${f(ox)} ${f(oy)} H${f(ox+oW)} V${f(oy+oH)} H${f(ox)} Z M${f(sx)} ${f(sy)} H${f(sx+sw)} V${f(sy+sh)} H${f(sx)} Z" fill="url(#frmwood)" fill-rule="evenodd" stroke="#6f4a22" stroke-width="${f(sk)}"/>
+    <rect x="${f(sx)}" y="${f(sy)}" width="${f(sw)}" height="${f(sh)}" fill="#eaf0f6" stroke="#9aa7b5" stroke-width="${f(sk*0.7)}"/>
+    <text x="${f(sx+sw/2)}" y="${f(sy+sh/2)}" text-anchor="middle" dominant-baseline="central" style="fill:#7d8a98" font-size="${f(fs)}" font-family="system-ui,sans-serif">${dim(p.sightW)} × ${dim(p.sightH)}</text>
+    <g stroke="#6f4a22" stroke-width="${f(sk*0.8)}" opacity="0.85">${miters}</g>
+    <text x="${f(ox+oW/2)}" y="${f(oy - pad*0.32)}" text-anchor="middle" style="fill:var(--muted)" font-size="${f(fs)}" font-family="system-ui,sans-serif">${dim(p.outerW)}</text>
+    <text x="${f(ox - pad*0.32)}" y="${f(oy+oH/2)}" text-anchor="middle" style="fill:var(--muted)" font-size="${f(fs)}" font-family="system-ui,sans-serif" transform="rotate(-90 ${f(ox-pad*0.32)} ${f(oy+oH/2)})">${dim(p.outerH)}</text>
+  </svg>`;
+}
+
+function renderFrameOutput() {
+  const out = document.getElementById('frame-output');
+  if (!out) return;
+  const p = calcFrame();
+  const warn = p.warnings.length ? `<div class="frame-warn">${p.warnings.map(escapeHtml).join('<br>')}</div>` : '';
+  out.innerHTML = `
+    ${warn}
+    <div class="frame-svg-wrap">${_frameSVG(p)}</div>
+    <div class="frame-cutlist">
+      <h3>Miter Cut List · 4 rails · 45° both ends</h3>
+      <div class="frame-rail">
+        <div><div class="rname">Top &amp; Bottom · 2 rails</div><div class="rsub">short point (inside) ${dim(p.railTopShort)}</div></div>
+        <div class="rlen">${dim(p.railTopLong)}<small>long point ×2</small></div>
+      </div>
+      <div class="frame-rail">
+        <div><div class="rname">Left &amp; Right · 2 rails</div><div class="rsub">short point (inside) ${dim(p.railSideShort)}</div></div>
+        <div class="rlen">${dim(p.railSideLong)}<small>long point ×2</small></div>
+      </div>
+    </div>
+    <div class="frame-stats">
+      <div class="frame-stat"><div class="lbl">Visible opening</div><div class="val">${dim(p.sightW)} × ${dim(p.sightH)}</div></div>
+      <div class="frame-stat"><div class="lbl">Outer size</div><div class="val">${dim(p.outerW)} × ${dim(p.outerH)}</div></div>
+      <div class="frame-stat"><div class="lbl">Glass / backing</div><div class="val">${dim(p.rabbetW)} × ${dim(p.rabbetH)}</div></div>
+      <div class="frame-stat"><div class="lbl">Molding to buy</div><div class="val">${p.linearFeet.toFixed(1)} ft</div></div>
+      <div class="frame-stat"><div class="lbl">Board feet</div><div class="val">${p.boardFeet.toFixed(2)}</div></div>
+    </div>
+    <div class="frame-note">
+      <strong>Long point</strong> = the outer corner edge of each rail — set your miter-saw stop to this length. <strong>Short point</strong> = the inside edge at the sight line. Cut glass &amp; backing to about ${dim(p.rabbetW)} × ${dim(p.rabbetH)}, then shave ~1⁄16″ so they drop into the rabbet. "Molding to buy" includes 15% for miter offcuts${p.qty > 1 ? ` across ${p.qty} frames` : ''}.
+    </div>
+  `;
+}
+
+function frameInput(key, val) {
+  const n = parseFloat(val);
+  if (key === 'qty') frameState.qty = Math.max(1, Math.round(isFinite(n) ? n : 1));
+  else frameState[key] = Math.max(0, toInches(isFinite(n) ? n : 0));
+  saveFrameState();
+  updateFramePresetActive();
+  renderFrameOutput();
+}
+
+function frameApplyPreset(w, h) {
+  frameState.artW = w; frameState.artH = h;
+  saveFrameState();
+  const wEl = document.getElementById('frame-artW'), hEl = document.getElementById('frame-artH');
+  if (wEl) wEl.value = fromInches(w);
+  if (hEl) hEl.value = fromInches(h);
+  updateFramePresetActive();
+  renderFrameOutput();
+}
+
+function updateFramePresetActive() {
+  document.querySelectorAll('.frame-preset').forEach(b => {
+    const w = parseFloat(b.dataset.w), h = parseFloat(b.dataset.h);
+    b.classList.toggle('active', Math.abs(frameState.artW - w) < 0.01 && Math.abs(frameState.artH - h) < 0.01);
+  });
+}
+
+// Builds the static input shell once; the live output redraws into #frame-output
+// without rebuilding the inputs, so focus/cursor survive every keystroke.
+function renderFrame() {
+  const el = document.getElementById('frame-content');
+  if (!el) return;
+  const s = frameState;
+  const u = unitLabel(), st = unitStep();
+  const presets = FRAME_PRESETS.map(([lab, w, h]) =>
+    `<button class="frame-preset" data-w="${w}" data-h="${h}" onclick="frameApplyPreset(${w}, ${h})">${lab}</button>`
+  ).join('');
+  el.innerHTML = `
+    <div class="frame-header">
+      <h2><span style="margin-right:9px">🖼️</span>Picture Frame</h2>
+      <p>Enter the photo or glass size and your molding profile. Get the four 45° mitered rail lengths (to the long point), the visible opening, the outer size, and how much molding to buy.</p>
+    </div>
+    <div class="frame-presets">${presets}</div>
+    <div class="move-card">
+      <h3>Artwork / Glass</h3>
+      <div class="move-row"><label>Width <span class="unit-pill">${u}</span></label><input id="frame-artW" type="number" step="${st}" min="0.5" value="${fromInches(s.artW)}" oninput="frameInput('artW', this.value)"></div>
+      <div class="move-row"><label>Height <span class="unit-pill">${u}</span></label><input id="frame-artH" type="number" step="${st}" min="0.5" value="${fromInches(s.artH)}" oninput="frameInput('artH', this.value)"></div>
+      <div class="move-row"><label>Quantity</label><input type="number" step="1" min="1" value="${s.qty}" oninput="frameInput('qty', this.value)"></div>
+    </div>
+    <div class="move-card">
+      <h3>Molding Profile</h3>
+      <div class="move-row"><label>Face width <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0.25" value="${fromInches(s.moldW)}" oninput="frameInput('moldW', this.value)"></div>
+      <div class="move-row"><label>Rabbet lip <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0" value="${fromInches(s.rabW)}" oninput="frameInput('rabW', this.value)"></div>
+      <div class="move-row"><label>Rabbet depth <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0" value="${fromInches(s.rabD)}" oninput="frameInput('rabD', this.value)"></div>
+      <div class="move-row"><label>Stock thick. <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0.25" value="${fromInches(s.stockT)}" oninput="frameInput('stockT', this.value)"></div>
+    </div>
+    <div id="frame-output"></div>
+  `;
+  updateFramePresetActive();
+  renderFrameOutput();
 }
 
 // ═════════════════════════════ LUMBER PRICES ══════════════════════════════
@@ -8205,6 +8427,8 @@ function init() {
   renderCalc();
   loadMovementState();
   renderMovement();
+  loadFrameState();
+  renderFrame();
   loadAcademyScores();
   renderNav();
   runPlanner();
