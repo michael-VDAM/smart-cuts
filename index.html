@@ -1959,7 +1959,7 @@ document.addEventListener('click', e => {
 
 // Right before window.print(), update the print-header title + date
 window.addEventListener('beforeprint', () => {
-  const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', optimizer: 'Cut Optimization Plan', plans: 'Plans Catalog', projects: 'Projects Portfolio', library: 'Wood Library Reference', prices: 'Lumber Prices', shop: 'Shop Inventory', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
+  const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', frame: 'Picture Frame Plan', optimizer: 'Cut Optimization Plan', movement: 'Wood Movement', plans: 'Plans Catalog', projects: 'Projects Portfolio', todo: 'To-Do', library: 'Wood Library Reference', prices: 'Lumber Prices', hardware: 'Hardware', shop: 'Shop Inventory', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
   const active = activeTab;
   document.querySelectorAll('.print-title').forEach(el => el.textContent = titles[active] || 'Bright Cuts Plan');
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
