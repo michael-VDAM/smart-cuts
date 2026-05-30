@@ -26,7 +26,7 @@
        High-end, simple: tight palette, one accent (warm honey amber), accent2 reserved
        for muted slate so info/blue moments don't fight the wood tones. */
     :root {
-      --bg: #18120c; --panel: #1f1812; --panel2: #2a211a; --panel3: #342a21;
+      --bg: #18120c; --panel: #241b13; --panel2: #2f251c; --panel3: #3a2e23;
       --border: #3a2e23; --border2: #4a3a2c;
       --text: #f0e8d8; --muted: #a89880; --muted2: #6b5e4f;
       --accent: #d4a056; --accent-soft: rgba(212,160,86,0.14);
@@ -127,6 +127,15 @@
     .header-action:hover { color: var(--text); border-color: var(--muted); }
     .header-menu-btn { display: none; background: none; border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 9px; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; line-height: 1; align-items: center; justify-content: center; flex-shrink: 0; }
     .header-menu-btn:active { background: var(--panel2); }
+    /* Desktop "more" overflow — holds Print + Reset so the bar stays uncluttered. Hidden on mobile (they fold into ⋯ menu instead). */
+    .only-mobile { display: none; }
+    .header-more { position: relative; display: flex; align-items: center; flex-shrink: 0; }
+    .header-more-btn { background: none; border: 1px solid var(--border); color: var(--muted); width: 32px; height: 30px; border-radius: 6px; font-size: 18px; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+    .header-more-btn:hover { color: var(--text); border-color: var(--muted); }
+    .header-more-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; flex-direction: column; gap: 2px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.30); z-index: 100; min-width: 150px; }
+    .header-more-menu.open { display: flex; }
+    .header-more-menu .header-action { text-align: left; border: none; border-radius: 7px; padding: 9px 12px; width: 100%; color: var(--text); font-size: 12px; }
+    .header-more-menu .header-action:hover { background: var(--panel2); }
     /* Calc shortcut sits next to the menu — visible on phone AND desktop */
     .header-calc-btn, .header-search-btn { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); width: 38px; height: 38px; border-radius: 9px; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
     .header-calc-btn:hover, .header-search-btn:hover { background: var(--accent); }
@@ -875,6 +884,7 @@
       padding: 12px 10px 10px; text-align: center; cursor: pointer; color: var(--text);
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       aspect-ratio: 1 / 1.05;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
       transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .home-tile:active { transform: scale(0.97); }
@@ -1081,6 +1091,8 @@
         z-index: 100; min-width: 200px;
       }
       .header-tools.open { display: flex; }
+      .header-more { display: none; }
+      .header-tools .only-mobile { display: block; }
       .header-tools .live-preview-pill { display: none; }
       .header-tools .header-action { text-align: left; border: none; border-radius: 8px; padding: 11px 13px; font-size: 13px; width: 100%; color: var(--text); background: none; }
       .header-tools .header-action:active { background: var(--panel2); }
@@ -1207,8 +1219,15 @@
     <button class="header-action" onclick="cloudAccountClick()" id="cloud-btn" title="Sync your projects across devices" style="display:none">☁ Sign in</button>
     <button class="header-action" onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode">🌙 Dark</button>
     <button class="header-action" onclick="toggleUnitSystem()" id="units-btn" title="Switch measurement units">⇄ Imperial (in)</button>
-    <button class="header-action" onclick="window.print()">Print</button>
-    <button class="header-action" onclick="resetDefaults()">Reset</button>
+    <button class="header-action only-mobile" onclick="window.print()">Print</button>
+    <button class="header-action only-mobile" onclick="resetDefaults()">Reset</button>
+  </div>
+  <div class="header-more">
+    <button class="header-more-btn" onclick="toggleHeaderMore(event)" aria-label="More actions" title="Print &amp; Reset">⋯</button>
+    <div class="header-more-menu" id="header-more-menu">
+      <button class="header-action" onclick="window.print()">🖨 Print</button>
+      <button class="header-action" onclick="resetDefaults()">↺ Reset</button>
+    </div>
   </div>
   <button class="header-timer-btn" id="header-timer" style="display:none" onclick="switchTab('plans')" title="A build timer is running — tap to view">
     <span class="header-timer-label" aria-live="polite">0s</span>
@@ -1948,12 +1967,20 @@ function toggleHeaderMenu(e) {
   if (e) e.stopPropagation();
   document.querySelector('.header-tools')?.classList.toggle('open');
 }
+function toggleHeaderMore(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('header-more-menu')?.classList.toggle('open');
+}
 document.addEventListener('click', e => {
   const menu = document.querySelector('.header-tools');
-  if (!menu || !menu.classList.contains('open')) return;
-  if (e.target.closest('.header-menu-btn')) return;
-  // Close after any tap inside menu (e.g. theme toggle ran) or outside it
-  menu.classList.remove('open');
+  if (menu && menu.classList.contains('open') && !e.target.closest('.header-menu-btn')) {
+    // Close after any tap inside menu (e.g. theme toggle ran) or outside it
+    menu.classList.remove('open');
+  }
+  const more = document.getElementById('header-more-menu');
+  if (more && more.classList.contains('open') && !e.target.closest('.header-more-btn')) {
+    more.classList.remove('open');
+  }
 });
 
 // ═════════════════════════════ STATE ═══════════════════════════════════════
