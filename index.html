@@ -7847,10 +7847,88 @@ function setLibFilter(f) {
 // (public domain / Creative Commons). Each carries its own author + license for attribution.
 // Cut-variants (e.g. Qtr White Oak) alias to the base species via PHOTO_ALIASES.
 const SPECIES_PHOTOS = {
-  'Walnut': {
-    tree: { src: 'species/walnut-tree.jpg', by: 'Gerd Eichmann', lic: 'CC BY 4.0', page: 'https://commons.wikimedia.org/wiki/File:Baden-Baden-Juglans_nigra-14-Schwarznuss-2015-gje.jpg' },
-    leaf: { src: 'species/walnut-leaf.jpg', by: 'Kristian Peters', lic: 'Public domain', page: 'https://commons.wikimedia.org/wiki/File:Juglans_nigra,_Forstbotanischer_Garten_Erbsland.jpg' },
-    bark: { src: 'species/walnut-bark.jpg', by: 'Gmihail', lic: 'CC BY-SA 3.0 RS', page: 'https://commons.wikimedia.org/wiki/File:Juglans_nigra_bark.jpg' },
+  "Walnut": {
+    tree: { src: "species/walnut-tree.jpg", by: "Gerd Eichmann", lic: "CC BY 4.0", page: "https://commons.wikimedia.org/wiki/File:Baden-Baden-Juglans_nigra-14-Schwarznuss-2015-gje.jpg" },
+    leaf: { src: "species/walnut-leaf.jpg", by: "Kristian Peters", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Juglans_nigra,_Forstbotanischer_Garten_Erbsland.jpg" },
+    bark: { src: "species/walnut-bark.jpg", by: "Gmihail", lic: "CC BY-SA 3.0 RS", page: "https://commons.wikimedia.org/wiki/File:Juglans_nigra_bark.jpg" },
+  },
+  "Maple": {
+    tree: { src: "species/maple-tree.jpg", by: "James St. John", lic: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:Acer_saccharum_(sugar_maple_tree_in_fall_colors)_(Newark,_Ohio,_USA)_(25_October_2024)_2.jpg" },
+    leaf: { src: "species/maple-leaf.jpg", by: "Katja Schulz", lic: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:Acer_saccharum_Leaves_-_Flickr_-_treegrow_(4).jpg" },
+    bark: { src: "species/maple-bark.jpg", by: "Derek Ramsey (Ram-Man)", lic: "CC BY-SA 2.5", page: "https://commons.wikimedia.org/wiki/File:Sugar_Maple_Acer_saccharum_Trunk_Bark_2000px.jpg" },
+  },
+  "Soft Maple": {
+    tree: { src: "species/soft-maple-tree.jpg", by: "EgorovaSvetlana", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Acer_Rubrum_Red_maple_Trees_Spring_Newton_Massachusetts.jpg" },
+    leaf: { src: "species/soft-maple-leaf.jpg", by: "Cephas", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Acer_rubrum_UL_04.jpg" },
+    bark: { src: "species/soft-maple-bark.jpg", by: "EgorovaSvetlana", lic: "CC0", page: "https://commons.wikimedia.org/wiki/File:Bark_Trunk_Acer_Rubrum_Red_Maple_Tree_Massachusetts.jpg" },
+  },
+  "Cherry": {
+    tree: { src: "species/cherry-tree.jpg", by: "Gmihail at Serbian Wikipedia", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Prunus_serotina_tree.jpg" },
+    leaf: { src: "species/cherry-leaf.jpg", by: "Gmihail at Serbian Wikipedia", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Prunus_serotina_leaf.jpg" },
+    bark: { src: "species/cherry-bark.jpg", by: "MONGO", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Black_Cherry_(Prunus_serotina)_bark_detail.jpg" },
+  },
+  "White Oak": {
+    tree: { src: "species/white-oak-tree.jpg", by: "Marty Aligata", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:White_Oak_Tree,_West_Hartford,_CT_-_June_17,_2013.jpg" },
+    leaf: { src: "species/white-oak-leaf.jpg", by: "David J. Stang", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Quercus_alba_22zz.jpg" },
+    bark: { src: "species/white-oak-bark.jpg", by: "Dcrjsr", lic: "CC BY 3.0", page: "https://commons.wikimedia.org/wiki/File:Quercus_alba_white_oak_bark.jpg" },
+  },
+  "Red Oak": {
+    tree: { src: "species/red-oak-tree.jpg", by: "Dietmar Rabich", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Wildpark,_Br%C3%BCcke_am_Herzteich_--_2022_--_4642.jpg" },
+    leaf: { src: "species/red-oak-leaf.jpg", by: "Crusier", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Quercus_rubra_leaves_orange_Marki.jpg" },
+    bark: { src: "species/red-oak-bark.jpg", by: "Derek Ramsey (Ram-Man)", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Red_Oak_Quercus_Rubra_Bark_Vertical_High_DoF.JPG" },
+  },
+  "Ash": {
+    tree: { src: "species/ash-tree.jpg", by: "Crusier", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Fraxinus_americana_trunk.JPG" },
+    leaf: { src: "species/ash-leaf.jpg", by: "Virens (Latin for greening) from South Royalton, Vermont, USA", lic: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:Fraxinus_americana_-_White_Ash_leaves,_New_York_1.jpg" },
+    bark: { src: "species/ash-bark.jpg", by: "Ryan Hodnett", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:White_Ash_(Fraxinus_americana)_Bark_-_Guelph,_Ontario_2013-11-30.jpg" },
+  },
+  "Hickory": {
+    tree: { src: "species/hickory-tree.jpg", by: "Sixflashphoto", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Maple_Loop_Trail_-_Carya_ovata_1.jpg" },
+    leaf: { src: "species/hickory-leaf.jpg", by: "Katherine Wagner-Reiss", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Carya_ovata%E2%80%94compound_leaf_and_fruit.jpg" },
+    bark: { src: "species/hickory-bark.jpg", by: "Katherine Wagner-Reiss", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Carya_ovata%E2%80%94shaggy_bark.jpg" },
+  },
+  "Alder": {
+    tree: { src: "species/alder-tree.jpg", by: "Berserkur", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Alnus_rubra,_Iceland.jpg" },
+    leaf: { src: "species/alder-leaf.jpg", by: "Unknown (no author listed on Commons file page)", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Red_alder_leaves.jpg" },
+    bark: { src: "species/alder-bark.jpg", by: "Chris Light", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Bark_3346.jpg" },
+  },
+  "Birch": {
+    tree: { src: "species/birch-tree.jpg", by: "Anneli Salo", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Betula_alleghaniensis_Keltakoivu_Gulbj%C3%B6rk_C_IMG_6134.JPG" },
+    leaf: { src: "species/birch-leaf.jpg", by: "Krzysztof Ziarnek, Kenraiz", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Betula_alleghaniensis_kz1.jpg" },
+    bark: { src: "species/birch-bark.jpg", by: "Kieran Hunt", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Yellow_Birch_Bark,_Betula_alleghaniensis.jpg" },
+  },
+  "Cedar": {
+    tree: { src: "species/cedar-tree.jpg", by: "abdallahh from Montréal, Canada", lic: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:Thuja_plicata_Vancouver.jpg" },
+    leaf: { src: "species/cedar-leaf.jpg", by: "Crusier", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Thuja_plicata_foliage.JPG" },
+    bark: { src: "species/cedar-bark.jpg", by: "Chris Light", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Thuja_plicata_bark,_West_Hylebos,_Washington_5160.jpg" },
+  },
+  "Cypress": {
+    tree: { src: "species/cypress-tree.jpg", by: "Crusier", lic: "CC BY 4.0", page: "https://commons.wikimedia.org/wiki/File:Taxodium_distichum_OB_Wroc%C5%82aw_1.jpg" },
+    leaf: { src: "species/cypress-leaf.jpg", by: "Daniel Di Palma", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Taxodium_distichum_-_leaves_03.jpg" },
+    bark: { src: "species/cypress-bark.jpg", by: "Derek Ramsey (Ram-Man)", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Bald_Cypress_Taxodium_distichum_Bark_Vertical.JPG" },
+  },
+  "Sycamore": {
+    tree: { src: "species/sycamore-tree.jpg", by: "Bruce Marlin", lic: "CC BY-SA 2.5", page: "https://commons.wikimedia.org/wiki/File:Sycamore_Platanus_occidentalis.jpg" },
+    leaf: { src: "species/sycamore-leaf.jpg", by: "Katherine Wagner-Reiss", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Platanus_occidentalis%E2%80%94_stipules_01.jpg" },
+    bark: { src: "species/sycamore-bark.jpg", by: "Lee Ann Ratledge", lic: "CC BY 4.0", page: "https://commons.wikimedia.org/wiki/File:American_Sycamore_(Platanus_occidentalis)_Trunk_and_Bark_-_Knoxville,_Tennessee_-_October_24,_2015.jpg" },
+  },
+  "Poplar": {
+    tree: { src: "species/poplar-tree.jpg", by: "Steve Knight from Halstead, United Kingdom", lic: "CC BY 2.0", page: "https://commons.wikimedia.org/wiki/File:Tulip_Tree_(Liriodendron_tulipifera)_in_Autumn_(51664141248).jpg" },
+    leaf: { src: "species/poplar-leaf.jpg", by: "Crusier", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Liriodendron_tulipifera_PAN_leaf.JPG" },
+    bark: { src: "species/poplar-bark.jpg", by: "Derek Ramsey (Ram-Man)", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Tulip_Tree_Liriodendron_tulipifera_Bark.JPG" },
+  },
+  "Pine": {
+    tree: { src: "species/pine-tree.jpg", by: "OlyScientist", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Big_white_pine_(Pinus_strobus)_in_the_Estivant_Pines_Sanctuary.jpg" },
+    leaf: { src: "species/pine-leaf.jpg", by: "Cephas", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Pinus_strobus_UL_01.jpg" },
+    bark: { src: "species/pine-bark.jpg", by: "Derek Ramsey (Ram-Man)", lic: "CC BY-SA 4.0", page: "https://commons.wikimedia.org/wiki/File:Eastern_White_Pine_Pinus_strobus_Bark_Vertical.JPG" },
+  },
+  "Sapele": {
+    tree: { src: "species/sapele-tree.jpg", by: "Robert Sharp", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Sapele_Tree_Congo_Brazzaville.jpg" },
+  },
+  "Osage Orange": {
+    tree: { src: "species/osage-orange-tree.jpg", by: "H. Zell", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Maclura_pomifera_001.JPG" },
+    leaf: { src: "species/osage-orange-leaf.jpg", by: "H. Zell", lic: "CC BY-SA 3.0", page: "https://commons.wikimedia.org/wiki/File:Maclura_pomifera_007.JPG" },
+    bark: { src: "species/osage-orange-bark.jpg", by: "MONGO", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Osage_Orange_(Maclura_pomifera)_bark_detail.jpg" },
   },
 };
 const PHOTO_ALIASES = { 'Qtr White Oak': 'White Oak', 'Rift White Oak': 'White Oak', 'Knotty Alder': 'Alder' };
