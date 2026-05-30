@@ -68,7 +68,6 @@
     [data-theme="light"] .field input,
     [data-theme="light"] .field select,
     [data-theme="light"] .field textarea,
-    [data-theme="light"] .species-price,
     [data-theme="light"] .strip-row input,
     [data-theme="light"] .strip-row select,
     [data-theme="light"] .proj-form input,
@@ -81,7 +80,6 @@
     [data-theme="light"] .field select:focus,
     [data-theme="light"] .field textarea:focus,
     [data-theme="light"] .species-name:focus,
-    [data-theme="light"] .species-price:focus,
     [data-theme="light"] .strip-row input:focus,
     [data-theme="light"] .strip-row select:focus,
     [data-theme="light"] .proj-form input:focus,
@@ -205,13 +203,12 @@
     .field select { cursor: pointer; }
 
     /* SPECIES + PRICES */
-    .species-row { display: grid; grid-template-columns: 24px 1fr 56px 22px 22px; gap: 5px; align-items: center; margin-bottom: 5px; }
+    .species-row { display: grid; grid-template-columns: 24px 1fr 22px 22px; gap: 5px; align-items: center; margin-bottom: 5px; }
     .swatch-input { width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--border); padding: 0; cursor: pointer; background: none; }
     .swatch-input::-webkit-color-swatch-wrapper { padding: 2px; }
     .swatch-input::-webkit-color-swatch { border-radius: 3px; border: none; }
     .species-name { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 8px; font-size: 12px; min-width: 0; }
-    .species-name:focus, .species-price:focus { outline: none; border-color: var(--accent); }
-    .species-price { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--money); padding: 5px 6px; font-size: 11px; font-variant-numeric: tabular-nums; text-align: right; min-width: 0; }
+    .species-name:focus { outline: none; border-color: var(--accent); }
     .icon-btn { background: none; border: 1px solid var(--border); color: var(--muted); width: 22px; height: 22px; border-radius: 5px; cursor: pointer; font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.12s; padding: 0; }
     .icon-btn:hover { color: var(--danger); border-color: var(--danger); }
     .icon-btn.pick:hover { color: var(--accent); border-color: var(--accent); }
@@ -225,7 +222,6 @@
     .wood-option:hover { background: var(--accent-soft); }
     .wood-option .sw { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.1); }
     .wood-option .name { flex: 1; }
-    .wood-option .price { color: var(--money); font-size: 11px; font-variant-numeric: tabular-nums; }
 
     /* STRIP PATTERN (face grain custom layout) */
     .strip-row { display: grid; grid-template-columns: minmax(0,1fr) 78px 50px 22px 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
@@ -310,19 +306,7 @@
     .scard { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 11px 13px; transition: border-color 0.15s; }
     .scard:hover { border-color: var(--border2); }
     .scard .val { font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1.1; font-variant-numeric: tabular-nums; }
-    .scard .val.money { color: var(--money); }
     .scard .lbl { font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.2px; }
-
-    /* COST BREAKDOWN */
-    .cost-breakdown { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 13px 16px; margin-bottom: 22px; }
-    .cost-breakdown .ttl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline; }
-    .cost-breakdown .ttl .total { color: var(--money); font-size: 15px; letter-spacing: 0.2px; }
-    .cost-line { display: grid; grid-template-columns: 14px 1fr auto auto auto; gap: 10px; padding: 5px 0; font-size: 12px; font-variant-numeric: tabular-nums; border-top: 1px solid rgba(255,255,255,0.03); align-items: center; }
-    .cost-line:first-of-type { border-top: none; }
-    .cost-line .dot { width: 10px; height: 10px; border-radius: 2px; }
-    .cost-line .name { color: var(--text); font-weight: 500; }
-    .cost-line .bf, .cost-line .rate { color: var(--muted); font-size: 11px; }
-    .cost-line .amt { color: var(--money); font-weight: 600; min-width: 56px; text-align: right; }
 
     /* BANNERS */
     .warn-banner { background: rgba(212,160,86,0.08); border: 1px solid rgba(212,160,86,0.3); border-radius: 8px; padding: 11px 14px; margin-bottom: 16px; font-size: 12px; color: var(--warn); display: flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
@@ -529,6 +513,7 @@
     .prices-filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .prices-list { display: flex; flex-direction: column; gap: 4px; }
     .price-row { display: grid; grid-template-columns: 24px 1fr auto 92px; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 9px; transition: border-color 0.12s; }
+    .price-row.no-price { grid-template-columns: 24px 1fr auto; }
     .price-row:hover { border-color: var(--border2); }
     .price-row .swatch { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.18); }
     .price-row .name { font-weight: 600; font-size: 13px; color: var(--text); }
@@ -548,6 +533,7 @@
     @media (max-width: 820px) {
       .prices-col { padding: 18px 12px; }
       .price-row { grid-template-columns: 22px 1fr 80px; gap: 8px; padding: 8px 10px; }
+      .price-row.no-price { grid-template-columns: 22px 1fr; }
       .price-row .cat-tag { display: none; }
     }
 
@@ -1156,10 +1142,6 @@
       /* Supplies card */
       .sup-card { grid-template-columns: 50px 1fr; }
       .sup-card .photo { width: 50px; height: 50px; }
-
-      /* Cost cards readable on mobile */
-      .cost-line { grid-template-columns: 14px 1fr auto auto; gap: 8px; font-size: 11px; }
-      .cost-line .rate { display: none; }
     }
     @media (max-width: 480px) {
       /* Even tighter on phones */
@@ -1187,16 +1169,15 @@
       /* Hide every modal/overlay so an accidentally-open picker or annotator never prints */
       .drum-overlay, .modal-backdrop, #annot-modal, .nav-menu-overlay { display: none !important; }
       /* Keep critical content readable */
-      .scard, .step-card, .finished-preview, .parts-table, .cost-breakdown { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
+      .scard, .step-card, .finished-preview, .parts-table { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; box-shadow: none !important; }
       .step-card { margin-bottom: 8px !important; }
       .scard .val, .step-num, .meas strong, .parts-table td.qty { color: #b56a1f !important; }
-      .scard .val.money, .cost-line .amt, .cost-breakdown .ttl .total { color: #4d7a3d !important; }
       .step-desc, .scard .lbl, .preview-title .dims { color: #555 !important; }
-      .step-title, .preview-title h2, .cost-line .name { color: black !important; }
+      .step-title, .preview-title h2 { color: black !important; }
       .meas { background: #fff7e8 !important; border-color: #e8c896 !important; color: black !important; }
       .finished-preview::before { display: none !important; }
       .live-indicator { display: none !important; }
-      .wood-swatch, .swatch-input, .cost-line .dot, .mat-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .wood-swatch, .swatch-input, .mat-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       /* Print-only header at the very top of the page — branding + date */
       .print-header { display: block !important; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid #b56a1f; }
       .print-header .ttl { font-size: 22px; font-weight: 800; letter-spacing: 0.2px; color: #2b1f14; }
@@ -1204,7 +1185,7 @@
       .print-footer { display: block !important; margin-top: 14px; padding-top: 8px; border-top: 1px solid #d4b896; font-size: 10px; color: #888; text-align: center; letter-spacing: 0.4px; }
     }
     .print-header, .print-footer { display: none; }
-    .wood-swatch, .cost-line .dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .wood-swatch { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   </style>
 </head>
 <body>
@@ -1256,7 +1237,7 @@
         <button class="home-tile" data-tile-tab="board">
           <div class="home-tile-icon"><img src="sparky/cutting-board.png" alt=""></div>
           <h3>Cutting Board</h3>
-          <p>End grain or face grain. Standard size or custom. Step-by-step build plan with cut math + cost.</p>
+          <p>End grain or face grain. Standard size or custom. Step-by-step build plan with full cut math.</p>
           <span class="home-tile-cta">Start designing →</span>
         </button>
         <button class="home-tile" data-tile-tab="furniture">
@@ -1346,7 +1327,7 @@
         <button class="home-tile" data-tile-tab="prices">
           <div class="home-tile-icon"><img src="sparky/screws.png" alt=""></div>
           <h3>Lumber Prices</h3>
-          <p>Update your per-board-foot prices for every species. Used live in cost math.</p>
+          <p>Track your per-board-foot price for every species — a quick reference catalog for what your lumber costs.</p>
           <span class="home-tile-cta">Set prices →</span>
         </button>
       </div>
@@ -1368,7 +1349,7 @@
       <img src="sparky/cutting-board.png" alt="">
       <div>
         <h2>Cutting Board</h2>
-        <p>Design end- or face-grain boards. Live cut math, material cost, build steps.</p>
+        <p>Design end- or face-grain boards. Live cut math, board-foot totals, build steps.</p>
       </div>
     </div>
     <div class="input-body">
@@ -1444,9 +1425,9 @@
         <input type="number" id="stockT" value="0.75">
       </div>
 
-      <!-- Species + Prices -->
+      <!-- Species -->
       <div class="section" id="species-section">
-        <div class="section-label">Wood Catalog <span class="hint">color · name · $/bf</span></div>
+        <div class="section-label">Wood Catalog <span class="hint">color · name</span></div>
         <div id="species-list"></div>
         <button class="add-btn" onclick="addSpecies()" id="add-species-btn">+ Add Species</button>
       </div>
@@ -1526,7 +1507,7 @@
           <div class="field"><label>Surface Loss</label><input type="number" id="surfaceAllowance" value="0.0625" step="0.03125" min="0" max="0.25"></div>
           <div class="field"><label>Buffer %</label><input type="number" id="buffer" value="10" step="5" min="0" max="50" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="50" data-step="5" data-unit="%" data-measure-label="Buffer"></div>
         </div>
-        <div style="font-size:10px;color:var(--muted2);line-height:1.4">Buffer covers mistakes, defects, kerf overhead. <strong style="color:var(--muted)">Pros use 10% face / 20% end grain</strong>. Adjusts cost + boards.</div>
+        <div style="font-size:10px;color:var(--muted2);line-height:1.4">Buffer covers mistakes, defects, kerf overhead. <strong style="color:var(--muted)">Pros use 10% face / 20% end grain</strong>. Adjusts stock boards + board feet.</div>
       </div>
 
     </div>
@@ -1650,15 +1631,12 @@
       </div>
 
       <div class="section">
-        <div class="section-label">Sheet Stock <span class="hint">$ /sheet</span></div>
+        <div class="section-label">Sheet Stock</div>
         <div class="field-grid cols2" style="margin-bottom:6px">
           <div class="field"><label>Sheet Length</label><input type="number" id="furn-sheetL" value="96" step="1" min="24"></div>
           <div class="field"><label>Sheet Width</label><input type="number" id="furn-sheetW" value="48" step="1" min="24"></div>
         </div>
-        <div class="field-grid cols2">
-          <div class="field"><label>Sheets on hand</label><input type="number" id="furn-sheetQ" value="3" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1" data-measure-label="Sheets on hand"></div>
-          <div class="field"><label>$ per sheet</label><input type="number" id="furn-sheetP" value="65" step="1" min="0"></div>
-        </div>
+        <div class="field"><label>Sheets on hand</label><input type="number" id="furn-sheetQ" value="3" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1" data-measure-label="Sheets on hand"></div>
       </div>
 
       <div class="section">
@@ -3462,7 +3440,7 @@ const SAVED_KEYS = ['finalL','finalW','finalT','quantity','tileSize','stockL','s
   'cab-W','cab-H','cab-D','cab-T','cab-shelves','cab-back','cab-toe','cab-door',
   'bsh-W','bsh-H','bsh-D','bsh-T','bsh-shelves',
   'drw-W','drw-D','drw-H','drw-T','drw-joinery',
-  'furn-sheetL','furn-sheetW','furn-sheetQ','furn-sheetP','furn-qty','furn-buffer'];
+  'furn-sheetL','furn-sheetW','furn-sheetQ','furn-qty','furn-buffer'];
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -3804,7 +3782,6 @@ function renderSpecies() {
     <div class="species-row">
       <input type="color" class="swatch-input" value="${s.color}" onchange="species[${i}].color=this.value; save(); refreshStripList(); scheduleRunPlanner()" title="Color">
       <input type="text" class="species-name" value="${s.name}" oninput="species[${i}].name=this.value; save(); refreshStripList(); scheduleRunPlanner()" placeholder="Name">
-      <input type="number" class="species-price" value="${s.price ?? 10}" min="0" step="0.5" oninput="species[${i}].price=Math.max(0, parseFloat(this.value) || 0); save(); scheduleRunPlanner()" placeholder="$/bf" title="Price per board-foot">
       <button class="icon-btn pick" onclick="pickWood(${i})" title="Pick from catalog">&#9776;</button>
       ${species.length > 1 ? `<button class="icon-btn" onclick="removeSpecies(${i})" title="Remove">&#215;</button>` : '<span></span>'}
     </div>
@@ -3822,7 +3799,6 @@ function pickWood(i) {
     <div class="wood-option" onclick="applyWood(${i}, ${j})">
       <span class="sw" style="background:${w.color}"></span>
       <span class="name">${w.name}${w.cat === 'custom' ? ' <span style="color:var(--accent);font-size:9px;letter-spacing:0.3px">★</span>' : ''}</span>
-      <span class="price">$${priceFor(w.name)}/bf</span>
     </div>
   `).join('');
   menu.classList.add('open');
@@ -3982,7 +3958,7 @@ function refreshStripList() {
     return `
     <div class="strip-row${linked ? ' linked' : ''}">
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
-        ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${escapeHtml(sp.name)}${sp.price > 0 ? ` · $${Number.isInteger(sp.price) ? sp.price : sp.price.toFixed(2)}/bf` : ''}</option>`).join('')}
+        ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${escapeHtml(sp.name)}</option>`).join('')}
       </select>
       <input type="text" class="formula-input${valid ? '' : ' invalid'}" value="${escapeHtml(s.formula || '')}" placeholder="e.g. x" oninput="setStripFormula(${i}, this.value)" title="Formula — literals, variables, +, −, ×, ÷, parens">
       <span class="strip-width-display${valid ? '' : ' invalid'}">${valid ? dim(s.width) : '—'}</span>
@@ -4750,26 +4726,6 @@ function edgeProfileLabel(v) { return ({none:'square edge',chamfer:'45° chamfer
 function juiceGrooveLabel(v) { return ({none:'no juice groove',standard:'¼" × ¼" inset groove',deep:'⅜" × ½" inset groove'})[v] || v; }
 function patternLabel(p) { return ({checker:'checkerboard',brick:'brick',stripe:'stripes',plaid:'plaid',cube3d:'3D cube',herring:'herringbone',chevron:'chevron',basket:'basketweave',diag:'diagonal',random:'random'})[p] || p; }
 
-function renderCostBreakdown(p) {
-  const bufPct = Math.round(p.bufferPct * 100);
-  const lines = p.costPerSpeciesBuffered.filter(c => c.strips > 0).map(c =>
-    `<div class="cost-line">
-      <span class="dot" style="background:${c.species.color}"></span>
-      <span class="name">${c.species.name}</span>
-      <span class="bf">${c.bfBuf.toFixed(2)} bf</span>
-      <span class="rate">@ $${(c.species.price || 0).toFixed(2)}</span>
-      <span class="amt">${money(c.costBuf)}</span>
-    </div>`
-  ).join('');
-  if (!lines) return '';
-  const bufLine = bufPct > 0 ? `<div style="font-size:10px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between"><span>Base (no buffer): ${p.boardFeet.toFixed(2)} bf · ${money(p.totalCost)}</span><span>Buffer +${bufPct}% added above</span></div>` : '';
-  return `<div class="cost-breakdown">
-    <div class="ttl"><span>Material Cost ${bufPct > 0 ? `<span style="color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0;font-size:10px">incl. ${bufPct}% buffer</span>` : ''}</span><span class="total">${money(p.totalCostBuffered)}</span></div>
-    ${lines}
-    ${bufLine}
-  </div>`;
-}
-
 function renderEndGrain(p) {
   let html = `<div class="finished-preview">
     <div class="preview-title">
@@ -4791,13 +4747,11 @@ function renderEndGrain(p) {
     <div class="scard"><div class="val">${p.totalStrips}</div><div class="lbl">Strips to Rip</div></div>
     <div class="scard"><div class="val">${p.nSlabs}</div><div class="lbl">Slabs Cut</div></div>
     <div class="scard"><div class="val">${dim(p.initialCutL)}</div><div class="lbl">Init. Crosscut</div></div>`;
-  html += `<div class="summary-cards cols6">
+  html += `<div class="summary-cards cols5">
     <div class="scard"><div class="val">${p.bufferedBoards}</div><div class="lbl">Stock Boards${bufPct > 0 ? ` <span style="color:var(--muted2)">+${bufPct}%</span>` : ''}</div></div>
     <div class="scard"><div class="val">${p.bufferedBf.toFixed(1)}</div><div class="lbl">Board Feet</div></div>
-    <div class="scard"><div class="val money">${money(p.totalCostBuffered)}</div><div class="lbl">Material Cost</div></div>
     ${tailCards}
   </div>`;
-  html += renderCostBreakdown(p);
 
   const finishStep = `Surface both faces (remove ${dim(p.sa)} per face) to final ${dim(p.finalT)}. Trim length to ${dim(p.finalL)}, rip to ${dim(p.finalW)}. Profile edges: <strong>${edgeProfileLabel(p.edgeProfile)}</strong>${p.juiceGroove !== 'none' ? `. Route <strong>${juiceGrooveLabel(p.juiceGroove)}</strong> on the top face` : ''}. Sand 80 → 120 → 180 → 220. Finish with mineral oil + beeswax (food-safe).`;
   const cubeSteps = [
@@ -4879,15 +4833,13 @@ function renderFaceGrain(p) {
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
   const bufPct = Math.round(p.bufferPct * 100);
-  html += `<div class="summary-cards cols6">
+  html += `<div class="summary-cards cols5">
     <div class="scard"><div class="val">${p.bufferedBoards}</div><div class="lbl">Stock Boards${bufPct > 0 ? ` <span style="color:var(--muted2)">+${bufPct}%</span>` : ''}</div></div>
     <div class="scard"><div class="val">${p.bufferedBf.toFixed(1)}</div><div class="lbl">Board Feet</div></div>
-    <div class="scard"><div class="val money">${money(p.totalCostBuffered)}</div><div class="lbl">Material Cost</div></div>
     <div class="scard"><div class="val">${p.nStrips}</div><div class="lbl">Strips to Glue</div></div>
     <div class="scard"><div class="val">${dim(p.cutL)}</div><div class="lbl">Crosscut</div></div>
     <div class="scard"><div class="val">${dim(p.panelW)}</div><div class="lbl">Panel Width</div></div>
   </div>`;
-  html += renderCostBreakdown(p);
 
   const finishStep = `Rip to ${dim(p.finalW)}, crosscut to ${dim(p.finalL)}. Profile edges: <strong>${edgeProfileLabel(p.edgeProfile)}</strong>${p.juiceGroove !== 'none' ? `. Route <strong>${juiceGrooveLabel(p.juiceGroove)}</strong>` : ''}. Sand 80 → 120 → 180 → 220. Finish with mineral oil + beeswax.`;
 
@@ -4958,9 +4910,8 @@ function copyPlan() {
   let text = `BRIGHT CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
   if (mode === 'end') text += `Pattern: ${patternLabel(p.pattern)}\n`;
   text += `\nSTOCK (incl. ${bufPct}% buffer): ${p.bufferedBoards} boards · ${p.bufferedBf.toFixed(1)} bf\n`;
-  text += `MATERIAL COST: ${money(p.totalCostBuffered)}\n`;
-  text += p.costPerSpeciesBuffered.filter(c => c.strips > 0).map(c => `  ${c.species.name}: ${c.bfBuf.toFixed(2)} bf @ $${(c.species.price || 0).toFixed(2)} = ${money(c.costBuf)}`).join('\n');
-  text += `\n  (base before buffer: ${p.boardFeet.toFixed(2)} bf · ${money(p.totalCost)})\n\n`;
+  text += p.costPerSpeciesBuffered.filter(c => c.strips > 0).map(c => `  ${c.species.name}: ${c.bfBuf.toFixed(2)} bf`).join('\n');
+  text += `\n  (base before buffer: ${p.boardFeet.toFixed(2)} bf)\n\n`;
   if (mode === 'end') text += `CUTS:\n  Initial crosscut: ${dim(p.initialCutL)}\n  Rip strips: ${dim(p.tileSize)}\n  Crosscut slabs: ${dim(p.slabCutT)} × ${p.nSlabs}\n  Kerf: ${dim(p.kerf)} per cut\n\n`;
   else {
     text += `STRIP PATTERN (panel width ${dim(p.panelW)}):\n`;
@@ -5149,10 +5100,8 @@ function renderFurniture(c) {
   const total = c.parts.reduce((s, p) => s + p.qty * p.L * p.W, 0);
   const sheetArea = v('furn-sheetL') * v('furn-sheetW');
   const baseSheets = Math.ceil(total / Math.max(1, sheetArea * 0.78));
-  const sheetPrice = v('furn-sheetP') || 0;
   const bufferPct = Math.max(0, Math.min(50, v('furn-buffer'))) / 100;
   const sheetsNeeded = Math.ceil(baseSheets * (1 + bufferPct));
-  const materialCost = sheetsNeeded * sheetPrice;
   const bufPctDisplay = Math.round(bufferPct * 100);
   let preview = '';
   if (c.type === 'cabinet' || c.type === 'shelf') preview = svgCabinetFront(c);
@@ -5172,12 +5121,11 @@ function renderFurniture(c) {
   </div>`;
 
   const totalParts = c.parts.reduce((s, p) => s + p.qty, 0);
-  html += `<div class="summary-cards cols5">
+  html += `<div class="summary-cards cols4">
     <div class="scard"><div class="val">${totalParts}</div><div class="lbl">Total Parts</div></div>
     <div class="scard"><div class="val">${c.parts.length}</div><div class="lbl">Unique Parts</div></div>
     <div class="scard"><div class="val">~${sheetsNeeded}${bufPctDisplay > 0 ? ` <span style="font-size:11px;color:var(--muted2)">+${bufPctDisplay}%</span>` : ''}</div><div class="lbl">Sheets Needed</div></div>
     <div class="scard"><div class="val">${(total / 144).toFixed(1)}</div><div class="lbl">Sq Ft</div></div>
-    <div class="scard"><div class="val money">${money(materialCost)}</div><div class="lbl">Sheet Cost</div></div>
   </div>`;
   html += `<div class="steps-title"><span>Parts List</span><button class="send-btn" onclick="sendPartsToOptimizer()">&#8594; Send to Stock Optimizer</button></div>
     <table class="parts-table">
@@ -6081,7 +6029,7 @@ function renderLumberPrices() {
   el.innerHTML = `
     <div class="prices-header">
       <h2><img src="sparky/screws.png" class="tab-hero-icon" alt="">Lumber Prices</h2>
-      <p>Your per-board-foot prices, used live in all cost math across Cutting Board, Furniture, and Optimizer. Edits save instantly and sync across devices if you're signed in.</p>
+      <p>Track your per-board-foot price for every species — a quick reference catalog for what your lumber costs. Edits save instantly and sync across devices if you're signed in.</p>
       <button class="proj-add-btn" style="margin-top:10px" onclick="openCustomSpeciesEditor()">+ Add custom species</button>
     </div>
     <div class="prices-filter-row">
@@ -6217,36 +6165,26 @@ function renderHardware() {
   HARDWARE_CATS.forEach(c => { counts[c.key] = HARDWARE_CATALOG.filter(h => h.cat === c.key).length; });
   const filter = (k, label) => `<button class="lib-filter${hardwareFilter === k ? ' active' : ''}" onclick="setHardwareFilter('${k}')">${label} <span class="lib-count">${counts[k]}</span></button>`;
   const filtered = HARDWARE_CATALOG.filter(h => inFilter(h) && matchesQ(h));
-  const modifiedCount = Object.keys(hardwarePrices).length;
   const rows = filtered.map(h => {
-    const current = hardwarePriceFor(h.id);
-    const modified = Object.prototype.hasOwnProperty.call(hardwarePrices, h.id);
     const catMeta = HARDWARE_CATS.find(c => c.key === h.cat) || {};
-    return `<div class="price-row${modified ? ' modified' : ''}" data-hwid="${h.id}">
+    return `<div class="price-row no-price" data-hwid="${h.id}">
       <div class="swatch" style="background:var(--panel3);display:flex;align-items:center;justify-content:center;font-size:13px">${catMeta.icon || '·'}</div>
       <div class="name">${escapeHtml(h.name)}<div style="font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px">${escapeHtml(h.brand)} · ${escapeHtml(h.unit)}</div></div>
       <span class="cat-tag">${escapeHtml(catMeta.label || h.cat)}</span>
-      <div class="price-input-wrap">
-        <span class="unit">$</span>
-        <input type="number" min="0" step="0.5" value="${current}" oninput="updateHardwarePrice('${h.id}', this.value)" onchange="renderHardware()">
-      </div>
     </div>`;
   }).join('');
   el.innerHTML = `
     <div class="prices-header">
       <h2><img src="sparky/screws.png" class="tab-hero-icon" alt="">Hardware</h2>
-      <p>Fasteners, glues, finishes, and cabinet hardware with ballpark prices. Edit any field — your overrides save instantly and sync across devices. Pair with Lumber Prices for full project cost.</p>
+      <p>A reference catalog of fasteners, glues, finishes, and cabinet hardware — recommended brands and the unit each comes in. Search or filter to find what a build calls for.</p>
     </div>
     <div class="prices-filter-row">
       ${filter('all', 'All')}
       ${HARDWARE_CATS.map(c => filter(c.key, c.label)).join('')}
       <input class="lib-search" type="search" placeholder="Search hardware…" value="${escapeHtml(hardwareSearch)}" oninput="setHardwareSearch(this.value)" style="flex:1;min-width:140px;margin-left:auto">
     </div>
-    <div class="prices-summary"><span class="num">${filtered.length}</span> item${filtered.length === 1 ? '' : 's'} shown · <span class="num">${modifiedCount}</span> overridden</div>
+    <div class="prices-summary"><span class="num">${filtered.length}</span> item${filtered.length === 1 ? '' : 's'} shown</div>
     <div class="prices-list">${rows || `<div style="text-align:center;padding:30px 18px;color:var(--muted);font-size:13px">No matches.</div>`}</div>
-    <div class="prices-actions">
-      <button class="prices-reset-btn" onclick="resetAllHardwarePrices()">Reset all to defaults</button>
-    </div>
   `;
 }
 
@@ -8389,7 +8327,7 @@ function _searchAll(query) {
     kind: 'hardware',
     id: h.id,
     title: h.name,
-    sub: `${h.brand} · ${h.unit} · $${hardwarePriceFor(h.id)}`,
+    sub: `${h.brand} · ${h.unit}`,
   }));
   if (hardwareMatches.length) groups.push({ title: 'Hardware', items: hardwareMatches });
   return groups;
