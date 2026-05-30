@@ -1433,7 +1433,7 @@
           <div></div><div></div>
         </div>
         <div class="field-grid cols2">
-          <div class="field"><label>Quantity</label><input type="number" id="quantity" value="1" step="1" min="1"></div>
+          <div class="field"><label>Quantity</label><input type="number" id="quantity" value="1" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1"></div>
           <div class="field" id="tile-field"><label>Tile Size</label><input type="number" id="tileSize" value="0.75" step="0.125" min="0.375"></div>
         </div>
       </div>
@@ -1487,7 +1487,7 @@
         </div>
         <div class="field" style="margin-bottom:10px">
           <label># of Strips</label>
-          <input type="number" id="stripCount" value="5" step="1" min="1" max="20" onchange="setStripCount(parseInt(this.value)||1)" onblur="if(!this.value)this.value=stripPattern.length">
+          <input type="number" id="stripCount" value="5" step="1" min="1" max="20" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="20" data-step="1" data-measure-label="Number of strips" onchange="setStripCount(parseInt(this.value)||1)" onblur="if(!this.value)this.value=stripPattern.length">
         </div>
         <div id="strip-list"></div>
         <button class="add-btn" onclick="addStrip()">+ Add Strip</button>
@@ -1525,7 +1525,7 @@
         <div class="field-grid cols3" style="margin-bottom:6px">
           <div class="field"><label>Kerf</label><input type="number" id="kerf" value="0.125" step="0.0625" min="0.0625" max="0.5"></div>
           <div class="field"><label>Surface Loss</label><input type="number" id="surfaceAllowance" value="0.0625" step="0.03125" min="0" max="0.25"></div>
-          <div class="field"><label>Buffer %</label><input type="number" id="buffer" value="10" step="5" min="0" max="50"></div>
+          <div class="field"><label>Buffer %</label><input type="number" id="buffer" value="10" step="5" min="0" max="50" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="50" data-step="5" data-unit="%" data-measure-label="Buffer"></div>
         </div>
         <div style="font-size:10px;color:var(--muted2);line-height:1.4">Buffer covers mistakes, defects, kerf overhead. <strong style="color:var(--muted)">Pros use 10% face / 20% end grain</strong>. Adjusts cost + boards.</div>
       </div>
@@ -1588,7 +1588,7 @@
           <div class="section-label">Construction</div>
           <div class="field-grid cols2" style="margin-bottom:6px">
             <div class="field"><label>Material Thickness</label><input type="number" id="cab-T" value="0.75" step="0.0625" min="0.25"></div>
-            <div class="field"><label>Shelves</label><input type="number" id="cab-shelves" value="1" step="1" min="0" max="10"></div>
+            <div class="field"><label>Shelves</label><input type="number" id="cab-shelves" value="1" step="1" min="0" max="10" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="10" data-step="1"></div>
           </div>
           <div class="field-grid cols2">
             <div class="field"><label>Back Panel</label>
@@ -1614,7 +1614,7 @@
           <div class="section-label">Construction</div>
           <div class="field-grid cols2">
             <div class="field"><label>Material Thickness</label><input type="number" id="bsh-T" value="0.75" step="0.0625" min="0.25"></div>
-            <div class="field"><label># Shelves</label><input type="number" id="bsh-shelves" value="3" step="1" min="0" max="12"></div>
+            <div class="field"><label># Shelves</label><input type="number" id="bsh-shelves" value="3" step="1" min="0" max="12" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="12" data-step="1" data-measure-label="Shelves"></div>
           </div>
         </div>
       </div>
@@ -1657,7 +1657,7 @@
           <div class="field"><label>Sheet Width</label><input type="number" id="furn-sheetW" value="48" step="1" min="24"></div>
         </div>
         <div class="field-grid cols2">
-          <div class="field"><label>Sheets on hand</label><input type="number" id="furn-sheetQ" value="3" step="1" min="1"></div>
+          <div class="field"><label>Sheets on hand</label><input type="number" id="furn-sheetQ" value="3" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1" data-measure-label="Sheets on hand"></div>
           <div class="field"><label>$ per sheet</label><input type="number" id="furn-sheetP" value="65" step="1" min="0"></div>
         </div>
       </div>
@@ -1665,8 +1665,8 @@
       <div class="section">
         <div class="section-label">Settings</div>
         <div class="field-grid cols2" style="margin-bottom:6px">
-          <div class="field"><label>How many to build?</label><input type="number" id="furn-qty" value="1" step="1" min="1"></div>
-          <div class="field"><label>Buffer %</label><input type="number" id="furn-buffer" value="15" step="5" min="0" max="50"></div>
+          <div class="field"><label>How many to build?</label><input type="number" id="furn-qty" value="1" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1" data-measure-label="How many to build"></div>
+          <div class="field"><label>Buffer %</label><input type="number" id="furn-buffer" value="15" step="5" min="0" max="50" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="50" data-step="5" data-unit="%" data-measure-label="Buffer"></div>
         </div>
         <div style="font-size:10px;color:var(--muted2);line-height:1.4">Cabinet/shelf builds typically need <strong style="color:var(--muted)">15% buffer</strong> for sheet-goods waste &amp; defects.</div>
       </div>
@@ -3230,9 +3230,9 @@ function _frac16Label(n) {
 function _drumLabelFor(input) {
   // Use explicit data attribute first; fall back to the field's <label>.
   if (input.dataset.measureLabel) return input.dataset.measureLabel;
-  const field = input.closest('.field');
+  const field = input.closest('.field, .move-row, .proj-form-row');
   const lab = field && field.querySelector('label');
-  if (lab) return lab.textContent.trim();
+  if (lab) return lab.dataset.baseText || lab.textContent.trim();
   return input.placeholder || 'Value';
 }
 function _drumApplyValue(input, inches) {
@@ -3284,6 +3284,7 @@ function _buildMeasureCols(inches, max) {
 }
 function openDrumPicker(input) {
   if (!input) return;
+  if (input.dataset.wheel === 'count') { openCountWheel(input); return; }
   const label = _drumLabelFor(input);
   const inches = toInches(input.value);
   const max = parseFloat(input.dataset.max || (unitSystem === 'metric' ? 5000 : 200));
@@ -3309,7 +3310,38 @@ function openStripDrum(idx) {
     },
   });
 }
-function _renderDrumSheet({ label, cols, toInchesFn, sourceInput, onApply }) {
+// Single-column scroll wheel for whole-number counts, percentages, and fixed-step
+// values (quantity, shelves, coats, buffer %, moisture %). Reads data-min / data-max /
+// data-step / data-unit off the input and writes the raw value back (no unit conversion —
+// counts and percentages aren't unit-dependent the way measurements are).
+function openCountWheel(input) {
+  if (!input) return;
+  const minRaw = parseFloat(input.dataset.min);
+  const maxRaw = parseFloat(input.dataset.max);
+  const step = parseFloat(input.dataset.step) || 1;
+  const unit = input.dataset.unit || '';
+  const lo = isFinite(minRaw) ? minRaw : 0;
+  const hi = isFinite(maxRaw) ? maxRaw : lo + 100;
+  const values = [];
+  for (let v = lo; v <= hi + 1e-9; v += step) values.push(Math.round(v * 1000) / 1000);
+  const fmtNum = (n) => (Math.round(n * 1000) / 1000).toString();
+  let cur = parseFloat(input.value);
+  if (!isFinite(cur)) cur = lo;
+  let start = 0, best = Infinity;
+  values.forEach((v, i) => { const d = Math.abs(v - cur); if (d < best) { best = d; start = i; } });
+  _renderDrumSheet({
+    label: _drumLabelFor(input),
+    cols: [{ values, valueLabels: values.map(fmtNum), start, unit }],
+    toInchesFn: (v) => v,
+    currentLabel: (v) => ({ main: unit ? `${fmtNum(v)} ${unit}` : fmtNum(v), sub: '' }),
+    onApply: (v) => {
+      input.value = fmtNum(v);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    },
+  });
+}
+function _renderDrumSheet({ label, cols, toInchesFn, sourceInput, onApply, currentLabel }) {
   closeDrumPicker();
   const overlay = document.createElement('div');
   overlay.className = 'drum-overlay';
@@ -3347,11 +3379,10 @@ function _renderDrumSheet({ label, cols, toInchesFn, sourceInput, onApply }) {
 
   function updateCurrent() {
     const args = cols.map((c, i) => c.values[selected[i]]);
-    const inches = toInchesFn(...args);
     const el = document.getElementById('drum-current');
     if (!el) return;
-    const { main, sub } = _drumDualLabel(inches);
-    el.innerHTML = `<span class="drum-current-main">${main}</span><span class="drum-current-sub">${sub}</span>`;
+    const { main, sub } = currentLabel ? currentLabel(...args) : _drumDualLabel(toInchesFn(...args));
+    el.innerHTML = `<span class="drum-current-main">${main}</span>${sub ? `<span class="drum-current-sub">${sub}</span>` : ''}`;
   }
   function markSelected(colEl, i, idx) {
     colEl.querySelectorAll('.drum-item').forEach((it, j) => it.classList.toggle('selected', j === idx));
@@ -5244,7 +5275,7 @@ function optCard(item, i, type) {
     <div class="field-grid cols3" style="margin-bottom:5px">
       <div class="field"><label>L <span class="unit-pill">${unitLabel()}</span></label><input class="measure-input" readonly inputmode="none" data-measure-label="${type === 'stock' ? 'Stock' : 'Piece'} ${i+1} length" type="number" value="${fromInches(item.length)}" step="${unitStep()}" min="${unitMin()}" oninput="optInput(${arr},${item.id},'length',toInches(this.value))"></div>
       <div class="field"><label>W <span class="unit-pill">${unitLabel()}</span></label><input class="measure-input" readonly inputmode="none" data-measure-label="${type === 'stock' ? 'Stock' : 'Piece'} ${i+1} width" type="number" value="${fromInches(item.width)}" step="${unitStep()}" min="${unitMin()}" oninput="optInput(${arr},${item.id},'width',toInches(this.value))"></div>
-      <div class="field"><label>Qty</label><input type="number" value="${item.qty}" step="1" oninput="optInput(${arr},${item.id},'qty',this.value)"></div>
+      <div class="field"><label>Qty</label><input type="number" value="${item.qty}" step="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="99" data-step="1" data-measure-label="Quantity" oninput="optInput(${arr},${item.id},'qty',this.value)"></div>
     </div>
     <div class="field"><label>Name</label><input type="text" value="${item.name}" oninput="optInput(${arr},${item.id},'name',this.value)"></div>
   </div>`;
@@ -5593,11 +5624,11 @@ function renderMovement() {
       </div>
       <div class="move-row">
         <label>Winter MC %</label>
-        <input type="number" id="mv-mc-low" value="${s.mcLow}" min="0" max="25" step="0.5" onchange="setMovementMc('low', this.value)">
+        <input type="number" id="mv-mc-low" value="${s.mcLow}" min="0" max="25" step="0.5" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="25" data-step="0.5" data-unit="%" data-measure-label="Winter moisture content" onchange="setMovementMc('low', this.value)">
       </div>
       <div class="move-row">
         <label>Summer MC %</label>
-        <input type="number" id="mv-mc-high" value="${s.mcHigh}" min="0" max="25" step="0.5" onchange="setMovementMc('high', this.value)">
+        <input type="number" id="mv-mc-high" value="${s.mcHigh}" min="0" max="25" step="0.5" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="25" data-step="0.5" data-unit="%" data-measure-label="Summer moisture content" onchange="setMovementMc('high', this.value)">
       </div>
     </div>
     <div class="move-result">
@@ -5782,16 +5813,16 @@ function renderFrame() {
     <div class="frame-presets">${presets}</div>
     <div class="move-card">
       <h3>Artwork / Glass</h3>
-      <div class="move-row"><label>Width <span class="unit-pill">${u}</span></label><input id="frame-artW" type="number" step="${st}" min="0.5" value="${fromInches(s.artW)}" oninput="frameInput('artW', this.value)"></div>
-      <div class="move-row"><label>Height <span class="unit-pill">${u}</span></label><input id="frame-artH" type="number" step="${st}" min="0.5" value="${fromInches(s.artH)}" oninput="frameInput('artH', this.value)"></div>
-      <div class="move-row"><label>Quantity</label><input type="number" step="1" min="1" value="${s.qty}" oninput="frameInput('qty', this.value)"></div>
+      <div class="move-row"><label>Width <span class="unit-pill">${u}</span></label><input id="frame-artW" type="number" class="measure-input" readonly inputmode="none" data-measure-label="Artwork width" step="${st}" min="0.5" value="${fromInches(s.artW)}" oninput="frameInput('artW', this.value)"></div>
+      <div class="move-row"><label>Height <span class="unit-pill">${u}</span></label><input id="frame-artH" type="number" class="measure-input" readonly inputmode="none" data-measure-label="Artwork height" step="${st}" min="0.5" value="${fromInches(s.artH)}" oninput="frameInput('artH', this.value)"></div>
+      <div class="move-row"><label>Quantity</label><input type="number" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1" data-measure-label="Quantity" step="1" min="1" value="${s.qty}" oninput="frameInput('qty', this.value)"></div>
     </div>
     <div class="move-card">
       <h3>Molding Profile</h3>
-      <div class="move-row"><label>Face width <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0.25" value="${fromInches(s.moldW)}" oninput="frameInput('moldW', this.value)"></div>
-      <div class="move-row"><label>Rabbet lip <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0" value="${fromInches(s.rabW)}" oninput="frameInput('rabW', this.value)"></div>
-      <div class="move-row"><label>Rabbet depth <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0" value="${fromInches(s.rabD)}" oninput="frameInput('rabD', this.value)"></div>
-      <div class="move-row"><label>Stock thick. <span class="unit-pill">${u}</span></label><input type="number" step="${st}" min="0.25" value="${fromInches(s.stockT)}" oninput="frameInput('stockT', this.value)"></div>
+      <div class="move-row"><label>Face width <span class="unit-pill">${u}</span></label><input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Molding face width" step="${st}" min="0.25" value="${fromInches(s.moldW)}" oninput="frameInput('moldW', this.value)"></div>
+      <div class="move-row"><label>Rabbet lip <span class="unit-pill">${u}</span></label><input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Rabbet lip" step="${st}" min="0" value="${fromInches(s.rabW)}" oninput="frameInput('rabW', this.value)"></div>
+      <div class="move-row"><label>Rabbet depth <span class="unit-pill">${u}</span></label><input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Rabbet depth" step="${st}" min="0" value="${fromInches(s.rabD)}" oninput="frameInput('rabD', this.value)"></div>
+      <div class="move-row"><label>Stock thick. <span class="unit-pill">${u}</span></label><input type="number" class="measure-input" readonly inputmode="none" data-measure-label="Stock thickness" step="${st}" min="0.25" value="${fromInches(s.stockT)}" oninput="frameInput('stockT', this.value)"></div>
     </div>
     <div id="frame-output"></div>
   `;
@@ -6982,7 +7013,7 @@ function renderProjectForm() {
       <div class="proj-form-grid cols4" style="margin-top:14px">
         <div class="proj-form-row" style="margin:0">
           <label class="lbl">Coats of Finish</label>
-          <input type="number" id="pf-coats" value="${d.coats}" min="0" step="1" oninput="editingDraft.coats=parseInt(this.value)||0">
+          <input type="number" id="pf-coats" value="${d.coats}" min="0" step="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="20" data-step="1" data-measure-label="Coats of finish" oninput="editingDraft.coats=parseInt(this.value)||0">
         </div>
         <div class="proj-form-row" style="margin:0">
           <label class="lbl">Length <span class="unit-pill">${unitLabel()}</span></label>
@@ -7561,7 +7592,7 @@ function renderSupplies() {
           </div>
           <div class="row" style="margin:0">
             <label>Price ($)</label>
-            <input type="text" id="sf-price" value="${d.price}" placeholder="24.99" oninput="supplyForm.price=this.value">
+            <input type="text" id="sf-price" inputmode="decimal" value="${d.price}" placeholder="24.99" oninput="supplyForm.price=this.value">
           </div>
         </div>
         <div class="row" style="margin-top:12px">
