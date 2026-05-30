@@ -946,6 +946,20 @@
     .wood-row .val em { color: var(--muted); font-style: italic; }
     .janka-fill { height: 5px; background: var(--panel3); border-radius: 3px; overflow: hidden; margin-top: 5px; }
     .janka-fill div { height: 100%; background: linear-gradient(90deg, #6ec77e 0%, #e8a838 60%, #e05252 95%); }
+    /* Species reference photos (tree · leaf · bark) + lightbox */
+    .wood-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+    .wood-photo { position: relative; padding: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--panel3); aspect-ratio: 1 / 1; }
+    .wood-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.2s; }
+    .wood-photo:hover img { transform: scale(1.05); }
+    .wood-photo:active { transform: scale(0.97); }
+    .wood-photo-lbl { position: absolute; left: 0; right: 0; bottom: 0; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,0.72)); padding: 12px 6px 4px; text-align: center; }
+    .species-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.86); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+    .species-lightbox.open { display: flex; }
+    .species-lightbox-inner { position: relative; max-width: 92vw; max-height: 88vh; }
+    .species-lightbox-inner img { max-width: 92vw; max-height: 80vh; border-radius: 10px; display: block; box-shadow: 0 12px 44px rgba(0,0,0,0.5); }
+    .species-lightbox-cap { color: #e8ddd0; font-size: 11px; margin-top: 10px; text-align: center; line-height: 1.4; }
+    .species-lightbox-cap a { color: var(--accent); }
+    .species-lightbox-close { position: absolute; top: -14px; right: -14px; width: 32px; height: 32px; border-radius: 50%; background: var(--panel); border: 1px solid var(--border2); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
     .library-footer { margin-top: 28px; padding: 14px 18px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
     .library-footer p { margin: 0; }
 
@@ -7829,6 +7843,48 @@ function setLibFilter(f) {
   document.querySelectorAll('.lib-filter').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
   renderWoodLibrary();
 }
+// Real tree/leaf/bark reference photos per species — sourced from Wikimedia Commons
+// (public domain / Creative Commons). Each carries its own author + license for attribution.
+// Cut-variants (e.g. Qtr White Oak) alias to the base species via PHOTO_ALIASES.
+const SPECIES_PHOTOS = {
+  'Walnut': {
+    tree: { src: 'species/walnut-tree.jpg', by: 'Gerd Eichmann', lic: 'CC BY 4.0', page: 'https://commons.wikimedia.org/wiki/File:Baden-Baden-Juglans_nigra-14-Schwarznuss-2015-gje.jpg' },
+    leaf: { src: 'species/walnut-leaf.jpg', by: 'Kristian Peters', lic: 'Public domain', page: 'https://commons.wikimedia.org/wiki/File:Juglans_nigra,_Forstbotanischer_Garten_Erbsland.jpg' },
+    bark: { src: 'species/walnut-bark.jpg', by: 'Gmihail', lic: 'CC BY-SA 3.0 RS', page: 'https://commons.wikimedia.org/wiki/File:Juglans_nigra_bark.jpg' },
+  },
+};
+const PHOTO_ALIASES = { 'Qtr White Oak': 'White Oak', 'Rift White Oak': 'White Oak', 'Knotty Alder': 'Alder' };
+function speciesPhotos(name) { return SPECIES_PHOTOS[name] || SPECIES_PHOTOS[PHOTO_ALIASES[name]] || null; }
+function photoStripHtml(name) {
+  const p = speciesPhotos(name);
+  if (!p) return '';
+  const cells = [['tree', 'Tree'], ['leaf', 'Leaf'], ['bark', 'Bark']].filter(([k]) => p[k]).map(([k, label]) => {
+    const ph = p[k];
+    const cap = `${name} — ${label}. Photo: ${ph.by} / ${ph.lic} (Wikimedia Commons)`;
+    return `<button class="wood-photo" data-src="${ph.src}" data-cap="${escapeHtml(cap)}" data-page="${ph.page}" onclick="openSpeciesPhoto(this)">
+      <img src="${ph.src}" alt="${escapeHtml(name)} ${label}" loading="lazy">
+      <span class="wood-photo-lbl">${label}</span>
+    </button>`;
+  }).join('');
+  return `<div class="wood-photos" title="Tap a photo to enlarge">${cells}</div>`;
+}
+function openSpeciesPhoto(btn) {
+  const src = btn.dataset.src, cap = btn.dataset.cap, page = btn.dataset.page || '';
+  let ov = document.getElementById('species-lightbox');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'species-lightbox';
+    ov.className = 'species-lightbox';
+    ov.onclick = () => ov.classList.remove('open');
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = `<div class="species-lightbox-inner" onclick="event.stopPropagation()">
+    <button class="species-lightbox-close" onclick="document.getElementById('species-lightbox').classList.remove('open')" aria-label="Close">✕</button>
+    <img src="${src}" alt="">
+    <div class="species-lightbox-cap">${cap}${page ? ` · <a href="${page}" target="_blank" rel="noopener">source</a>` : ''}</div>
+  </div>`;
+  ov.classList.add('open');
+}
 function renderWoodLibrary() {
   const grid = document.getElementById('wood-grid');
   if (!grid) return;
@@ -7881,6 +7937,7 @@ function renderWoodLibrary() {
           <div class="wood-name">${w.name}</div>
         </div>
         <div class="wood-body">
+          ${photoStripHtml(w.name)}
           ${enc.latin ? `<div class="wood-row"><span class="lbl">Latin</span><span class="val"><em>${enc.latin}</em></span></div>` : '<div class="wood-row"><span class="lbl">Latin</span><span class="val"><em>—</em></span></div>'}
           ${enc.origin ? `<div class="wood-row"><span class="lbl">Origin</span><span class="val">${enc.origin}</span></div>` : ''}
           ${enc.janka ? `<div class="wood-row"><span class="lbl">Hardness</span><span class="val">${enc.janka} lbf<div class="janka-fill"><div style="width:${jankaPct}%"></div></div></span></div>` : ''}
