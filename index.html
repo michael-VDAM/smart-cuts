@@ -960,6 +960,22 @@
     .species-lightbox-cap { color: #e8ddd0; font-size: 11px; margin-top: 10px; text-align: center; line-height: 1.4; }
     .species-lightbox-cap a { color: var(--accent); }
     .species-lightbox-close { position: absolute; top: -14px; right: -14px; width: 32px; height: 32px; border-radius: 50%; background: var(--panel); border: 1px solid var(--border2); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+    /* WOOD ORIGINS learning module */
+    .origins-col { padding: 28px 36px 60px; max-width: 760px; margin: 0 auto; width: 100%; }
+    .origins-hero { margin-bottom: 20px; }
+    .origins-hero h2 { font-size: 26px; font-weight: 800; letter-spacing: 0.2px; margin-bottom: 6px; display: flex; align-items: center; }
+    .origins-hero p { color: var(--muted); font-size: 13px; line-height: 1.55; max-width: 660px; }
+    .origins-card { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+    .origins-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 9px; color: var(--text); }
+    .origins-card p { font-size: 13px; line-height: 1.6; color: var(--text); margin-bottom: 9px; }
+    .origins-card p:last-child { margin-bottom: 0; }
+    .origins-card strong { font-weight: 700; color: var(--text); }
+    .origins-card ul { margin: 4px 0 2px; padding-left: 20px; }
+    .origins-card li { font-size: 13px; line-height: 1.55; margin-bottom: 6px; color: var(--text); }
+    .origins-card li:last-child { margin-bottom: 0; }
+    .origins-spotlight { border-left: 3px solid var(--accent); background: linear-gradient(135deg, var(--accent-soft), var(--panel2)); }
+    .origins-sources { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-top: 8px; padding: 0 4px; }
+    @media (max-width: 820px) { .origins-col { padding: 18px 14px 40px; } .origins-hero h2 { font-size: 22px; } }
     .library-footer { margin-top: 28px; padding: 14px 18px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
     .library-footer p { margin: 0; }
 
@@ -1168,6 +1184,7 @@
       .meas { background: #fff7e8 !important; border-color: #e8c896 !important; color: black !important; }
       .finished-preview::before { display: none !important; }
       .live-indicator { display: none !important; }
+      .wood-photos, .species-lightbox { display: none !important; }
       .wood-swatch, .swatch-input, .mat-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       /* Print-only header at the very top of the page — branding + date */
       .print-header { display: block !important; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid #a04f00; }
@@ -1315,6 +1332,12 @@
           <h3>Wood Library</h3>
           <p>56 species — Latin names, Janka hardness, origin, workability, uses, notes.</p>
           <span class="home-tile-cta">Browse library →</span>
+        </button>
+        <button class="home-tile" data-tile-tab="origins">
+          <div class="home-tile-icon" style="font-size:72px">🌎</div>
+          <h3>Wood Origins</h3>
+          <p>Where lumber comes from — forest to board, wild vs. farmed, and how plywood is made.</p>
+          <span class="home-tile-cta">Learn the source →</span>
         </button>
         <button class="home-tile" data-tile-tab="academy">
           <div class="home-tile-icon"><img src="sparky/academy.png" alt=""></div>
@@ -1778,6 +1801,56 @@
   </div>
 </div>
 
+<!-- ════════════════════════════ TAB: WOOD ORIGINS ════════════════════════ -->
+<div id="tab-origins" style="display:none" class="workspace single-col">
+  <div class="output-col origins-col">
+    <div class="origins-hero">
+      <h2><span style="margin-right:9px">🌎</span>Wood Origins</h2>
+      <p>Where your lumber actually comes from — forest to board, wild vs. farmed, domestic vs. imported, and how sheet goods like plywood are really made.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🌲 From forest to board</h3>
+      <p>Most hardwood you buy isn't farmed — it's cut from <strong>natural, managed forests</strong>. Good operations harvest on roughly a <strong>10-year cycle</strong>, taking select mature trees and letting the forest regrow on its own instead of clear-cutting and replanting.</p>
+      <p>The journey: a standing tree is felled, sawn into boards at a <strong>sawmill</strong>, <strong>kiln- or air-dried</strong> down to furniture moisture (about 6–8%), graded for quality, then shipped to the lumberyard. The most prized US hardwood comes from the <strong>Appalachians</strong> — a cold climate and short growing season give tight, even grain.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🌳 Wild, managed, or plantation?</h3>
+      <ul>
+        <li><strong>Hardwoods</strong> (oak, maple, walnut, cherry, ash) come mostly from <strong>wild, naturally regenerated</strong> forests.</li>
+        <li><strong>Softwoods</strong> (pine, fir, spruce) for construction and plywood are often grown on <strong>plantations</strong> — Southern yellow pine in the Southeast, Douglas-fir in the Pacific Northwest.</li>
+      </ul>
+    </div>
+
+    <div class="origins-card origins-spotlight">
+      <h3>🥄 Spotlight: where walnut comes from</h3>
+      <p>Black walnut grows wild across a huge range — from <strong>Massachusetts down to Florida and Texas</strong>, and just into <strong>southern Ontario, Canada</strong>. It's overwhelmingly <strong>wild-harvested</strong> rather than farmed: about <strong>65% of the US supply comes from Missouri</strong>, with some plantations in Illinois. Truly mature, veneer-grade trees are scarce — which is exactly why walnut costs what it does.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🌍 Domestic vs. imported</h3>
+      <p><strong>Domestic</strong> woods are grown and milled in North America — oak, maple, walnut, cherry, hickory, ash. <strong>Exotics</strong> are tropical species shipped in from Africa, South America, and Southeast Asia — mahogany, sapele, padauk, purpleheart, wenge.</p>
+      <p>US law (the <strong>Lacey Act</strong>) bans illegally-harvested wood, and <strong>CITES</strong> restricts trade in threatened species like some rosewoods. A reputable dealer can tell you where their exotic stock came from — worth asking.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🪵 Sheet goods: plywood, MDF &amp; OSB</h3>
+      <p><strong>Plywood</strong> isn't sawn — thin veneers (about 1/8") are <strong>peeled off a spinning log</strong> on a giant lathe, then glued in an odd number of layers with the grain turned <strong>90° each layer</strong>. That cross-lamination is what makes it strong and keeps it from warping. Construction plywood is softwood (fir, pine); "hardwood" plywood is usually a cheaper core faced with a thin hardwood veneer — and those faces are increasingly imported.</p>
+      <p><strong>MDF</strong> is wood fibers + glue pressed flat (smooth, no grain, heavy). <strong>OSB</strong> is big wood strands + glue — the flake-looking sheathing. <strong>Veneer</strong> is a thin slice of nice wood glued over a cheaper substrate, which is how a little fancy lumber covers a lot of surface.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>♻️ Buying responsibly</h3>
+      <p>Look for <strong>FSC</strong> or <strong>PEFC</strong> certification — independent groups that verify wood came from responsibly-managed forests. The good news: US hardwood forests are <strong>growing</strong>, with more wood added each year than is harvested. Plain takeaway — choose certified when you can, buy domestic, and get exotics from sellers who can name their source.</p>
+    </div>
+
+    <div class="origins-sources">
+      Sources: USDA Forest Service · Forest Stewardship Council (FSC) · USDA Forest Products Lab <em>Wood Handbook</em> · APA – The Engineered Wood Association.
+    </div>
+  </div>
+</div>
+
 <!-- ════════════════════════════ TAB: WOOD LIBRARY ════════════════════════ -->
 <div id="tab-library" style="display:none" class="workspace single-col">
   <div class="output-col library-col">
@@ -1824,6 +1897,7 @@ const NAV_GROUPS = [
   ] },
   { id: 'learn', label: 'Learn', tabs: [
     ['library', 'Wood Library', '🌳'],
+    ['origins', 'Wood Origins', '🌎'],
     ['academy', 'Academy', '🎓'],
   ] },
 ];
@@ -1920,7 +1994,7 @@ document.addEventListener('click', e => {
 
 // Right before window.print(), update the print-header title + date
 window.addEventListener('beforeprint', () => {
-  const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', frame: 'Picture Frame Plan', optimizer: 'Cut Optimization Plan', plans: 'My Plans', projects: 'My Projects', todo: 'My To-Do', library: 'Wood Library Reference', prices: 'Lumber Prices', hardware: 'Hardware', shop: 'My Shop', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
+  const titles = { board: 'Cutting Board Plan', furniture: 'Furniture Plan', frame: 'Picture Frame Plan', optimizer: 'Cut Optimization Plan', plans: 'My Plans', projects: 'My Projects', todo: 'My To-Do', library: 'Wood Library Reference', origins: 'Wood Origins', prices: 'Lumber Prices', hardware: 'Hardware', shop: 'My Shop', academy: 'Academy', calc: 'Calculation', home: 'Bright Cuts' };
   const active = activeTab;
   document.querySelectorAll('.print-title').forEach(el => el.textContent = titles[active] || 'Bright Cuts Plan');
   const date = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
