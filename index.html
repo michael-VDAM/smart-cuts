@@ -228,9 +228,8 @@
     .wood-option .price { color: var(--money); font-size: 11px; font-variant-numeric: tabular-nums; }
 
     /* STRIP PATTERN (face grain custom layout) */
-    .strip-row { display: grid; grid-template-columns: minmax(0,1fr) 78px 50px 22px auto 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
+    .strip-row { display: grid; grid-template-columns: minmax(0,1fr) 78px 50px 22px 22px; gap: 6px; align-items: center; margin-bottom: 4px; }
     .strip-row.linked .formula-input { border-color: var(--accent); background: var(--accent-soft); }
-    .strip-link-pill { font-size: 9.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 5px; letter-spacing: 0.3px; white-space: nowrap; cursor: default; user-select: none; }
     .formula-input { background: var(--panel2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); padding: 5px 6px; font-size: 12px; text-align: left; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
     .formula-input:focus { outline: none; border-color: var(--accent); }
     .formula-input.invalid { border-color: #c64; background: rgba(204, 102, 68, 0.08); }
@@ -3978,18 +3977,16 @@ function refreshStripList() {
   }
   list.innerHTML = stripPattern.map((s, i) => {
     const linked = stripLinkCount(i) > 1;
-    const linkHint = linked ? `<span class="strip-link-pill" title="${stripLinkCount(i)} strips share this formula — they update together">⛓ ×${stripLinkCount(i)}</span>` : '';
     const evalW = evalFormula(s.formula, stripVars);
     const valid = isFinite(evalW) && evalW > 0;
     return `
     <div class="strip-row${linked ? ' linked' : ''}">
       <select onchange="stripPattern[${i}].speciesIdx=parseInt(this.value); save(); scheduleRunPlanner()">
-        ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${sp.name}</option>`).join('')}
+        ${species.map((sp, j) => `<option value="${j}" ${j === s.speciesIdx ? 'selected' : ''}>${escapeHtml(sp.name)}${sp.price > 0 ? ` · $${Number.isInteger(sp.price) ? sp.price : sp.price.toFixed(2)}/bf` : ''}</option>`).join('')}
       </select>
       <input type="text" class="formula-input${valid ? '' : ' invalid'}" value="${escapeHtml(s.formula || '')}" placeholder="e.g. x" oninput="setStripFormula(${i}, this.value)" title="Formula — literals, variables, +, −, ×, ÷, parens">
       <span class="strip-width-display${valid ? '' : ' invalid'}">${valid ? dim(s.width) : '—'}</span>
       <button class="icon-btn pick" onclick="openStripDrum(${i})" title="Set width on scroll wheel">&#9776;</button>
-      ${linkHint || '<span></span>'}
       <button class="icon-btn" onclick="removeStrip(${i})" title="Remove">&#215;</button>
     </div>
   `;
