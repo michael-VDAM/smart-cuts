@@ -1,15 +1,32 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-28 (Session 5 — Waves 6→9 + debug pass)
+Last updated: 2026-05-30 (Session 6 — prices stripped, palette, nav↔home, Library photos, Wood Origins)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~5800 lines, single `index.html` + static assets (icons, manifest, sparky/)
-- **Theme**: dark mode default on desktop, light mode default on phone (manual toggle persists). Both modes now **wood-forward** (warm walnut/espresso dark, parchment/oak light) — no more cold charcoal + cyber-yellow.
-- **App icon**: square Sparky General (the bare character, no name/text). Used as the favicon, PWA icon, and home-page hero avatar.
-- **Sparky icons**: 19 character icons in `sparky/` (256px each) — placed on every home tile, plus inline next to Wood Library / Projects / My Shop / Academy / Plans headers.
-- **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen opens full-screen with the Sparky app icon.
+- **File**: ~8550 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
+- **15 tabs**: Home · Cutting Board · Furniture · Optimizer · Calculator · Picture Frame · My To-Do · My Plans · My Projects · My Shop · Lumber Prices · Hardware · Wood Library · Wood Origins · Academy. (Wood Movement removed in Session 6.)
+- **Nav = home**: both grouped as **Design / Workshop / Learn**, identical items in identical order.
+- **Theme**: dark default on desktop, light default on phone (toggle persists). Wood-forward both modes. Accents are WCAG-checked: light `#a04f00` (burnt orange, ≥4.5:1), dark `#e8a838` (brand yellow, AAA).
+- **App icon**: square Sparky General (bare character). Favicon + PWA icon + home hero avatar.
+- **Sparky icons**: 22 character icons in `sparky/` (256px) — one per home tile + inline tab heroes.
+- **Species photos**: `species/` holds tree·leaf·bark JPEGs for every domestic species (Wikimedia Commons, PD/CC, attributed in the lightbox). ~7 MB, committed (offline-safe).
+- **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen, full-screen with the Sparky icon.
+
+## Session 6 wrap (2026-05-30)
+
+| Commit | Ships |
+|--------|-------|
+| [3583d4b](https://github.com/michael-VDAM/smart-cuts/commit/3583d4b) | Strip-row polish (drop ⛓ link pill) — then reversed |
+| [123f3d2](https://github.com/michael-VDAM/smart-cuts/commit/123f3d2) | **Strip all calculated cost/$ from build tools** — prices only in Lumber Prices |
+| [eb1635a](https://github.com/michael-VDAM/smart-cuts/commit/eb1635a) | New Sparky art: Picture Frame, Optimizer, Lumber Prices |
+| [9e22465](https://github.com/michael-VDAM/smart-cuts/commit/9e22465) | Dark-mode card contrast + header Print/Reset overflow |
+| [7095edd](https://github.com/michael-VDAM/smart-cuts/commit/7095edd) | **Nav↔home aligned · brighter accents · "My" labels · Wood Movement removed** |
+| [84a379a](https://github.com/michael-VDAM/smart-cuts/commit/84a379a) | **Wood Library photos** — tree·leaf·bark for all domestic species |
+| [85c929d](https://github.com/michael-VDAM/smart-cuts/commit/85c929d) | **Wood Origins** learning module (Learn group) |
+
+Key moves: prices now live only in Lumber Prices (the cost formulas were wrong); accents made accessible + on-brand; Wood Movement calculator removed (too complex); personal sections are now "My …"; nav and home use the same Design/Workshop/Learn grouping; 58 verified species photos added via a 16-agent sourcing workflow; new Wood Origins reading module (forest→board, wild vs. plantation, plywood manufacturing, FSC).
 
 ## Session 5 wrap (2026-05-28) — 5 waves shipped, queue 9 → 5
 
@@ -23,7 +40,7 @@ Last updated: 2026-05-28 (Session 5 — Waves 6→9 + debug pass)
 
 **Now 11 tabs** (added Movement). **Pattern picker has 10 patterns** (added Chevron / Basketweave / Diagonal). **Projects can hold annotations** (arrows, circles, text labels — non-destructive SVG overlay). **Parametric stripes** with formula textboxes + drum-pickable variables + 5 parametric presets that seed `x` and rewire on the fly.
 
-## Features shipped (11 tabs)
+## Feature detail (core tabs — see **Live state** above for the full current 15-tab list; Wood Movement was later removed, and Hardware / Picture Frame / My To-Do / Wood Origins added)
 
 ### 1. Home
 - App logo (lightbulb PNG) + title
@@ -167,9 +184,18 @@ Twenty-six commits in one session. Major themes:
 
 ## Queue for next session (in priority order)
 
-1. **Academy lessons → quizzes curriculum** — Michael will write content, I scaffold. Beginner → Apprentice → Journeyman → Master tracks. Each lesson = text + diagrams → quiz at the end. Progressive unlock.
-2. **Plan share link** — generate short URL → opens a read-only plan on someone else's phone with "Import to my Bright Cuts" button. Small Supabase table keyed by short id.
-_(All previously-queued solo items are now shipped — only the two collab items remain: Academy lessons (needs your content) and Plan share link (needs your Supabase setup).)_
+1. **Photos for figured + exotic species (~35 more)** — same 16-agent Wikimedia workflow, another wave. Domestic is done; figured (curly/birdseye/spalted/ambrosia) and exotics (mahogany, sapele, padauk, purpleheart, wenge, rosewoods…) still have no photos. Also: Sapele still needs leaf/bark (none found round 1). SOLO — I can run this anytime.
+2. **In-app AI helper ("Ask Sparky")** — woodworking-tuned chat that can see the user's plans/projects, via a free LLM (Gemini Flash / Groq) behind a **Supabase Edge Function** (holds the API key — can't ship a key in the public repo). NEEDS Michael: edge-function deploy + key on his private Supabase org (MCP can't reach it; hand him steps). The remaining "big idea."
+3. **Academy lessons → quizzes curriculum** — Michael writes content, I scaffold. Beginner → Master tracks; each lesson = text + diagrams → quiz, progressive unlock. NEEDS Michael's content.
+4. **Plan share link** — short URL → read-only plan on someone else's phone + "Import to my Bright Cuts". Small Supabase table keyed by short id. NEEDS Michael's Supabase setup.
+
+### Not yet verified (from Session 6)
+- Dark theme not screenshot-confirmed for the new Wood Library photo strips + Wood Origins (they use theme vars, so expected fine; verified in light only).
+- Print of the Wood Origins article not rendered (Library photo strips ARE print-suppressed).
+
+### Smaller deferred ideas (still open, lower priority)
+- Projects sale-price/Revenue: kept as user data; offered to remove if Michael wants it gone too.
+- Photo-to-pattern; cabinet drawer faces; multi-cabinet layouts; true hexagonal 3D-cube SVG; more quiz categories; lumber cost calculator UI (math exists). See "Deferred features" below.
 
 ## Voice + haptic features explicitly OFF the table (per Michael)
 - No "Hey Sparky" voice commands. No Web Speech API. He didn't want them.
