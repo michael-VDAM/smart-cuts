@@ -458,6 +458,11 @@
     .todo-add { display: flex; gap: 8px; margin-bottom: 16px; }
     .todo-input { flex: 1; background: var(--panel3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 11px 13px; font-size: 14px; min-width: 0; }
     .todo-input:focus { outline: none; border-color: var(--accent); }
+    .todo-section-input { flex: none; width: 148px; background: var(--panel3); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 11px 11px; font-size: 13px; min-width: 0; }
+    .todo-section-input:focus { outline: none; border-color: var(--accent); }
+    .todo-group + .todo-group { margin-top: 4px; }
+    .todo-section-title { display: flex; align-items: baseline; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin: 16px 2px 8px; }
+    .todo-section-title .n { color: var(--muted); font-weight: 600; letter-spacing: 0; text-transform: none; }
     .todo-add-btn { background: var(--accent); border: none; border-radius: 9px; color: #1a1206; font-weight: 700; font-size: 14px; padding: 0 18px; cursor: pointer; white-space: nowrap; }
     .todo-add-btn:active { transform: translateY(1px); }
     .todo-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
@@ -477,6 +482,8 @@
     .todo-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 40px 20px; border: 1px dashed var(--border); border-radius: 12px; line-height: 1.5; }
     @media (max-width: 820px) {
       .todo-col { padding: 18px 14px 40px; }
+      .todo-add { flex-wrap: wrap; }
+      .todo-section-input { width: 100%; }
     }
 
     /* LUMBER PRICES TAB */
@@ -1736,9 +1743,11 @@
       <p>Your build queue — jot down ideas and the next projects on deck. Check them off as you finish. Syncs across your devices when you're signed in.</p>
     </div>
     <div class="todo-add">
-      <input id="todo-input" class="todo-input" type="text" placeholder='Add a build… e.g. "Make a frame for Mom"' maxlength="200" onkeydown="if(event.key==='Enter')addTodo()">
+      <input id="todo-section" class="todo-section-input" type="text" list="todo-sections" placeholder="Section" maxlength="40" aria-label="Section (optional)">
+      <input id="todo-input" class="todo-input" type="text" placeholder='Add a build… e.g. "Frame for Mom"' maxlength="200" onkeydown="if(event.key==='Enter')addTodo()">
       <button class="todo-add-btn" onclick="addTodo()">Add</button>
     </div>
+    <datalist id="todo-sections"></datalist>
     <div id="todo-body"></div>
   </div>
 </div>
@@ -5695,46 +5704,84 @@ function saveTodos() {
   try { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); } catch {}
   if (typeof cloudPush === 'function') cloudPush('todos');
 }
+// Optional grouping. Each todo carries an optional `section`; blank → "General".
+// These also seed the section-suggestion datalist (users can still type their own).
+const TODO_SECTIONS = ['Cutting Board', 'Furniture', 'Picture Frame', 'Table', 'Shelf / Cabinet', 'Box / Drawer', 'Turning', 'Outdoor', 'Repair', 'Gift'];
+function todoSection(t) { return (t && t.section && t.section.trim()) ? t.section.trim() : 'General'; }
 function addTodo() {
   const inp = document.getElementById('todo-input');
   if (!inp) return;
   const text = inp.value.trim();
   if (!text) return;
-  todos.unshift({ id: 't' + Date.now() + Math.random().toString(36).slice(2, 7), text, done: false, created: Date.now() });
-  inp.value = '';
+  const secEl = document.getElementById('todo-section');
+  const section = secEl ? secEl.value.trim() : '';
+  todos.unshift({ id: 't' + Date.now() + Math.random().toString(36).slice(2, 7), text, section, done: false, created: Date.now() });
+  inp.value = '';                      // keep the section so consecutive adds stay in it
   saveTodos();
   renderTodos();
   inp.focus();
 }
 function toggleTodo(id) { const t = todos.find(t => t.id === id); if (!t) return; t.done = !t.done; saveTodos(); renderTodos(); }
 function deleteTodo(id) { todos = todos.filter(t => t.id !== id); saveTodos(); renderTodos(); }
+// Move within the item's own section (swaps with the adjacent same-section item).
 function moveTodo(id, dir) {
-  const i = todos.findIndex(t => t.id === id); if (i < 0) return;
-  const j = i + dir; if (j < 0 || j >= todos.length) return;
-  const [item] = todos.splice(i, 1); todos.splice(j, 0, item); saveTodos(); renderTodos();
+  const idx = todos.findIndex(t => t.id === id); if (idx < 0) return;
+  const sec = todoSection(todos[idx]);
+  const sameIdx = todos.reduce((a, t, i) => { if (todoSection(t) === sec) a.push(i); return a; }, []);
+  const target = sameIdx.indexOf(idx) + dir;
+  if (target < 0 || target >= sameIdx.length) return;
+  const j = sameIdx[target];
+  [todos[idx], todos[j]] = [todos[j], todos[idx]];
+  saveTodos(); renderTodos();
 }
 function clearDoneTodos() { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); }
 function renderTodos() {
+  // Refresh the section suggestions (base list + any custom sections in use).
+  const dl = document.getElementById('todo-sections');
+  if (dl) {
+    const used = [...new Set(todos.map(todoSection))].filter(s => s !== 'General' && !TODO_SECTIONS.includes(s));
+    dl.innerHTML = [...TODO_SECTIONS, ...used].map(s => `<option value="${escapeHtml(s)}"></option>`).join('');
+  }
   const el = document.getElementById('todo-body');
   if (!el) return;
   if (!todos.length) {
-    el.innerHTML = `<div class="todo-empty">Nothing queued yet. Add your next build above — like “Make a frame for Mom” or “Coffee table”.</div>`;
+    el.innerHTML = `<div class="todo-empty">Nothing queued yet. Add your next build above — like “Frame for Mom” or “Coffee table”. Use the Section box to group them (Cutting Board, Furniture…).</div>`;
     return;
   }
   const doneCount = todos.filter(t => t.done).length;
   const activeCount = todos.length - doneCount;
   const meta = `<div class="todo-meta"><span>${activeCount} to do${doneCount ? ` · ${doneCount} done` : ''}</span>${doneCount ? `<button class="todo-clear" onclick="clearDoneTodos()">Clear done</button>` : ''}</div>`;
-  const items = todos.map((t, i) => `
+
+  // Order: known sections first (in TODO_SECTIONS order), then custom ones A→Z, then General last.
+  const present = [...new Set(todos.map(todoSection))];
+  const ordered = [
+    ...TODO_SECTIONS.filter(s => present.includes(s)),
+    ...present.filter(s => s !== 'General' && !TODO_SECTIONS.includes(s)).sort((a, b) => a.localeCompare(b)),
+    ...(present.includes('General') ? ['General'] : []),
+  ];
+  const showHeaders = !(ordered.length === 1 && ordered[0] === 'General');  // no header clutter if sections unused
+
+  const itemHtml = (t, pos, len) => `
     <div class="todo-item ${t.done ? 'done' : ''}">
       <button class="todo-check" onclick="toggleTodo('${t.id}')" aria-label="Toggle done">✓</button>
       <span class="todo-text">${escapeHtml(t.text)}</span>
       <span class="todo-actions">
-        <button class="todo-act" onclick="moveTodo('${t.id}',-1)" ${i === 0 ? 'disabled' : ''} aria-label="Move up">↑</button>
-        <button class="todo-act" onclick="moveTodo('${t.id}',1)" ${i === todos.length - 1 ? 'disabled' : ''} aria-label="Move down">↓</button>
+        <button class="todo-act" onclick="moveTodo('${t.id}',-1)" ${pos === 0 ? 'disabled' : ''} aria-label="Move up">↑</button>
+        <button class="todo-act" onclick="moveTodo('${t.id}',1)" ${pos === len - 1 ? 'disabled' : ''} aria-label="Move down">↓</button>
         <button class="todo-act del" onclick="deleteTodo('${t.id}')" aria-label="Delete">✕</button>
       </span>
-    </div>`).join('');
-  el.innerHTML = meta + `<div class="todo-list">${items}</div>`;
+    </div>`;
+
+  const groups = ordered.map(sec => {
+    const items = todos.filter(t => todoSection(t) === sec);
+    const active = items.filter(t => !t.done).length;
+    const done = items.length - active;
+    const rows = items.map((t, i) => itemHtml(t, i, items.length)).join('');
+    const header = showHeaders ? `<div class="todo-section-title">${escapeHtml(sec)} <span class="n">${active} to do${done ? ` · ${done} done` : ''}</span></div>` : '';
+    return `<div class="todo-group">${header}<div class="todo-list">${rows}</div></div>`;
+  }).join('');
+
+  el.innerHTML = meta + groups;
 }
 
 // ═════════════════════════════ LUMBER PRICES ══════════════════════════════
