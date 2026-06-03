@@ -981,6 +981,9 @@
     .origins-card li { font-size: 13px; line-height: 1.55; margin-bottom: 6px; color: var(--text); }
     .origins-card li:last-child { margin-bottom: 0; }
     .origins-spotlight { border-left: 3px solid var(--accent); background: linear-gradient(135deg, var(--accent-soft), var(--panel2)); }
+    .origins-group { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: var(--muted); margin: 26px 2px 12px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+    .origins-group:first-of-type { margin-top: 8px; }
+    .origins-card li strong, .origins-card p strong { color: var(--text); }
     .origins-sources { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-top: 8px; padding: 0 4px; }
     @media (max-width: 820px) { .origins-col { padding: 18px 14px 40px; } .origins-hero h2 { font-size: 22px; } }
     .library-footer { margin-top: 28px; padding: 14px 18px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-size: 12px; line-height: 1.5; }
@@ -1815,14 +1818,53 @@
   <div class="output-col origins-col">
     <div class="origins-hero">
       <h2><span style="margin-right:9px">🌎</span>Wood Origins</h2>
-      <p>Where your lumber actually comes from — forest to board, wild vs. farmed, domestic vs. imported, and how sheet goods like plywood are really made.</p>
+      <p>How lumber is really made and where it comes from — tree to board, how it's cut, dried, sized and graded, where the world's woods grow, and how plywood, veneer, and engineered timber are manufactured.</p>
     </div>
+
+    <div class="origins-group">From tree to board</div>
 
     <div class="origins-card">
       <h3>🌲 From forest to board</h3>
       <p>Most hardwood you buy isn't farmed — it's cut from <strong>natural, managed forests</strong>. Good operations harvest on roughly a <strong>10-year cycle</strong>, taking select mature trees and letting the forest regrow on its own instead of clear-cutting and replanting.</p>
-      <p>The journey: a standing tree is felled, sawn into boards at a <strong>sawmill</strong>, <strong>kiln- or air-dried</strong> down to furniture moisture (about 6–8%), graded for quality, then shipped to the lumberyard. The most prized US hardwood comes from the <strong>Appalachians</strong> — a cold climate and short growing season give tight, even grain.</p>
+      <p>The journey: a standing tree is felled, sawn into boards at a <strong>sawmill</strong>, dried, graded for quality, then sold through a wholesaler to your lumberyard. The most prized US hardwood comes from the <strong>Appalachians</strong> — a cold climate and short growing season give tight, even grain.</p>
     </div>
+
+    <div class="origins-card">
+      <h3>🪚 How a log becomes boards</h3>
+      <p>How the mill slices the log decides how the board behaves — same tree, three very different results:</p>
+      <ul>
+        <li><strong>Plainsawn (flatsawn)</strong> — parallel slices straight through. Cheapest, widest boards, the classic "cathedral" grain — but it moves the most with the seasons.</li>
+        <li><strong>Quartersawn</strong> — the log is quartered and cut toward the center. Straight striped grain (and the shimmering ray fleck in oak), more stable, but more waste → pricier.</li>
+        <li><strong>Riftsawn</strong> — cut at an angle between the two. Dead-straight, uniform grain with no fleck; the most waste of all, so the most expensive.</li>
+      </ul>
+    </div>
+
+    <div class="origins-card">
+      <h3>💧 Drying it out</h3>
+      <p>A fresh-cut "green" log can be <strong>30–80% water</strong> by weight. It has to dry before you build, or the piece will shrink, cup, and crack as it gives up moisture in your shop — that's the whole reason wood moves with the seasons.</p>
+      <ul>
+        <li><strong>Air-dried</strong> — stacked with spacers ("stickered") under cover, roughly a year per inch of thickness. Cheap and gentle, but only reaches ~12–15%.</li>
+        <li><strong>Kiln-dried</strong> — weeks in a heated, humidity-controlled kiln down to <strong>6–8%</strong> for interior furniture. Faster, kills any bugs, and hits the low moisture indoor work needs.</li>
+      </ul>
+    </div>
+
+    <div class="origins-card">
+      <h3>📏 How lumber is sized &amp; sold</h3>
+      <p>Hardwood is sold rough by the <strong>"quarter" system</strong>: <strong>4/4</strong> ("four-quarter") ≈ 1″ thick, 5/4 ≈ 1¼″, 6/4 ≈ 1½″, 8/4 ≈ 2″. Planing it smooth eats about ¼″, so 4/4 rough finishes to about <strong>¾″</strong>. You'll see <strong>S2S</strong> (faces planed, edges left rough) and <strong>S4S</strong> (all four sides smooth).</p>
+      <p>It's priced by the <strong>board foot</strong> — 144 cubic inches, i.e. a 12″ × 12″ × 1″ slab — and always figured on the <em>rough</em> thickness, since surfacing is a service, not a discount.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🏷️ Reading the grade</h3>
+      <p>Hardwood grades (set by the <strong>NHLA</strong>) really measure <strong>how much clear, defect-free wood</strong> you can cut from a board:</p>
+      <ul>
+        <li><strong>FAS</strong> (Firsts &amp; Seconds) — top grade: large, mostly-clear boards (≈83%+ clear). For long, wide, show parts.</li>
+        <li><strong>Select / F1F</strong> — one clear face, the back a notch lower. Great when only one side shows.</li>
+        <li><strong>#1 Common</strong> ("cabinet grade") — ~66%+ clear in smaller cuttings. Often the <em>smart</em> buy for furniture you'll cut into shorter parts — much cheaper, and you'd cut around the knots anyway.</li>
+      </ul>
+    </div>
+
+    <div class="origins-group">Where it comes from</div>
 
     <div class="origins-card">
       <h3>🌳 Wild, managed, or plantation?</h3>
@@ -1838,24 +1880,69 @@
     </div>
 
     <div class="origins-card">
+      <h3>🗺️ Who grows what</h3>
+      <p>Roughly where the world's woods come from:</p>
+      <ul>
+        <li><strong>US hardwoods</strong> — the eastern hardwood forest (Appalachians, the Northern states, the Ozarks): oak, maple, cherry, walnut, ash, hickory, poplar.</li>
+        <li><strong>US softwoods</strong> — the Pacific Northwest (Douglas-fir, hemlock, cedar) and the Southeast (Southern yellow pine): most framing lumber and plywood.</li>
+        <li><strong>Africa</strong> — the mahoganies (sapele, khaya), padauk, wenge, bubinga, ebony.</li>
+        <li><strong>Central &amp; South America</strong> — purpleheart, ipe, cocobolo, the rosewoods, Honduran mahogany.</li>
+        <li><strong>Southeast Asia</strong> — teak, Indian rosewood, and most imported hardwood-plywood faces.</li>
+      </ul>
+      <p>The fancier the exotic, the farther it traveled — and the more its paperwork matters.</p>
+    </div>
+
+    <div class="origins-card">
       <h3>🌍 Domestic vs. imported</h3>
       <p><strong>Domestic</strong> woods are grown and milled in North America — oak, maple, walnut, cherry, hickory, ash. <strong>Exotics</strong> are tropical species shipped in from Africa, South America, and Southeast Asia — mahogany, sapele, padauk, purpleheart, wenge.</p>
-      <p>US law (the <strong>Lacey Act</strong>) bans illegally-harvested wood, and <strong>CITES</strong> restricts trade in threatened species like some rosewoods. A reputable dealer can tell you where their exotic stock came from — worth asking.</p>
+      <p>US law (the <strong>Lacey Act</strong>) bans illegally-harvested wood, and <strong>CITES</strong> restricts trade in threatened species like some rosewoods and ebonies. A reputable dealer can tell you where their exotic stock came from — worth asking.</p>
     </div>
+
+    <div class="origins-group">Manufactured wood</div>
 
     <div class="origins-card">
       <h3>🪵 Sheet goods: plywood, MDF &amp; OSB</h3>
-      <p><strong>Plywood</strong> isn't sawn — thin veneers (about 1/8") are <strong>peeled off a spinning log</strong> on a giant lathe, then glued in an odd number of layers with the grain turned <strong>90° each layer</strong>. That cross-lamination is what makes it strong and keeps it from warping. Construction plywood is softwood (fir, pine); "hardwood" plywood is usually a cheaper core faced with a thin hardwood veneer — and those faces are increasingly imported.</p>
-      <p><strong>MDF</strong> is wood fibers + glue pressed flat (smooth, no grain, heavy). <strong>OSB</strong> is big wood strands + glue — the flake-looking sheathing. <strong>Veneer</strong> is a thin slice of nice wood glued over a cheaper substrate, which is how a little fancy lumber covers a lot of surface.</p>
+      <p><strong>Plywood</strong> isn't sawn — thin veneers are <strong>peeled off a spinning log</strong> on a giant lathe, then glued in an odd number of layers with the grain turned <strong>90° each layer</strong>. That cross-lamination is what makes it strong and keeps it from warping. Construction plywood is softwood (fir, pine); "hardwood" plywood is usually a cheaper core faced with a thin hardwood veneer — and those faces are increasingly imported.</p>
+      <p><strong>MDF</strong> is wood fibers + glue pressed flat (smooth, no grain, heavy). <strong>OSB</strong> is big wood strands + glue — the flake-looking sheathing. <strong>Particleboard</strong> is sawdust + glue (cheap cabinet boxes, often under a laminate).</p>
     </div>
 
     <div class="origins-card">
-      <h3>♻️ Buying responsibly</h3>
-      <p>Look for <strong>FSC</strong> or <strong>PEFC</strong> certification — independent groups that verify wood came from responsibly-managed forests. The good news: US hardwood forests are <strong>growing</strong>, with more wood added each year than is harvested. Plain takeaway — choose certified when you can, buy domestic, and get exotics from sellers who can name their source.</p>
+      <h3>🪞 Veneer, up close</h3>
+      <p>Veneer is a paper-thin slice of real wood (often ~1/40″) glued to a cheaper core — it's how one gorgeous log can face hundreds of cabinet doors. How it's sliced changes the look: <strong>rotary</strong> (peeled like unrolling paper — cheap, wide, wild grain), <strong>plain/flat-sliced</strong> (the cathedral look), and <strong>quarter/rift-sliced</strong> (straight, ribbon-like).</p>
+      <p>Real wood veneer is the genuine article and can be lightly refinished. <strong>"Wood-look" laminate or melamine is a printed photo of wood</strong> on a board — not the same thing.</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🏗️ Engineered &amp; mass timber</h3>
+      <p>Factories also glue wood into structural shapes stronger and straighter than any single board:</p>
+      <ul>
+        <li><strong>Glulam</strong> — boards glued face-to-face into big beams and arches (grain all one direction).</li>
+        <li><strong>CLT</strong> (cross-laminated timber) — thick panels of layers turned 90° each, like giant plywood — now used for floors and walls in tall timber buildings.</li>
+        <li><strong>LVL &amp; I-joists</strong> — peeled veneers, or an OSB web with lumber flanges, for long, dead-straight floor framing.</li>
+      </ul>
+      <p>These let modern buildings go tall in wood instead of steel and concrete — lighter, faster, lower-carbon.</p>
+    </div>
+
+    <div class="origins-group">Doing right by the forest</div>
+
+    <div class="origins-card">
+      <h3>♻️ Reclaimed &amp; urban wood</h3>
+      <p>Not all lumber comes from a working forest:</p>
+      <ul>
+        <li><strong>Reclaimed</strong> — beams and boards salvaged from old barns and factories; prized for patina and tight old-growth grain.</li>
+        <li><strong>Urban / city salvage</strong> — yard and street trees milled locally instead of chipped — often beautiful walnut, maple, and oak that never enters the commercial supply.</li>
+        <li><strong>Sinker logs</strong> — old-growth logs that sank during river drives a century ago, recovered from lake and river bottoms.</li>
+      </ul>
+      <p>Lower impact and full of character — just expect surprises (hidden nails, mixed moisture, old checks).</p>
+    </div>
+
+    <div class="origins-card">
+      <h3>🌱 Buying responsibly</h3>
+      <p>Look for <strong>FSC</strong> or <strong>PEFC</strong> certification — independent groups that verify wood came from responsibly-managed forests, tracked through a "chain of custody" from forest to seller. The good news: US hardwood forests are <strong>growing</strong>, with more wood added each year than is harvested. Plain takeaway — choose certified when you can, buy domestic, and get exotics from sellers who can name their source.</p>
     </div>
 
     <div class="origins-sources">
-      Sources: USDA Forest Service · Forest Stewardship Council (FSC) · USDA Forest Products Lab <em>Wood Handbook</em> · APA – The Engineered Wood Association.
+      Sources: USDA Forest Service · National Hardwood Lumber Association (NHLA) · American Hardwood Export Council · Forest Stewardship Council (FSC) · USDA Forest Products Lab <em>Wood Handbook</em> · APA – The Engineered Wood Association.
     </div>
   </div>
 </div>
