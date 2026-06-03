@@ -8155,6 +8155,10 @@ const CLOUD_COLLECTIONS = {
     set: v => { if (Array.isArray(v)) { todos = v; try { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); } catch {} renderTodos(); } },
   },
 };
+// Array collections merge by this unique key (union, never drop). Anything NOT
+// listed here is a key→value map (lumberPrices / hardware / shop_photos) and
+// merges by object key. Used by pullAll() to merge instead of overwrite.
+const CLOUD_ARRAY_KEYS = { projects: 'id', plans: 'id', todos: 'id', supplies: 'id', customSpecies: 'name' };
 
 function cloudInit() {
   const btn = document.getElementById('cloud-btn');
@@ -8221,21 +8225,50 @@ async function cloudPush(collection) {
   else { delete cloudDirty[collection]; }
 }
 
-// Pull all collections from the cloud and apply to local state.
+// Merge every collection (cloud + local) and apply locally, then seed the cloud
+// with anything it didn't already have. UNION merge — it never drops an item, so
+// signing in can't wipe a device's projects, and existing local data uploads on
+// first sign-in. Cloud wins the rare same-key conflict, which keeps every device
+// converging without push loops. (Limitation: deletes don't propagate across
+// devices — a deleted item can be resurrected from another device's copy.)
 async function pullAll() {
   if (!CLOUD_ENABLED || !sb || !cloudUser) return;
-  // First flush any local changes that failed to push (offline edits win over stale cloud).
+  // First flush any local changes that failed to push earlier.
   for (const c of Object.keys(cloudDirty)) await cloudPush(c);
   const { data, error } = await sb.from('smartcuts_state').select('collection,data').eq('user_id', cloudUser.id);
   if (error) { console.warn('pullAll failed', error.message); return; }
+  const cloudByColl = {};
+  for (const r of (data || [])) cloudByColl[r.collection] = r.data;
+  const toPush = [];
   cloudPulling = true;
   try {
-    for (const r of (data || [])) {
-      if (cloudDirty[r.collection]) continue;        // local is newer/unsynced — keep it
-      const coll = CLOUD_COLLECTIONS[r.collection];
-      if (coll) coll.set(r.data);
+    for (const [name, coll] of Object.entries(CLOUD_COLLECTIONS)) {
+      if (cloudDirty[name]) continue;                // local is newer/unsynced — keep it
+      const key = CLOUD_ARRAY_KEYS[name];
+      const cloud = cloudByColl[name];
+      if (key) {
+        // Array collection: union by `key`, cloud wins on collision.
+        const localArr = Array.isArray(coll.get()) ? coll.get() : [];
+        const cloudArr = Array.isArray(cloud) ? cloud : [];
+        const m = new Map();
+        for (const it of localArr) if (it && it[key] != null) m.set(it[key], it);
+        for (const it of cloudArr) if (it && it[key] != null) m.set(it[key], it);
+        const cloudKeys = new Set(cloudArr.map(it => it && it[key]));
+        const localHasExtra = localArr.some(it => it && !cloudKeys.has(it[key]));
+        coll.set([...m.values()]);
+        if (localHasExtra) toPush.push(name);
+      } else {
+        // Map collection: union by object key, cloud wins on collision.
+        const localObj = (coll.get() && typeof coll.get() === 'object') ? coll.get() : {};
+        const cloudObj = (cloud && typeof cloud === 'object') ? cloud : {};
+        const localHasExtra = Object.keys(localObj).some(k => !(k in cloudObj));
+        coll.set({ ...localObj, ...cloudObj });
+        if (localHasExtra) toPush.push(name);
+      }
     }
   } finally { cloudPulling = false; }
+  // Seed the cloud with collections that had local-only data.
+  for (const name of toPush) await cloudPush(name);
 }
 
 function subscribeCloud() {
