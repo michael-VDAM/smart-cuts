@@ -8005,7 +8005,8 @@ const SPECIES_PHOTOS = {
     bark: { src: "species/osage-orange-bark.jpg", by: "MONGO", lic: "Public domain", page: "https://commons.wikimedia.org/wiki/File:Osage_Orange_(Maclura_pomifera)_bark_detail.jpg" },
   },
 };
-const PHOTO_ALIASES = { 'Qtr White Oak': 'White Oak', 'Rift White Oak': 'White Oak', 'Knotty Alder': 'Alder' };
+const PHOTO_ALIASES = { 'Qtr White Oak': 'White Oak', 'Rift White Oak': 'White Oak', 'Knotty Alder': 'Alder',
+  'Curly Maple': 'Maple', 'Birdseye Maple': 'Maple', 'Spalted Maple': 'Soft Maple', 'Ambrosia Maple': 'Soft Maple', 'Curly Cherry': 'Cherry' };
 function speciesPhotos(name) { return SPECIES_PHOTOS[name] || SPECIES_PHOTOS[PHOTO_ALIASES[name]] || null; }
 function photoStripHtml(name) {
   const p = speciesPhotos(name);
