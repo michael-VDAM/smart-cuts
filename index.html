@@ -9247,24 +9247,44 @@ init();
 (() => {
   const hdr = document.querySelector('header');
   if (!hdr) return;
-  let lastY = 0;
-  const onScroll = () => {
-    const y = Math.max(0, (document.scrollingElement || document.documentElement).scrollTop);
+  // Read scroll position from whichever element actually scrolled — Design tabs
+  // (board / furniture / optimizer / calc / frame) scroll inside .input-body /
+  // .output-col, not the page, so document scrollTop alone always reads 0 there.
+  const docY = () => Math.max(0, (document.scrollingElement || document.documentElement).scrollTop);
+  const lastYs = new WeakMap();        // per-scroller previous position
+  const onScroll = (e) => {
+    const el = (e && e.target && e.target.nodeType === 1) ? e.target : document;
+    const y = el === document ? docY() : Math.max(0, el.scrollTop);
+    const lastY = lastYs.get(el) || 0;
     if (window.innerWidth > 820 || y < 60) hdr.classList.remove('nav-hidden');
     else if (y > lastY + 4) hdr.classList.add('nav-hidden');
     else if (y < lastY - 4) hdr.classList.remove('nav-hidden');
-    lastY = y;
+    lastYs.set(el, y);
   };
   document.addEventListener('scroll', onScroll, { capture: true, passive: true });
   window.addEventListener('scroll', onScroll, { passive: true });
   // iOS fallback: drive the header straight from the touch gesture, so it works
   // even if scroll events are swallowed by momentum scrolling or inner scrollers.
-  let touchY0 = null;
-  document.addEventListener('touchstart', e => { touchY0 = e.touches[0].clientY; }, { passive: true });
+  // Track the nearest scrollable ancestor of the touch so inner panels count.
+  const findScroller = (el) => {
+    while (el && el.nodeType === 1 && el !== document.body) {
+      if (el.scrollHeight > el.clientHeight + 10) {
+        const ov = getComputedStyle(el).overflowY;
+        if (ov === 'auto' || ov === 'scroll') return el;
+      }
+      el = el.parentElement;
+    }
+    return null;
+  };
+  let touchY0 = null, touchScroller = null;
+  document.addEventListener('touchstart', e => {
+    touchY0 = e.touches[0].clientY;
+    touchScroller = findScroller(e.target);
+  }, { passive: true });
   document.addEventListener('touchmove', e => {
     if (touchY0 == null || window.innerWidth > 820) return;
     const dy = e.touches[0].clientY - touchY0;
-    const y = Math.max(0, (document.scrollingElement || document.documentElement).scrollTop);
+    const y = touchScroller ? Math.max(0, touchScroller.scrollTop) : docY();
     if (y < 60 || dy > 10) hdr.classList.remove('nav-hidden');
     else if (dy < -10) hdr.classList.add('nav-hidden');
   }, { passive: true });
