@@ -1717,7 +1717,7 @@
       </div>
       <div class="section">
         <div class="section-label">Settings</div>
-        <div class="field"><label>Kerf</label><input type="number" id="opt-kerf" value="0.125" step="0.0625" min="0.0625"></div>
+        <div class="field"><label>Kerf</label><input type="number" id="opt-kerf" value="0.125" step="0.0625" min="0.0625" onchange="scheduleRunOptimizer()"></div>
       </div>
     </div>
     <button class="plan-btn" onclick="runOptimizer()">&#9654; Optimize Cuts</button>
@@ -5312,20 +5312,21 @@ let optStocks = [], optPieces = [], optNextId = 100;
 const OPT_COLORS = ['#e8733a','#4a9eff','#52c47e','#c47edb','#e8c83a','#ff6b8a','#3ae8d4','#c47e52','#88cc44','#cc44aa','#44aacc','#ccaa44'];
 function optAddStock(vals={}) {
   optStocks.push({ id: optNextId++, name: vals.name || 'Stock', length: vals.length || 48, width: vals.width || 6, qty: vals.qty || 1, mat: vals.mat || 'any' });
-  optRenderStock();
+  optRenderStock(); scheduleRunOptimizer();
 }
 function optAddPiece(vals={}) {
   optPieces.push({ id: optNextId++, name: vals.name || 'Piece', length: vals.length || 12, width: vals.width || 8, qty: vals.qty || 1, color: OPT_COLORS[optPieces.length % OPT_COLORS.length], mat: vals.mat || 'any' });
-  optRenderPieces();
+  optRenderPieces(); scheduleRunOptimizer();
 }
-function optRemoveStock(id) { optStocks = optStocks.filter(s => s.id !== id); optRenderStock(); }
-function optRemovePiece(id) { optPieces = optPieces.filter(p => p.id !== id); optRenderPieces(); }
+function optRemoveStock(id) { optStocks = optStocks.filter(s => s.id !== id); optRenderStock(); scheduleRunOptimizer(); }
+function optRemovePiece(id) { optPieces = optPieces.filter(p => p.id !== id); optRenderPieces(); scheduleRunOptimizer(); }
 function optInput(list, id, field, val) {
   const item = list.find(x => x.id === id);
   if (!item) return;
   if (field === 'name') item[field] = val;
   else if (field === 'qty') item[field] = Math.max(1, Math.floor(parseFloat(val) || 1));
   else item[field] = Math.max(0, parseFloat(val) || 0);
+  if (field !== 'name') scheduleRunOptimizer();
 }
 function optCard(item, i, type) {
   const remove = type === 'stock' ? 'optRemoveStock' : 'optRemovePiece';
@@ -5384,8 +5385,14 @@ function optOptimize() {
   });
   return { boards: boards.filter(b => b.placements.length > 0), unplaced };
 }
-function runOptimizer() {
-  if (!optStocks.length || !optPieces.length) { alert('Add at least one stock and one piece.'); return; }
+// Live re-optimize (app convention: no "run" button needed — but ▶ stays for explicit runs).
+let _optTimer = null;
+function scheduleRunOptimizer() {
+  clearTimeout(_optTimer);
+  _optTimer = setTimeout(() => runOptimizer(true), 180);
+}
+function runOptimizer(silent) {
+  if (!optStocks.length || !optPieces.length) { if (!silent) alert('Add at least one stock and one piece.'); return; }
   const { boards, unplaced } = optOptimize();
   const kerf = parseFloat(document.getElementById('opt-kerf').value) || 0.125;
   const totalPieceArea = optPieces.reduce((s, p) => s + p.length * p.width * p.qty, 0);
@@ -5398,7 +5405,12 @@ function runOptimizer() {
     <div class="scard"><div class="val" style="color:${unplaced.length ? 'var(--danger)' : 'var(--success)'}">${unplaced.length}</div><div class="lbl">Unplaced</div></div>
     <div class="scard"><div class="val">${(totalBoardArea/144).toFixed(1)}</div><div class="lbl">Sq Ft Used</div></div>
   </div>`;
-  if (unplaced.length) html += `<div class="warn-banner danger"><span class="icon">&#9888;</span>Could not fit ${unplaced.length} piece(s) — add more stock or check material matching.</div>`;
+  if (unplaced.length) {
+    const names = {};
+    unplaced.forEach(u => { names[u.name] = (names[u.name] || 0) + 1; });
+    const list = Object.entries(names).map(([n, c]) => c > 1 ? `${n} ×${c}` : n).join(', ');
+    html += `<div class="warn-banner danger"><span class="icon">&#9888;</span>Could not fit: <strong>${escapeHtml(list)}</strong> — add more stock, use wider boards, or check material matching.</div>`;
+  }
   const SW = 540;
   boards.forEach(board => {
     const bw = board.stockRef.length, bh = board.stockRef.width;
@@ -5410,6 +5422,9 @@ function runOptimizer() {
       svg += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="${pl.color}" opacity="0.88"/>`;
       const fs = Math.min(pw / (pl.pieceName.length * 0.6 + 4), ph * 0.28, 12);
       if (fs > 5) svg += `<text x="${px+pw/2}" y="${py+ph/2}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.78)" font-size="${fs}" font-family="system-ui" font-weight="600">${pl.pieceName}</text>`;
+      const dimLabel = `${dim(pl.w)} × ${dim(pl.h)}`;
+      const dfs = Math.min(pw / (dimLabel.length * 0.55 + 4), ph * 0.2, 9);
+      if (dfs > 4.5 && ph * 0.28 + dfs < ph * 0.9) svg += `<text x="${px+pw/2}" y="${py+ph/2 + Math.max(fs, 6) * 0.95}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.55)" font-size="${dfs}" font-family="system-ui">${dimLabel}</text>`;
     });
     const allX = new Set(), allY = new Set();
     board.placements.forEach(pl => { allX.add(pl.x); allX.add(pl.x + pl.w + kerf); allY.add(pl.y); allY.add(pl.y + pl.h + kerf); });
@@ -8743,10 +8758,11 @@ function init() {
     el.addEventListener('input', handler);
     el.addEventListener('change', handler);
   });
-  optAddStock({ name: '3/4" Walnut', length: 48, width: 7.5, qty: 1, mat: 'hardwood' });
-  optAddStock({ name: '3/4" Maple', length: 36, width: 5.5, qty: 2, mat: 'hardwood' });
-  optAddPiece({ name: 'Large Board', length: 18, width: 12, qty: 1, mat: 'hardwood' });
-  optAddPiece({ name: 'Small Board', length: 12, width: 8, qty: 3, mat: 'hardwood' });
+  // Demo data is chosen so the default ▶ Optimize run actually places everything.
+  optAddStock({ name: '3/4" Walnut', length: 48, width: 12, qty: 1, mat: 'hardwood' });
+  optAddStock({ name: '3/4" Maple', length: 36, width: 6, qty: 2, mat: 'hardwood' });
+  optAddPiece({ name: 'Shelf', length: 20, width: 11, qty: 2, mat: 'hardwood' });
+  optAddPiece({ name: 'Rail', length: 30, width: 4, qty: 2, mat: 'hardwood' });
   renderWoodLibrary();
   renderAcademy();
   loadShopPhotos();
