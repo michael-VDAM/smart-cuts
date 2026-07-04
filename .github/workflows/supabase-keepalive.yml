@@ -1,0 +1,23 @@
+# Pings the Bright Cuts Supabase project twice a week so the free-tier
+# project never hits the ~7-day inactivity pause (which killed cloud sync
+# on 2026-07-04 — DNS went NXDOMAIN and sign-in "failed" on every device).
+# The anon key is the same public one shipped in index.html.
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: '17 9 * * 1,4'   # Mon + Thu 9:17 UTC
+  workflow_dispatch: {}       # manual run button for testing
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping REST endpoint
+        run: |
+          ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJycnRmdmZpbGNhb2t0eWtyaWp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTM3NzQsImV4cCI6MjA5NTQ4OTc3NH0.PbSkc8H6cML4s6FBbw3nPU72U_ZzAh5vWPAXtA9PbBQ"
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://brrtfvfilcaoktykrijt.supabase.co/rest/v1/smartcuts_state?select=collection&limit=1" \
+            -H "apikey: $ANON" -H "Authorization: Bearer $ANON")
+          echo "REST responded HTTP $code"
+          # 200 = alive. Anything else (521 = paused/booting, 000 = DNS gone) fails
+          # the job so GitHub emails a workflow-failure notice = early warning.
+          [ "$code" = "200" ]
