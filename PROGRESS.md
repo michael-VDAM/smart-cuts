@@ -28,6 +28,10 @@ Full regression sweep first — **nothing broken** (syntax, console, all 15 tabs
 | Wood Origins: plain/quarter/rift sawing-pattern SVG diagram |
 | Library photos wave 2: Padauk, Peruvian Walnut, African Teak, Ziracote, Canary (12 photos). Verified EMPTY on Commons: Purpleheart, Zebra Wood, Bubinga, Yellow Heart + rarer Africans (Katalox, Leopard Wood, Macacauba, Movingue, Tiama, Amazakoue, Beli, Goiabao) |
 | Wave 2 (same day): mobile nav-hide hardened (capture listener + iOS touch fallback + reset on tab switch) · Cutting Board Standard mode decluttered (formulas/variables/templates now Custom-only) · Optimizer color legend · Projects multi-photo (cover + gallery + lightbox) · Academy Learn section (8 lessons, read tracking, lesson→quiz) |
+| Wave 3 (same day): Optimizer upgraded after researching Bear Mountain Builds' "Material Mastermind" — rose leftover/waste areas with offcut dims, per-board yield captions, End Trim setting, fractional dims, Sq Ft Waste card, quote-in-stock-name fix · Calculator divide-by-zero alert → toast · Deep bug run #2: everything else passed (calc edge cases incl. metric, all board combos, furniture→optimizer, to-do cycle, plans timer, projects gallery, full quiz run, search, prices, drum, both themes @375px, save/load round-trip) |
+
+### Feature research (2026-07-04, on file for later)
+Community demand Bright Cuts doesn't cover yet, Michael passed for now: finish-schedule tracking on projects, screw/pilot-hole chart, shelf-sag calculator, board-foot tally mode, printable part labels, simplified wood-movement calc comeback, fence-move-aware cut ordering.
 
 ## Session 6 wrap (2026-05-30)
 

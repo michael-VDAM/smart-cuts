@@ -2,6 +2,10 @@
 
 One-line entries. Add new entries at top, dated.
 
+## 2026-07-04 (Session 7 wave 3 — optimizer vs Material Mastermind)
+- **Optimizer borrowed Material Mastermind's presentation, not its business model** — researched Bear Mountain Builds' free-tier optimizer (material-mastermind.com): its actual packing is comparable; what sells it is woodworker-native presentation. Adopted: rose-washed leftover areas with offcut dimensions, per-board yield captions, end-trim setting, fractional dims. Deliberately skipped: per-stock cost inputs / optimize-for-cost (prices were stripped from build tools in Session 6 and stay out) and its sign-in-to-save model (localStorage + cloud sync already stronger).
+- **No blocking alert() in app flows** — divide-by-zero switched to showToast; alerts freeze the PWA feel and blocked automated testing. runOptimizer's empty-list alert kept: it only fires on an explicit button press.
+
 ## 2026-07-04 (Session 7 — sweep + UX fixes)
 - **Calculator keypad enters plain unit-numbers, not a separate "count" type** — typed digits are treated as inches (or mm in metric) and commit as an operand on the next operator/equals. Dividing 30" by 3 just works because division is unit-agnostic; a separate dimensionless-number concept would complicate the model for zero user benefit. The 🎡 drum stays for fractional-inch entry.
 - **Optimizer went live-preview (app convention) but kept the ▶ button** — every add/remove/edit schedules a silent re-run (180ms debounce); the button remains for explicit re-runs and as the discoverable affordance. Demo defaults were rewritten to actually fit (the old 12"-wide pieces couldn't fit 7.5" stock → "0 boards, 4 unplaced" as first impression).
