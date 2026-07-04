@@ -5629,7 +5629,7 @@ function calcCompute(a, op, b) {
   if (op === '+') return a + b;
   if (op === '-') return a - b;
   if (op === '*') return a * b;
-  if (op === '/') { if (Math.abs(b) < 1e-9) { alert("Can't divide by zero."); return null; } return a / b; }
+  if (op === '/') { if (Math.abs(b) < 1e-9) { showToast("Can't divide by zero"); return null; } return a / b; }
   return null;
 }
 function calcSetOperand(inches) {
