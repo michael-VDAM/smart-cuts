@@ -1,6 +1,6 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-05-30 (Session 6 — prices stripped, palette, nav↔home, Library photos, Wood Origins)
+Last updated: 2026-07-04 (Session 7 — regression sweep clean, calc keypad, optimizer live-run, nav auto-hide, To-Do re-file, Origins quiz + diagram, exotic photo wave 2)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
@@ -13,6 +13,20 @@ Last updated: 2026-05-30 (Session 6 — prices stripped, palette, nav↔home, Li
 - **Sparky icons**: 22 character icons in `sparky/` (256px) — one per home tile + inline tab heroes.
 - **Species photos**: `species/` holds tree·leaf·bark JPEGs for every domestic species (Wikimedia Commons, PD/CC, attributed in the lightbox). ~7 MB, committed (offline-safe).
 - **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen, full-screen with the Sparky icon.
+
+## Session 7 wrap (2026-07-04)
+
+Full regression sweep first — **nothing broken** (syntax, console, all 15 tabs, $-free build tools, board modes, To-Do, cloud-sync code review, Library photos/lightbox/aliases, Origins 14 cards, nav↔home identical, 375px, both themes, old-save migration). NOT tested live: real magic-link sign-in / two-device sync, physical-print output, real-iPhone behavior.
+
+| Ships |
+|-------|
+| Mobile: header hides on scroll down, returns on scroll up |
+| Optimizer: live re-optimize on any edit; demo defaults that actually fit; dims on placed pieces; unplaced pieces named |
+| Calculator: digit keypad (divide/multiply by plain numbers), 🎡 Fraction button for drum entry, 🔢 icon replaces the abacus |
+| My To-Do: 📁 re-file items between sections (bottom-sheet chooser) + string-id normalization |
+| Academy: "Where Wood Comes From" category — 14 questions from Wood Origins |
+| Wood Origins: plain/quarter/rift sawing-pattern SVG diagram |
+| Library photos wave 2: Padauk, Peruvian Walnut, African Teak, Ziracote, Canary (12 photos). Verified EMPTY on Commons: Purpleheart, Zebra Wood, Bubinga, Yellow Heart + rarer Africans (Katalox, Leopard Wood, Macacauba, Movingue, Tiama, Amazakoue, Beli, Goiabao) |
 
 ## Session 6 wrap (2026-05-30)
 
