@@ -404,7 +404,7 @@
     .calc-key.eq:hover { opacity: 0.9; }
     .calc-key.util { color: var(--muted); font-size: 16px; }
     .calc-key.util:hover { color: var(--text); }
-    .calc-key.value { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); grid-column: span 4; font-size: 14px; font-weight: 800; letter-spacing: 0.5px; padding: 14px 0; }
+    .calc-key.value { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: 0.3px; padding: 14px 0; }
     .calc-key.value:hover { background: var(--accent); color: #1a1a1a; }
     .calc-history { margin-top: 22px; }
     .calc-history h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
@@ -1245,7 +1245,7 @@
     <span aria-hidden="true">🔍</span>
   </button>
   <button class="header-calc-btn" onclick="switchTab('calc')" aria-label="Open calculator" title="Calculator — fraction math">
-    <span aria-hidden="true">🧮</span>
+    <span aria-hidden="true">🔢</span>
   </button>
   <button class="header-menu-btn" onclick="toggleHeaderMenu(event)" aria-label="Menu">⋯</button>
 </header>
@@ -1984,7 +1984,7 @@ const NAV_GROUPS = [
     ['furniture', 'Furniture', '🪑'],
     ['frame', 'Picture Frame', '🖼️'],
     ['optimizer', 'Optimizer', '📐'],
-    ['calc', 'Calculator', '🧮'],
+    ['calc', 'Calculator', '🔢'],
   ] },
   { id: 'workshop', label: 'Workshop', tabs: [
     ['plans', 'My Plans', '📋'],
@@ -5448,9 +5448,10 @@ let calcB = null;        // second operand (inches), null until set
 let calcResult = null;   // last computed result (inches)
 let calcJustComputed = false;
 let calcHistory = [];
+let calcBuffer = '';     // digits being typed on the keypad (plain number, current unit)
 
 function calcReset() {
-  calcA = null; calcOp = null; calcB = null; calcResult = null; calcJustComputed = false;
+  calcA = null; calcOp = null; calcB = null; calcResult = null; calcJustComputed = false; calcBuffer = '';
   renderCalc();
 }
 function calcClearHistory() {
@@ -5460,13 +5461,31 @@ function calcClearHistory() {
   renderCalc();
 }
 function calcBackspace() {
-  if (calcB !== null) calcB = null;
+  if (calcBuffer) calcBuffer = calcBuffer.slice(0, -1);
+  else if (calcB !== null) calcB = null;
   else if (calcOp !== null) calcOp = null;
   else if (calcA !== null) calcA = null;
   calcJustComputed = false;
   renderCalc();
 }
+// Keypad digits build a plain-number buffer; it commits as an operand when an
+// operator / equals / drum-picker is used. Numbers are in the current unit
+// (inches or mm) — dividing or multiplying by a count works the same either way.
+function calcDigit(d) {
+  if (calcJustComputed) { calcA = null; calcOp = null; calcB = null; calcResult = null; calcJustComputed = false; }
+  if (d === '.' && calcBuffer.includes('.')) return;
+  if (calcBuffer.length >= 10) return;
+  calcBuffer += d;
+  renderCalc();
+}
+function calcCommitBuffer() {
+  if (!calcBuffer) return;
+  const n = parseFloat(calcBuffer);
+  calcBuffer = '';
+  if (isFinite(n)) calcSetOperand(unitSystem === 'metric' ? n / MM_PER_INCH : n);
+}
 function calcOperator(op) {
+  calcCommitBuffer();
   // If we just computed, continue from result
   if (calcJustComputed && calcResult !== null) { calcA = calcResult; calcResult = null; calcJustComputed = false; }
   // If user is chaining (A + B then taps another op), compute first
@@ -5483,6 +5502,7 @@ function calcOperator(op) {
   renderCalc();
 }
 function calcEquals() {
+  calcCommitBuffer();
   if (calcA === null || calcOp === null || calcB === null) return;
   const r = calcCompute(calcA, calcOp, calcB);
   if (r === null) return;
@@ -5515,6 +5535,7 @@ function calcRecall(entry) {
   renderCalc();
 }
 function calcOpenPicker() {
+  calcCommitBuffer();
   // Use the existing drum picker by creating a virtual input
   const inp = document.createElement('input');
   inp.type = 'number';
@@ -5575,14 +5596,15 @@ function renderCalc() {
     if (calcOp !== null) expr += ` <span class="op">${opSym[calcOp]}</span> `;
     if (calcB !== null) expr += formatCalc(calcB);
   }
-  // Result line: shows what the user will see — current operand if entering, or result
+  // Result line: shows what the user will see — digits being typed, current operand, or result
   let resultLine;
-  if (calcJustComputed) resultLine = formatCalc(calcResult);
+  if (calcBuffer) resultLine = calcBuffer + (unitSystem === 'metric' ? ' mm' : '');
+  else if (calcJustComputed) resultLine = formatCalc(calcResult);
   else if (calcB !== null) resultLine = formatCalc(calcB);
   else if (calcOp !== null) resultLine = '—';
   else if (calcA !== null) resultLine = formatCalc(calcA);
   else resultLine = '—';
-  const placeholder = (calcA === null && calcB === null) ? ' placeholder' : '';
+  const placeholder = (calcA === null && calcB === null && !calcBuffer) ? ' placeholder' : '';
 
   const historyHtml = calcHistory.length
     ? calcHistory.map(h => `<button class="calc-history-row" onclick='calcRecall(${JSON.stringify(h)})'>
@@ -5594,20 +5616,31 @@ function renderCalc() {
   el.innerHTML = `
     <div class="calc-header">
       <h2><img src="sparky/calculator.png" class="tab-hero-icon" alt="">Calculator</h2>
-      <p>Add, subtract, multiply, divide wood-fraction measurements. Tap <strong>Enter value</strong> to scroll a fractional inch (or metric mm), then chain operations.</p>
+      <p>Add, subtract, multiply, divide. Type plain numbers on the keypad, or tap <strong>🎡 Fraction</strong> to dial in a fractional inch (or metric mm). Results come back as exact wood fractions.</p>
     </div>
     <div class="calc-screen">
       <div class="calc-expr">${expr || '&nbsp;'}</div>
       <div class="calc-result${placeholder}">${resultLine}</div>
     </div>
     <div class="calc-keys">
-      <button class="calc-key value" onclick="calcOpenPicker()">🎡 Enter value</button>
-      <button class="calc-key util" onclick="calcReset()">C</button>
-      <button class="calc-key util" onclick="calcBackspace()">⌫</button>
+      <button class="calc-key num" onclick="calcDigit('7')">7</button>
+      <button class="calc-key num" onclick="calcDigit('8')">8</button>
+      <button class="calc-key num" onclick="calcDigit('9')">9</button>
       <button class="calc-key op${calcOp === '/' ? ' active' : ''}" onclick="calcOperator('/')">÷</button>
+      <button class="calc-key num" onclick="calcDigit('4')">4</button>
+      <button class="calc-key num" onclick="calcDigit('5')">5</button>
+      <button class="calc-key num" onclick="calcDigit('6')">6</button>
       <button class="calc-key op${calcOp === '*' ? ' active' : ''}" onclick="calcOperator('*')">×</button>
+      <button class="calc-key num" onclick="calcDigit('1')">1</button>
+      <button class="calc-key num" onclick="calcDigit('2')">2</button>
+      <button class="calc-key num" onclick="calcDigit('3')">3</button>
       <button class="calc-key op${calcOp === '-' ? ' active' : ''}" onclick="calcOperator('-')">−</button>
+      <button class="calc-key num" onclick="calcDigit('0')">0</button>
+      <button class="calc-key num" onclick="calcDigit('.')">.</button>
+      <button class="calc-key util" onclick="calcBackspace()">⌫</button>
       <button class="calc-key op${calcOp === '+' ? ' active' : ''}" onclick="calcOperator('+')">+</button>
+      <button class="calc-key value" onclick="calcOpenPicker()">🎡 Fraction</button>
+      <button class="calc-key util" onclick="calcReset()">C</button>
       <button class="calc-key eq" onclick="calcEquals()">=</button>
     </div>
     <div class="calc-history">
