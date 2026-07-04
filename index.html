@@ -2138,6 +2138,9 @@ function switchTab(name) {
   if (target) target.style.display = 'grid';
   closeNavMenu();
   updateNavActive();
+  // New page starts with the nav visible and scrolled to the top
+  document.querySelector('header')?.classList.remove('nav-hidden');
+  window.scrollTo(0, 0);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && openNavGroup) closeNavMenu(); });
@@ -8951,17 +8954,33 @@ function init() {
 init();
 
 // Mobile: hide the header while scrolling down, bring it back on scroll-up.
-// Near the top of the page it always shows. Desktop is untouched (header isn't sticky there).
+// Near the top it always shows. Desktop untouched (header isn't sticky there).
+// Capture-phase listener on document catches window scroll AND any inner
+// scroller; scrollTop is read from scrollingElement (iOS-safe), clamped ≥ 0
+// so rubber-band overscroll can't confuse the direction check.
 (() => {
   const hdr = document.querySelector('header');
   if (!hdr) return;
-  let lastY = window.scrollY;
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
+  let lastY = 0;
+  const onScroll = () => {
+    const y = Math.max(0, (document.scrollingElement || document.documentElement).scrollTop);
     if (window.innerWidth > 820 || y < 60) hdr.classList.remove('nav-hidden');
-    else if (y > lastY + 6) hdr.classList.add('nav-hidden');
-    else if (y < lastY - 6) hdr.classList.remove('nav-hidden');
+    else if (y > lastY + 4) hdr.classList.add('nav-hidden');
+    else if (y < lastY - 4) hdr.classList.remove('nav-hidden');
     lastY = y;
+  };
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  // iOS fallback: drive the header straight from the touch gesture, so it works
+  // even if scroll events are swallowed by momentum scrolling or inner scrollers.
+  let touchY0 = null;
+  document.addEventListener('touchstart', e => { touchY0 = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (touchY0 == null || window.innerWidth > 820) return;
+    const dy = e.touches[0].clientY - touchY0;
+    const y = Math.max(0, (document.scrollingElement || document.documentElement).scrollTop);
+    if (y < 60 || dy > 10) hdr.classList.remove('nav-hidden');
+    else if (dy < -10) hdr.classList.add('nav-hidden');
   }, { passive: true });
 })();
 </script>
