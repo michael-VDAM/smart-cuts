@@ -995,6 +995,22 @@
     .origins-card ul { margin: 4px 0 2px; padding-left: 20px; }
     .origins-card li { font-size: 13px; line-height: 1.55; margin-bottom: 6px; color: var(--text); }
     .origins-card li:last-child { margin-bottom: 0; }
+    /* Academy lessons */
+    .acad-mode-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .acad-mode { flex: 1; padding: 12px; border-radius: 11px; border: 1px solid var(--border); background: var(--panel2); color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; }
+    .acad-mode.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .lesson-list { display: flex; flex-direction: column; gap: 9px; }
+    .lesson-card { display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px 14px; border-radius: 11px; border: 1px solid var(--border); background: var(--panel2); cursor: pointer; color: var(--text); }
+    .lesson-card:hover { border-color: var(--accent); }
+    .lesson-emoji { font-size: 24px; flex-shrink: 0; }
+    .lesson-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .lesson-title { font-size: 13.5px; font-weight: 800; }
+    .lesson-read-badge { font-size: 10px; font-weight: 700; color: var(--success, #52c47e); margin-left: 4px; }
+    .lesson-blurb { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+    .lesson-meta { font-size: 10px; color: var(--muted2); }
+    .lesson-chev { color: var(--muted2); font-size: 18px; }
+    .lesson-footer { display: flex; flex-direction: column; gap: 10px; margin: 18px 0 8px; }
+    .lesson-footer .acad-start { margin: 0; }
     .sawcut-diagram { margin-top: 12px; text-align: center; }
     .sawcut-diagram svg { width: 100%; max-width: 420px; height: auto; }
     .origins-spotlight { border-left: 3px solid var(--accent); background: linear-gradient(135deg, var(--accent-soft), var(--panel2)); }
@@ -8069,6 +8085,152 @@ const QUIZ_QUESTIONS = {
 // Persisted per-category best scores (highest correct / total ratio)
 const ACADEMY_SCORES_KEY = 'woodshop-academy-scores';
 let academyBestScores = {};
+// ─── Academy Lessons (teach first, then quiz) ───────────────────────────────
+// Each lesson maps to a quiz category: read the lesson, then take its quiz.
+// Bodies reuse the .origins-card reading style. Read-state persists locally.
+const LESSONS = [
+  { key: 'wood101', emoji: '🌳', quizCat: 'woodId', mins: 4, title: 'Wood 101: Grain, Hardness & Movement',
+    blurb: 'What grain actually is, what Janka numbers mean, and why every board moves with the seasons.',
+    body: `
+    <div class="origins-card"><h3>What grain actually is</h3>
+      <p>A tree is a bundle of straws — long cellulose fibers running up the trunk, carrying water. <strong>Grain direction is the direction of those fibers.</strong> Cut along them and the wood is strong and planes cleanly; cut across them and you see <strong>end grain</strong> — the open ends of the straws.</p>
+      <p>That's why end-grain cutting boards are king: the knife slips <em>between</em> fibers instead of severing them, so the board self-heals and the edge stays sharp longer.</p></div>
+    <div class="origins-card"><h3>Reading a Janka number</h3>
+      <p>The <strong>Janka rating</strong> is the force (in pounds) to push a steel ball halfway into the wood. Pine ≈ 380, Cherry ≈ 950, Hard Maple ≈ 1450, Hickory ≈ 1820, Lignum Vitae ≈ 4500 — the hardest commercial wood, so dense it sinks.</p>
+      <p>Harder isn't always better: it blunts blades, resists hand tools, and can be brittle. <strong>Match hardness to the job</strong> — 950–1500 covers most furniture and boards.</p></div>
+    <div class="origins-card"><h3>Why wood moves</h3>
+      <p>Wood is a sponge. It swells as humidity rises and shrinks as it falls — <strong>mostly across the grain, barely along it</strong>. A 12"-wide flatsawn panel can move 1/4" between summer and winter.</p>
+      <p>You can't stop it — you design for it: leave expansion gaps, float panels in frames, slot your screw holes. Fight the movement and the wood wins: cracked panels, popped joints.</p></div>
+    <div class="origins-card"><h3>Hardwood vs. softwood</h3>
+      <p>It's botany, not hardness: <strong>hardwoods come from broadleaf (deciduous) trees, softwoods from conifers.</strong> Balsa is technically a hardwood; southern yellow pine out-hardens some hardwoods. For furniture and boards you'll live in hardwood territory — the pores also take finish more predictably.</p></div>`,
+  },
+  { key: 'origins', emoji: '🌎', quizCat: 'origins', mins: 5, title: 'Where Wood Comes From',
+    blurb: 'Tree to board: how lumber is cut, dried, sized, graded — and how to buy it responsibly.',
+    body: `
+    <div class="origins-card"><h3>The short version</h3>
+      <p>Most fine hardwood is <strong>wild-grown in managed forests</strong>, felled selectively on ~10-year cycles, sawn at a mill, dried to 6–8% in a kiln, graded (FAS is the top grade), and priced by the <strong>board foot</strong> — 144 cubic inches, figured on rough thickness.</p>
+      <p>How the mill slices the log matters: <strong>plainsawn</strong> is cheap with cathedral grain but moves the most; <strong>quartersawn</strong> is stable with ray fleck; <strong>riftsawn</strong> is dead-straight and priciest.</p></div>
+    <div class="origins-card"><h3>Go deeper</h3>
+      <p>The full story — sawing diagrams, drying, grading, plywood manufacturing, FSC certification, and where every species grows — lives in the <strong>Wood Origins</strong> tab.</p>
+      <p style="margin-top:10px"><button class="proj-add-btn" onclick="switchTab('origins')">Open Wood Origins →</button></p></div>`,
+  },
+  { key: 'joinery', emoji: '🔗', quizCat: 'joinery', mins: 5, title: 'Joinery Basics',
+    blurb: 'The five joints that cover 95% of projects, and how to pick the right one.',
+    body: `
+    <div class="origins-card"><h3>The rule under every joint</h3>
+      <p><strong>Long-grain to long-grain glue joints are stronger than the wood itself.</strong> End grain glues poorly — the open straws wick glue away. Every classic joint is a trick to either create long-grain contact or add mechanical interlock where there isn't any.</p></div>
+    <div class="origins-card"><h3>The working five</h3>
+      <ul>
+        <li><strong>Butt + screws/pockets</strong> — fastest, weakest. Fine for shop fixtures and paint-grade builds.</li>
+        <li><strong>Dado / rabbet</strong> — a slot or step that registers parts and adds glue surface. The backbone of cabinets and bookshelves.</li>
+        <li><strong>Dowels / biscuits / dominos</strong> — loose tenons that align parts and bridge end grain with long-grain plugs.</li>
+        <li><strong>Mortise & tenon</strong> — the king of frame joints (doors, tables, chairs). Huge long-grain glue area plus a mechanical shoulder.</li>
+        <li><strong>Dovetail</strong> — interlocking wedges for drawer boxes and cases. Mechanically locked even if the glue fails, and it shows off.</li>
+      </ul></div>
+    <div class="origins-card"><h3>Picking one</h3>
+      <p>Ask two questions: <strong>what direction is the stress</strong>, and <strong>does it show?</strong> A drawer front gets yanked thousands of times → dovetail or lock joint. A shelf carries static load → dado. A tabletop just needs edge-glued boards — no joint hardware at all, the long-grain glue line is already stronger than the panel.</p></div>
+    <div class="origins-card"><h3>Fit is everything</h3>
+      <p>A joint should assemble with <strong>firm hand pressure</strong> — not a mallet, not gravity. Too tight starves the glue line and can split the mortise; too loose leaves a glue-only bridge. Sneak up on fit with test cuts in scrap from the same milling session.</p></div>`,
+  },
+  { key: 'tools', emoji: '🔧', quizCat: 'tools', mins: 4, title: 'Know Your Tools',
+    blurb: 'What each core machine is actually for, and the order they work together.',
+    body: `
+    <div class="origins-card"><h3>The milling trio</h3>
+      <p>Rough lumber is never flat or straight. Three machines fix that, in strict order: the <strong>jointer</strong> makes one face flat and one edge square; the <strong>planer</strong> makes the second face parallel at your target thickness; the <strong>table saw</strong> rips the second edge parallel. Skip the jointer and the planer just copies the warp — <strong>a planer cannot flatten a twisted board.</strong></p></div>
+    <div class="origins-card"><h3>Saws, by job</h3>
+      <ul>
+        <li><strong>Table saw</strong> — ripping (with the grain), sheet goods, joinery with jigs. The shop's centerpiece.</li>
+        <li><strong>Miter saw</strong> — fast, accurate crosscuts and angles on long stock.</li>
+        <li><strong>Bandsaw</strong> — curves, resawing thick boards into thin ones, and the safest saw for small parts.</li>
+        <li><strong>Track saw / circular saw</strong> — breaking down plywood flat on the floor instead of wrestling it over a table saw.</li>
+      </ul></div>
+    <div class="origins-card"><h3>The refinement layer</h3>
+      <p><strong>Router</strong> — edge profiles, grooves, template work; the most versatile tool after the table saw. <strong>Random-orbit sander</strong> — work through grits 80 → 120 → 180, never skipping more than one step. <strong>Card scraper</strong> — a $10 piece of steel that leaves a surface planes envy, especially on figured wood that tears out.</p></div>`,
+  },
+  { key: 'process', emoji: '📋', quizCat: 'process', mins: 5, title: 'Build Process: Milling to Glue-Up',
+    blurb: 'The sequence that separates flat, square projects from firewood.',
+    body: `
+    <div class="origins-card"><h3>Let it acclimate</h3>
+      <p>Bring lumber into your shop <strong>a week before you mill it</strong>. It will move as it reaches equilibrium with your shop's humidity — better it warps as a rough board than as your finished panel.</p></div>
+    <div class="origins-card"><h3>Mill in two passes</h3>
+      <p>Rough-mill everything about 1/16–1/8" oversize, then <strong>let it sit a day or two</strong> and take the final pass. Wood releases internal stress when you cut it; the two-stage approach lets it do its moving between passes instead of after assembly. Mill all parts for a project in the same session so they behave identically.</p></div>
+    <div class="origins-card"><h3>Dry-fit, then glue</h3>
+      <p><strong>Every glue-up gets a full dry rehearsal</strong> — clamps set to length, cauls ready, sequence planned. Glue gives you 5–10 open minutes; discovering a mis-cut tenon at minute 4 is how panels end up crooked. Squeeze-out should be a line of small beads, not runs (too much) and not dry spots (too little).</p></div>
+    <div class="origins-card"><h3>Check square with diagonals</h3>
+      <p>Measure corner-to-corner both ways — <strong>equal diagonals = square case</strong>, no square tool needed. Rack the clamps slightly to correct. Then leave it alone: PVA reaches handling strength in ~30–60 min but full cure takes 24 hours.</p></div>
+    <div class="origins-card"><h3>Sand before assembly</h3>
+      <p>Inside faces are near-impossible to sand after glue-up. <strong>Finish-sand interior surfaces first</strong>, tape off the glue lines, and assembly day becomes clamping day instead of contortion day.</p></div>`,
+  },
+  { key: 'finishing', emoji: '🎨', quizCat: 'finishing', mins: 5, title: 'Finishing Fundamentals',
+    blurb: 'Oil vs. film, food-safe truths, and the gotchas that ruin a build on the last day.',
+    body: `
+    <div class="origins-card"><h3>Two families</h3>
+      <p><strong>Penetrating finishes</strong> (oils, oil/wax blends) soak in, look natural, and are trivially repairable — but protect lightly. <strong>Film finishes</strong> (poly, lacquer, shellac) sit on top and armor the wood — but repairs mean stripping. Kitchen table: film. Cutting board: oil. Bookshelf: either.</p></div>
+    <div class="origins-card"><h3>Food-safe, honestly</h3>
+      <p>For boards: <strong>food-grade mineral oil + beeswax</strong>, renewed monthly. And a myth worth killing: <strong>virtually every finish is food-safe once fully cured</strong> (2–4 weeks) — the danger was the solvents, and they're gone. The real reason boards get oil isn't safety, it's that knife cuts destroy film finishes.</p></div>
+    <div class="origins-card"><h3>Species gotchas</h3>
+      <ul>
+        <li><strong>Blotch-prone</strong> (cherry, pine, maple): use a wash coat / conditioner before stain — or skip stain and let the wood age.</li>
+        <li><strong>Oily exotics</strong> (teak, cocobolo, rosewoods): wipe with solvent first or the finish never cures.</li>
+        <li><strong>Padauk & friends</strong>: alcohol-based finishes dissolve the pigments and drag color everywhere.</li>
+      </ul></div>
+    <div class="origins-card"><h3>The last-day rules</h3>
+      <p>Raise the grain with a damp rag and knock it back at 220 before water-based finishes. Thin coats beat thick ones, always. And <strong>oily rags self-combust</strong> — lay them flat to dry or drown them in a metal can. No exceptions.</p></div>`,
+  },
+  { key: 'safety', emoji: '⚠️', quizCat: 'safety', mins: 4, title: 'Shop Safety Essentials',
+    blurb: 'The habits that keep ten fingers: kickback, PPE, dust, and the blade-guard mindset.',
+    body: `
+    <div class="origins-card"><h3>Kickback, explained</h3>
+      <p>Kickback happens when wood pinches the back of the table-saw blade and gets thrown at you at ~100 mph. The defenses: <strong>riving knife always installed</strong>, stock held against the fence OR the miter gauge (never both), and never reaching over a spinning blade. Stand slightly to the side of the cut line.</p></div>
+    <div class="origins-card"><h3>PPE that actually matters</h3>
+      <ul>
+        <li><strong>Eyes</strong> — always. Cheap insurance against a lifetime of one-eyed woodworking.</li>
+        <li><strong>Ears</strong> — routers and planers run 100+ dB; hearing loss is cumulative and permanent.</li>
+        <li><strong>Lungs</strong> — fine dust is the sneakiest hazard; some species (wenge, padauk, cocobolo) are outright sensitizers. Respirator when sanding, dust collection at the tool.</li>
+        <li><strong>NO gloves at spinning blades</strong> — a snagged glove pulls your hand in. Bare, dry hands grip better.</li>
+      </ul></div>
+    <div class="origins-card"><h3>The mindset</h3>
+      <p>Never put a body part where it would go <em>if something slipped</em>. Use push sticks inside 6" of any blade. Unplug before blade changes. And the honest one: <strong>if you're tired, rushed, or annoyed — stop.</strong> Nearly every shop injury story starts with "I just wanted to finish."</p></div>`,
+  },
+  { key: 'sharpening', emoji: '🗡️', quizCat: 'sharpening', mins: 4, title: 'Sharpening 101',
+    blurb: 'Two flat surfaces meeting: bevels, burrs, stones, and the strop.',
+    body: `
+    <div class="origins-card"><h3>What sharp is</h3>
+      <p>A sharp edge is nothing more than <strong>two polished surfaces meeting at a line</strong>. That's why the back of a chisel matters as much as the bevel — flatten and polish the first inch of the back once, and every future sharpening is just bevel work.</p></div>
+    <div class="origins-card"><h3>Angles & the micro-bevel</h3>
+      <p>Chisels: <strong>25–30°</strong>. Plane irons: <strong>25°</strong> (steeper for hard woods). Most people add a <strong>micro-bevel</strong> — a 1–2° steeper strip right at the edge — so daily touch-ups hone a sliver instead of the whole bevel. Seconds instead of minutes.</p></div>
+    <div class="origins-card"><h3>Grits & the burr</h3>
+      <p>Typical waterstone run: <strong>1000 (sharpen) → 6000 (refine) → strop</strong>; 220 only for regrinding damage. Work the bevel until you feel a <strong>burr</strong> (wire edge) curl onto the back — that's proof you've reached the edge. The strop's whole job is removing that burr and polishing to scary-sharp.</p></div>
+    <div class="origins-card"><h3>Sharpen sooner</h3>
+      <p>Dull tools need force; force causes slips; slips cause stitches. If you're pushing harder than yesterday, the tool is telling you something. <strong>Honing takes 90 seconds</strong> — do it the moment cuts need muscle.</p></div>`,
+  },
+];
+const ACADEMY_READ_KEY = 'woodshop-academy-read-v1';
+let academyRead = new Set();
+let academyMode = 'learn';     // 'learn' | 'quiz' on the welcome screen
+let academyLessonKey = null;   // open lesson, or null
+function loadAcademyRead() {
+  try { academyRead = new Set(JSON.parse(localStorage.getItem(ACADEMY_READ_KEY) || '[]')); } catch { academyRead = new Set(); }
+}
+function setAcademyMode(m) { academyMode = m; renderAcademy(); }
+function openLesson(key) { academyLessonKey = key; academyState = 'lesson'; renderAcademy(); window.scrollTo(0, 0); }
+function closeLesson(markRead) {
+  if (markRead && academyLessonKey) {
+    academyRead.add(academyLessonKey);
+    try { localStorage.setItem(ACADEMY_READ_KEY, JSON.stringify([...academyRead])); } catch {}
+  }
+  academyLessonKey = null; academyState = 'welcome'; renderAcademy();
+}
+function lessonQuiz(key) {
+  const l = LESSONS.find(x => x.key === key);
+  if (!l) return;
+  academyRead.add(key);
+  try { localStorage.setItem(ACADEMY_READ_KEY, JSON.stringify([...academyRead])); } catch {}
+  academyLessonKey = null;
+  academySelectedCats = new Set([l.quizCat]);
+  startQuiz();
+}
+
 function loadAcademyScores() {
   try { academyBestScores = JSON.parse(localStorage.getItem(ACADEMY_SCORES_KEY) || '{}'); }
   catch { academyBestScores = {}; }
@@ -8162,11 +8324,25 @@ function renderAcademy() {
       </button>`;
     }).join('');
     const totalAvail = Array.from(academySelectedCats).reduce((s, k) => s + QUIZ_QUESTIONS[k].length, 0);
-    c.innerHTML = `
-      <div class="academy-header">
-        <h2><img src="sparky/academy.png" class="tab-hero-icon" alt="">Woodshop Academy</h2>
-        <p class="tagline">Test your knowledge of woods, joinery, tools, process, and shop safety. Build expertise question by question.</p>
-      </div>
+    const lessonsHtml = LESSONS.map(l => {
+      const read = academyRead.has(l.key);
+      const best = academyBestScores[l.quizCat];
+      return `<button class="lesson-card${read ? ' read' : ''}" onclick="openLesson('${l.key}')">
+        <span class="lesson-emoji">${l.emoji}</span>
+        <span class="lesson-main">
+          <span class="lesson-title">${l.title} ${read ? '<span class="lesson-read-badge">✓ read</span>' : ''}</span>
+          <span class="lesson-blurb">${l.blurb}</span>
+          <span class="lesson-meta">${l.mins} min read · ${QUIZ_QUESTIONS[l.quizCat].length}-question quiz${best ? ` · ★ Best ${Math.round(best.pct * 100)}%` : ''}</span>
+        </span>
+        <span class="lesson-chev">›</span>
+      </button>`;
+    }).join('');
+    const learnPane = `
+      <div class="academy-card">
+        <h3>Read a lesson, then take its quiz</h3>
+        <div class="lesson-list">${lessonsHtml}</div>
+      </div>`;
+    const quizPane = `
       <div class="academy-card">
         <h3>1. Pick your categories</h3>
         <div class="cat-grid">${cats}</div>
@@ -8178,7 +8354,32 @@ function renderAcademy() {
         </div>
         <div style="margin-top:12px;font-size:11px;color:var(--muted)">${totalAvail} questions available in selected categories</div>
       </div>
-      <button class="acad-start" onclick="startQuiz()" ${academySelectedCats.size === 0 ? 'disabled' : ''}>▶ Start Quiz</button>
+      <button class="acad-start" onclick="startQuiz()" ${academySelectedCats.size === 0 ? 'disabled' : ''}>▶ Start Quiz</button>`;
+    c.innerHTML = `
+      <div class="academy-header">
+        <h2><img src="sparky/academy.png" class="tab-hero-icon" alt="">Woodshop Academy</h2>
+        <p class="tagline">Learn the craft, then prove it — lessons first, quizzes after.</p>
+      </div>
+      <div class="acad-mode-row">
+        <button class="acad-mode${academyMode === 'learn' ? ' active' : ''}" onclick="setAcademyMode('learn')">📖 Learn</button>
+        <button class="acad-mode${academyMode === 'quiz' ? ' active' : ''}" onclick="setAcademyMode('quiz')">🎓 Quiz</button>
+      </div>
+      ${academyMode === 'learn' ? learnPane : quizPane}
+    `;
+  } else if (academyState === 'lesson') {
+    const l = LESSONS.find(x => x.key === academyLessonKey);
+    if (!l) { academyState = 'welcome'; renderAcademy(); return; }
+    c.innerHTML = `
+      <button class="proj-detail-back" onclick="closeLesson(false)">← Back to Academy</button>
+      <div class="origins-hero" style="margin-bottom:14px">
+        <h2><span style="margin-right:9px">${l.emoji}</span>${l.title}</h2>
+        <p>${l.blurb}</p>
+      </div>
+      ${l.body}
+      <div class="lesson-footer">
+        <button class="acad-start" onclick="lessonQuiz('${l.key}')">🎓 Take the ${QUIZ_CATEGORIES[l.quizCat].name} quiz</button>
+        <button class="proj-add-btn" onclick="closeLesson(true)">✓ Mark read & back</button>
+      </div>
     `;
   } else if (academyState === 'quiz') {
     const s = academySession;
@@ -9012,6 +9213,7 @@ function init() {
   loadTodos();
   renderTodos();
   loadAcademyScores();
+  loadAcademyRead();
   renderNav();
   runPlanner();
   runFurniture();
