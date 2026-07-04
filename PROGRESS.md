@@ -27,6 +27,7 @@ Full regression sweep first — **nothing broken** (syntax, console, all 15 tabs
 | Academy: "Where Wood Comes From" category — 14 questions from Wood Origins |
 | Wood Origins: plain/quarter/rift sawing-pattern SVG diagram |
 | Library photos wave 2: Padauk, Peruvian Walnut, African Teak, Ziracote, Canary (12 photos). Verified EMPTY on Commons: Purpleheart, Zebra Wood, Bubinga, Yellow Heart + rarer Africans (Katalox, Leopard Wood, Macacauba, Movingue, Tiama, Amazakoue, Beli, Goiabao) |
+| Wave 2 (same day): mobile nav-hide hardened (capture listener + iOS touch fallback + reset on tab switch) · Cutting Board Standard mode decluttered (formulas/variables/templates now Custom-only) · Optimizer color legend · Projects multi-photo (cover + gallery + lightbox) · Academy Learn section (8 lessons, read tracking, lesson→quiz) |
 
 ## Session 6 wrap (2026-05-30)
 
