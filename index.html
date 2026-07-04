@@ -110,6 +110,9 @@
     .nav-btn.menu-open .nav-chev { transform: rotate(180deg); }
     /* Grouped nav menu — dropdown on desktop, bottom-sheet on mobile (see media query) */
     .nav-menu-overlay { position: fixed; inset: 0; z-index: 300; background: transparent; pointer-events: none; }
+    /* Re-file chooser reuses the nav sheet; on desktop it's a centered dialog (mobile rules below make it a bottom sheet) */
+    .refile-overlay { pointer-events: auto; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; }
+    .refile-overlay .nav-menu-panel { position: static; min-width: 280px; max-width: 92vw; max-height: 80vh; overflow-y: auto; }
     .nav-menu-panel { position: fixed; pointer-events: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 6px; min-width: 232px; box-shadow: 0 12px 34px rgba(0,0,0,0.34); animation: nav-pop 0.13s ease-out; }
     @keyframes nav-pop { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
     .nav-menu-panel .drum-handle { display: none; }
@@ -5837,6 +5840,9 @@ let todos = [];
 function loadTodos() {
   try { todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]'); if (!Array.isArray(todos)) todos = []; }
   catch { todos = []; }
+  // Ids must be strings — inline onclick handlers pass them as string literals,
+  // and a numeric id (older/hand-edited data) would fail every strict-equality lookup.
+  todos.forEach(t => { if (t && t.id != null) t.id = String(t.id); });
 }
 function saveTodos() {
   try { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); } catch {}
@@ -5873,6 +5879,36 @@ function moveTodo(id, dir) {
   saveTodos(); renderTodos();
 }
 function clearDoneTodos() { todos = todos.filter(t => !t.done); saveTodos(); renderTodos(); }
+// Re-file an item into another section (items previously got a section only at add time).
+function refileTodo(id) {
+  const t = todos.find(t => t.id === id); if (!t) return;
+  const current = todoSection(t);
+  const used = [...new Set(todos.map(todoSection))].filter(s => s !== 'General' && !TODO_SECTIONS.includes(s));
+  const options = ['General', ...TODO_SECTIONS, ...used];
+  const ov = document.createElement('div');
+  ov.className = 'nav-menu-overlay refile-overlay';
+  ov.onclick = () => ov.remove();
+  const rows = options.map(sec => `
+    <button class="nav-menu-item${sec === current ? ' active' : ''}" onclick="_refileTo('${t.id}', this.dataset.sec); this.closest('.refile-overlay').remove()" data-sec="${escapeHtml(sec)}">
+      ${escapeHtml(sec)}${sec === current ? ' ✓' : ''}
+    </button>`).join('');
+  ov.innerHTML = `<div class="nav-menu-panel" onclick="event.stopPropagation()">
+    <div class="drum-handle"></div>
+    <div class="nav-menu-title">Move “${escapeHtml(t.text.length > 34 ? t.text.slice(0, 34) + '…' : t.text)}” to…</div>
+    ${rows}
+    <button class="nav-menu-item" onclick="_refileNew('${t.id}'); this.closest('.refile-overlay').remove()">＋ New section…</button>
+  </div>`;
+  document.body.appendChild(ov);
+}
+function _refileTo(id, sec) {
+  const t = todos.find(t => t.id === id); if (!t) return;
+  t.section = sec === 'General' ? '' : sec;
+  saveTodos(); renderTodos();
+}
+function _refileNew(id) {
+  const name = (prompt('New section name:') || '').trim();
+  if (name) _refileTo(id, name);
+}
 function renderTodos() {
   // Refresh the section suggestions (base list + any custom sections in use).
   const dl = document.getElementById('todo-sections');
@@ -5904,6 +5940,7 @@ function renderTodos() {
       <button class="todo-check" onclick="toggleTodo('${t.id}')" aria-label="Toggle done">✓</button>
       <span class="todo-text">${escapeHtml(t.text)}</span>
       <span class="todo-actions">
+        <button class="todo-act" onclick="refileTodo('${t.id}')" aria-label="Move to section" title="Move to another section">📁</button>
         <button class="todo-act" onclick="moveTodo('${t.id}',-1)" ${pos === 0 ? 'disabled' : ''} aria-label="Move up">↑</button>
         <button class="todo-act" onclick="moveTodo('${t.id}',1)" ${pos === len - 1 ? 'disabled' : ''} aria-label="Move down">↓</button>
         <button class="todo-act del" onclick="deleteTodo('${t.id}')" aria-label="Delete">✕</button>
