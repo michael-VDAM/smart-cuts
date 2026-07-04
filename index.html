@@ -1753,8 +1753,11 @@
         <button class="add-btn" style="margin-top:6px" onclick="optAddPiece()">+ Custom Piece</button>
       </div>
       <div class="section">
-        <div class="section-label">Settings</div>
-        <div class="field"><label>Kerf</label><input type="number" id="opt-kerf" value="0.125" step="0.0625" min="0.0625" onchange="scheduleRunOptimizer()"></div>
+        <div class="section-label">Settings <span class="hint">kerf = what the blade eats per cut · 1/8&quot; is a typical table saw</span></div>
+        <div class="field-grid cols2">
+          <div class="field"><label>Kerf</label><input type="number" id="opt-kerf" value="0.125" step="0.0625" min="0.0625" onchange="scheduleRunOptimizer()"></div>
+          <div class="field"><label>End Trim <span class="hint" style="text-transform:none">per end</span></label><input type="number" id="opt-trim" value="0" step="0.25" min="0" max="6" title="Trimmed off each board end — for checks, snipe, rough ends" onchange="scheduleRunOptimizer()"></div>
+        </div>
       </div>
     </div>
     <button class="plan-btn" onclick="runOptimizer()">&#9654; Optimize Cuts</button>
@@ -3337,7 +3340,7 @@ const MEASURE_KEYS = ['finalL','finalW','finalT','finalT-std','tileSize','stockL
   'bsh-W','bsh-H','bsh-D','bsh-T',
   'drw-W','drw-D','drw-H','drw-T',
   'furn-sheetL','furn-sheetW',
-  'opt-kerf'];
+  'opt-kerf', 'opt-trim'];
 function loadUnits() {
   try { unitSystem = localStorage.getItem(UNITS_KEY) === 'metric' ? 'metric' : 'imperial'; }
   catch { unitSystem = 'imperial'; }
@@ -5430,13 +5433,14 @@ function optCard(item, i, type) {
       <div class="field"><label>W <span class="unit-pill">${unitLabel()}</span></label><input class="measure-input" readonly inputmode="none" data-measure-label="${type === 'stock' ? 'Stock' : 'Piece'} ${i+1} width" type="number" value="${fromInches(item.width)}" step="${unitStep()}" min="${unitMin()}" oninput="optInput(${arr},${item.id},'width',toInches(this.value))"></div>
       <div class="field"><label>Qty</label><input type="number" value="${item.qty}" step="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="99" data-step="1" data-measure-label="Quantity" oninput="optInput(${arr},${item.id},'qty',this.value)"></div>
     </div>
-    <div class="field"><label>Name</label><input type="text" value="${item.name}" oninput="optInput(${arr},${item.id},'name',this.value)"></div>
+    <div class="field"><label>Name</label><input type="text" value="${escapeHtml(item.name)}" oninput="optInput(${arr},${item.id},'name',this.value)"></div>
   </div>`;
 }
 function optRenderStock() { document.getElementById('opt-stock-list').innerHTML = optStocks.map((s,i) => optCard(s,i,'stock')).join(''); }
 function optRenderPieces() { document.getElementById('opt-pieces-list').innerHTML = optPieces.map((p,i) => optCard(p,i,'piece')).join(''); }
 function optOptimize() {
   const kerf = parseFloat(document.getElementById('opt-kerf').value) || 0.125;
+  const trim = Math.max(0, parseFloat(document.getElementById('opt-trim')?.value) || 0);
   const matCompat = (a, b) => { const ma = a || 'any', mb = b || 'any'; return ma === 'any' || mb === 'any' || ma === mb; };
   let toPlace = [];
   optPieces.forEach(p => { for (let i = 0; i < p.qty; i++) toPlace.push({ ...p, instIdx: i }); });
@@ -5458,7 +5462,8 @@ function optOptimize() {
       const stockIdx = pool.findIndex(s => matCompat(piece.mat, s.mat));
       if (stockIdx === -1) { unplaced.push(piece); return; }
       const s = pool.splice(stockIdx, 1)[0];
-      const b = { stockRef: s, freeRects: [{ x: 0, y: 0, w: s.length, h: s.width }], placements: [] };
+      // End trim: the usable area starts after the trimmed ends (checks / snipe / rough ends)
+      const b = { stockRef: s, trim, freeRects: [{ x: trim, y: 0, w: Math.max(0, s.length - 2 * trim), h: s.width }], placements: [] };
       boards.push(b);
       const r = b.freeRects[0];
       if (pw <= r.w && ph <= r.h) { best = b; bestRect = r; bestRot = false; }
@@ -5494,6 +5499,7 @@ function runOptimizer(silent) {
     <div class="scard"><div class="val">${eff}%</div><div class="lbl">Efficiency</div></div>
     <div class="scard"><div class="val" style="color:${unplaced.length ? 'var(--danger)' : 'var(--success)'}">${unplaced.length}</div><div class="lbl">Unplaced</div></div>
     <div class="scard"><div class="val">${(totalBoardArea/144).toFixed(1)}</div><div class="lbl">Sq Ft Used</div></div>
+    <div class="scard"><div class="val" style="color:#ff6b8a">${(Math.max(0, totalBoardArea - totalPieceArea)/144).toFixed(1)}</div><div class="lbl">Sq Ft Waste</div></div>
   </div>`;
   // Color legend: which color = which piece in the cut diagrams below
   html += `<div class="opt-legend">${optPieces.map(p =>
@@ -5506,16 +5512,28 @@ function runOptimizer(silent) {
     html += `<div class="warn-banner danger"><span class="icon">&#9888;</span>Could not fit: <strong>${escapeHtml(list)}</strong> — add more stock, use wider boards, or check material matching.</div>`;
   }
   const SW = 540;
-  boards.forEach(board => {
+  boards.forEach((board, bi) => {
     const bw = board.stockRef.length, bh = board.stockRef.width;
     const scale = Math.min(SW / bw, 200 / bh, 8);
     const svgW = Math.round(bw * scale), svgH = Math.round(bh * scale);
     let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="${svgW}" height="${svgH}" fill="#3d2e15" rx="2"/>`;
+    // Leftover / waste areas get a translucent rose wash so usable offcuts are obvious
+    (board.freeRects || []).forEach(r => {
+      if (r.w < 0.5 || r.h < 0.5) return;
+      svg += `<rect x="${r.x*scale}" y="${r.y*scale}" width="${r.w*scale}" height="${r.h*scale}" fill="rgba(255,107,138,0.18)"/>`;
+      const wfs = Math.min(r.w * scale / 7, r.h * scale * 0.3, 10);
+      if (wfs > 5.5) svg += `<text x="${(r.x + r.w/2)*scale}" y="${(r.y + r.h/2)*scale}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,107,138,0.8)" font-size="${wfs}" font-family="system-ui">${dim(r.w)} × ${dim(r.h)}</text>`;
+    });
+    // Trimmed ends marked with a darker band
+    if (board.trim > 0) {
+      svg += `<rect x="0" y="0" width="${board.trim*scale}" height="${svgH}" fill="rgba(0,0,0,0.4)"/>`;
+      svg += `<rect x="${(bw-board.trim)*scale}" y="0" width="${board.trim*scale}" height="${svgH}" fill="rgba(0,0,0,0.4)"/>`;
+    }
     board.placements.forEach(pl => {
       const px = pl.x * scale, py = pl.y * scale, pw = pl.w * scale, ph = pl.h * scale;
       svg += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="${pl.color}" opacity="0.88"/>`;
       const fs = Math.min(pw / (pl.pieceName.length * 0.6 + 4), ph * 0.28, 12);
-      if (fs > 5) svg += `<text x="${px+pw/2}" y="${py+ph/2}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.78)" font-size="${fs}" font-family="system-ui" font-weight="600">${pl.pieceName}</text>`;
+      if (fs > 5) svg += `<text x="${px+pw/2}" y="${py+ph/2}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.78)" font-size="${fs}" font-family="system-ui" font-weight="600">${escapeHtml(pl.pieceName)}</text>`;
       const dimLabel = `${dim(pl.w)} × ${dim(pl.h)}`;
       const dfs = Math.min(pw / (dimLabel.length * 0.55 + 4), ph * 0.2, 9);
       if (dfs > 4.5 && ph * 0.28 + dfs < ph * 0.9) svg += `<text x="${px+pw/2}" y="${py+ph/2 + Math.max(fs, 6) * 0.95}" text-anchor="middle" dominant-baseline="middle" fill="rgba(0,0,0,0.55)" font-size="${dfs}" font-family="system-ui">${dimLabel}</text>`;
@@ -5526,8 +5544,8 @@ function runOptimizer(silent) {
     allY.forEach(y => { if (y > 0 && y < bh) { const sy = y * scale; svg += `<line x1="0" y1="${sy}" x2="${svgW}" y2="${sy}" stroke="#ff6b35" stroke-width="1" stroke-dasharray="3,2" opacity="0.7"/>`; } });
     svg += `</svg>`;
     const usedArea = board.placements.reduce((s, pl) => s + pl.w * pl.h, 0);
-    const waste = ((bw * bh - usedArea) / (bw * bh) * 100).toFixed(1);
-    html += `<div class="step-card"><div class="step-header"><div><div class="step-title">${board.stockRef.name}</div><div class="step-desc">${bw}" × ${bh}" · ${waste}% waste</div></div></div><div class="step-body"><div class="diagram">${svg}</div></div></div>`;
+    const yieldPct = (usedArea / (bw * bh) * 100).toFixed(1);
+    html += `<div class="step-card"><div class="step-header"><div><div class="step-title">${escapeHtml(board.stockRef.name)} — board ${bi + 1} of ${boards.length}</div><div class="step-desc">${dim(bw)} × ${dim(bh)} · ${yieldPct}% yield · <span style="color:#ff6b8a">rose = leftover</span></div></div></div><div class="step-body"><div class="diagram">${svg}</div></div></div>`;
   });
   document.getElementById('optimizer-output').innerHTML = html;
 }
