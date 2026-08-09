@@ -1,11 +1,11 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-07-04 (Session 7 — regression sweep clean, calc keypad, optimizer live-run, nav auto-hide, To-Do re-file, Origins quiz + diagram, exotic photo wave 2)
+Last updated: 2026-08-09 (Session 8 — Shop Notes quick-capture journal)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~8550 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
+- **File**: ~9535 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
 - **15 tabs**: Home · Cutting Board · Furniture · Optimizer · Calculator · Picture Frame · My To-Do · My Plans · My Projects · My Shop · Lumber Prices · Hardware · Wood Library · Wood Origins · Academy. (Wood Movement removed in Session 6.)
 - **Nav = home**: both grouped as **Design / Workshop / Learn**, identical items in identical order.
 - **Theme**: dark default on desktop, light default on phone (toggle persists). Wood-forward both modes. Accents are WCAG-checked: light `#a04f00` (burnt orange, ≥4.5:1), dark `#e8a838` (brand yellow, AAA).
@@ -13,6 +13,14 @@ Last updated: 2026-07-04 (Session 7 — regression sweep clean, calc keypad, opt
 - **Sparky icons**: 22 character icons in `sparky/` (256px) — one per home tile + inline tab heroes.
 - **Species photos**: `species/` holds tree·leaf·bark JPEGs for every domestic species (Wikimedia Commons, PD/CC, attributed in the lightbox). ~7 MB, committed (offline-safe).
 - **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen, full-screen with the Sparky icon.
+
+## Session 8 (2026-08-09)
+
+**Shop Notes** — a quick-capture journal for bench lessons ("this finish needed two thin coats", "walnut scorched at that feed rate"). Header ✏️ button, reachable from any tab. Freeform text + one optional subject tag with autocomplete from subjects already used; standalone, no links to projects/species. The modal also lists history with edit/delete/filter so notes aren't write-only. Stored `woodshop-notes-v1`, newest-first, synced via the `notes` cloud collection (no Supabase migration needed — `smartcuts_state` is generic). Indexed in ⌘K search under "Notes".
+
+Built explicitly so **Claude can read the log** — requires adding the woodshop Supabase project to MCP as a second read-only server (`--project-ref=brrtfvfilcaoktykrijt`), since the personal-org project isn't reachable from the default connection.
+
+Verified: save/edit/delete/filter, reload persistence, HTML-escape against script + onerror payloads, ⌘K integration, both themes, 375px. NOT tested: real cross-device sync, MCP read-back (pending token setup).
 
 ## Session 7 wrap (2026-07-04)
 
