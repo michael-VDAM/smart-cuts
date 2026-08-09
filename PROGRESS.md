@@ -16,6 +16,8 @@ Last updated: 2026-08-09 (Session 8 — Shop Notes quick-capture journal)
 
 ## Session 8 (2026-08-09)
 
+**🔴 Cloud-sync bug found & fixed via new DB access:** `smartcuts_state` had a CHECK constraint whitelisting only the original 3 collections (projects/supplies/shop_photos) — **plans, todos, lumberPrices, customSpecies, hardware (and the new notes) had NEVER synced**; Postgres rejected every push while the UI read "synced." Constraint dropped (not extended — hand-synced whitelists drift; RLS already scopes rows), all 9 collections verified writable. It hid because `cloudPush` only console.warn'd. Fix shipped: the ☁ header button now flips to **"⚠ sync issue"** naming the stuck collections; clicking retries the flush, toasts "All changes synced ✓" on success, and only offers sign-out after explaining edits are safe locally. Plus an `online` listener retries when connectivity returns. **Claude now has read-write MCP access to the woodshop Supabase (`woodshop-db` server) — schema fixes no longer need copy-paste SQL.**
+
 **Shop Notes** — a quick-capture journal for bench lessons ("this finish needed two thin coats", "walnut scorched at that feed rate"). Header ✏️ button, reachable from any tab. Freeform text + one optional subject tag with autocomplete from subjects already used; standalone, no links to projects/species. The modal also lists history with edit/delete/filter so notes aren't write-only. Stored `woodshop-notes-v1`, newest-first, synced via the `notes` cloud collection (no Supabase migration needed — `smartcuts_state` is generic). Indexed in ⌘K search under "Notes".
 
 Built explicitly so **Claude can read the log**, via either of two paths:

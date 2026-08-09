@@ -9091,12 +9091,21 @@ function cloudInit() {
   });
   // Re-pull when returning to the tab, in case another device changed things.
   document.addEventListener('visibilitychange', () => { if (!document.hidden && cloudUser) pullAll(); });
+  // Retry failed pushes as soon as connectivity returns.
+  window.addEventListener('online', () => { if (cloudUser) pullAll(); });
 }
 
 function updateCloudUI() {
   const btn = document.getElementById('cloud-btn');
   if (!btn) return;
-  if (cloudUser) {
+  const failing = Object.keys(cloudDirty);
+  if (cloudUser && failing.length) {
+    // A push was rejected (offline, paused project, DB constraint…). This state
+    // exists because a CHECK-constraint bug once silently ate 6 collections for
+    // months while the button read "synced" — failures must be visible.
+    btn.textContent = '⚠ sync issue';
+    btn.title = 'Some changes haven’t reached the cloud (' + failing.join(', ') + ') — click to retry';
+  } else if (cloudUser) {
     const who = (cloudUser.email || 'account').split('@')[0];
     btn.textContent = '☁ ' + who;
     btn.title = 'Synced as ' + cloudUser.email + ' — click to sign out';
@@ -9109,6 +9118,16 @@ function updateCloudUI() {
 async function cloudAccountClick() {
   if (!CLOUD_ENABLED || !sb) return;
   if (cloudUser) {
+    // Failed pushes take priority over sign-out: retry first, explain if still stuck.
+    if (Object.keys(cloudDirty).length) {
+      await pullAll();                 // flushes cloudDirty before merging
+      const still = Object.keys(cloudDirty);
+      if (!still.length) { showToast('All changes synced ✓'); updateCloudUI(); return; }
+      updateCloudUI();
+      if (!confirm('Still can’t sync: ' + still.join(', ') + '\n\nYour edits are safe on this device and will keep retrying.\n\nSign out anyway?')) return;
+      await sb.auth.signOut();
+      return;
+    }
     if (confirm('Sign out of cloud sync on this device? Your data stays in the cloud and on this device.')) {
       await sb.auth.signOut();
     }
@@ -9138,6 +9157,7 @@ async function cloudPush(collection) {
   const { error } = await sb.from('smartcuts_state').upsert(row, { onConflict: 'user_id,collection' });
   if (error) { cloudDirty[collection] = true; console.warn('cloudPush failed', collection, error.message); }
   else { delete cloudDirty[collection]; }
+  updateCloudUI();   // surface failures immediately (and clear the ⚠ once flushed)
 }
 
 // Merge every collection (cloud + local) and apply locally, then seed the cloud
