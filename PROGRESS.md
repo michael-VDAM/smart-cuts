@@ -18,7 +18,11 @@ Last updated: 2026-08-09 (Session 8 — Shop Notes quick-capture journal)
 
 **Shop Notes** — a quick-capture journal for bench lessons ("this finish needed two thin coats", "walnut scorched at that feed rate"). Header ✏️ button, reachable from any tab. Freeform text + one optional subject tag with autocomplete from subjects already used; standalone, no links to projects/species. The modal also lists history with edit/delete/filter so notes aren't write-only. Stored `woodshop-notes-v1`, newest-first, synced via the `notes` cloud collection (no Supabase migration needed — `smartcuts_state` is generic). Indexed in ⌘K search under "Notes".
 
-Built explicitly so **Claude can read the log** — requires adding the woodshop Supabase project to MCP as a second read-only server (`--project-ref=brrtfvfilcaoktykrijt`), since the personal-org project isn't reachable from the default connection.
+Built explicitly so **Claude can read the log**, via either of two paths:
+- **↓ Export button** (in the modal) — downloads all notes as subject-grouped Markdown (`shop-notes-YYYY-MM-DD.md`). Drop it in `~/code/woodshop/` and Claude reads it directly. No accounts, no tokens, git-trackable. This is the working path today.
+- **MCP read access** — add the woodshop Supabase as a second read-only server (`--project-ref=brrtfvfilcaoktykrijt`); the personal-org project isn't reachable from the default connection. Blocked on GitHub account access (see below).
+
+**Account note (settled 2026-08-09):** the Supabase project is owned by `michael.columbus.ross@gmail.com` and is **GitHub-linked only** — there is no Supabase password. Confirmed by a Supabase password-reset email that says so outright. To get in, reset the password on the *GitHub* account for that address, then use "Continue with GitHub". Nothing in the repo, git history, or local credentials identifies the owning account — this Mac only knows michael-VDAM.
 
 Verified: save/edit/delete/filter, reload persistence, HTML-escape against script + onerror payloads, ⌘K integration, both themes, 375px. NOT tested: real cross-device sync, MCP read-back (pending token setup).
 

@@ -181,6 +181,8 @@
     .note-head .ttl { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
     .note-head .x { background: none; border: none; color: var(--muted); font-size: 21px; cursor: pointer; line-height: 1; padding: 0 4px; }
     .note-head .x:hover { color: var(--text); }
+    .note-export { background: none; border: 1px solid var(--border); border-radius: 7px; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 9px; white-space: nowrap; }
+    .note-export:hover { color: var(--accent); border-color: var(--accent); }
     .note-compose { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
     .note-compose input, .note-compose textarea, .note-filter input { background: var(--panel3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; padding: 8px 10px; font-family: inherit; outline: none; width: 100%; }
     .note-compose input:focus, .note-compose textarea:focus, .note-filter input:focus { border-color: var(--accent); }
@@ -8871,6 +8873,7 @@ function _renderNotes() {
       <div class="note-head">
         <span aria-hidden="true">✏️</span>
         <div class="ttl">Shop Notes</div>
+        <button class="note-export" onclick="exportNotes()" title="Download all notes as Markdown">↓ Export</button>
         <button class="x" onclick="closeNotes()" aria-label="Close">×</button>
       </div>
       <div class="note-compose">
@@ -8958,6 +8961,37 @@ function editNote(id) {
   if (subjEl) subjEl.value = noteSubject(n);
   if (txtEl) { txtEl.value = n.text || ''; txtEl.focus(); }
   const btn = document.getElementById('note-save'); if (btn) btn.textContent = 'Update note';
+}
+
+// Download every note as Markdown, grouped by subject — the format is for Claude
+// to read, not the app to re-import. Drop the file in ~/code/woodshop/ and it's
+// readable (and git-trackable) without any database access.
+function exportNotes() {
+  if (!notes.length) { showToast ? showToast('No notes to export yet.') : alert('No notes to export yet.'); return; }
+  const day = d => { try { return new Date(d).toISOString().slice(0, 10); } catch { return '?'; } };
+  const groups = new Map();
+  for (const n of notes) {
+    const k = noteSubject(n) || 'General';
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(n);
+  }
+  // Named subjects alphabetically, untagged notes last.
+  const keys = [...groups.keys()].filter(k => k !== 'General').sort((a, b) => a.localeCompare(b));
+  if (groups.has('General')) keys.push('General');
+  const today = day(Date.now());
+  let md = `# Bright Cuts — Shop Notes\n\nExported ${today} · ${notes.length} note${notes.length === 1 ? '' : 's'}\n`;
+  for (const k of keys) {
+    md += `\n## ${k}\n`;
+    for (const n of groups.get(k)) {
+      const edited = n.updated && n.created && n.updated !== n.created;
+      md += `\n### ${day(n.created)}${edited ? ` (edited ${day(n.updated)})` : ''}\n\n${(n.text || '').trim()}\n`;
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+  a.download = `shop-notes-${today}.md`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 function deleteNote(id) {
