@@ -40,8 +40,16 @@ grep -n "^// ─── " index.html          # subsections
 ```
 Major sections in order:
 - CSS: BASE → HEADER → LAYOUT → COMPONENTS (TOGGLES, FIELDS, SPECIES, etc.) → tab-specific (PROJECTS, MY SHOP, ACADEMY, WOOD LIBRARY, WOOD ORIGINS, HOME) → MOBILE RESPONSIVE → PRINT
-- HTML: header → 15 tab divs — home, board (Cutting Board), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
-- JS: STATE → HELPERS → STORAGE → MODE & PATTERN → SPECIES UI → cutting board math/render → furniture → optimizer → calculator → picture frame → academy → wood library (+ `SPECIES_PHOTOS`) → wood origins (static HTML, no render) → projects → plans → supplies → hardware → to-do → init
+- HTML: header → 15 tab divs — home, board (Cutting Board), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), laser (Laser Settings), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
+- JS: STATE → HELPERS → STORAGE → MODE & PATTERN → SPECIES UI → cutting board math/render → furniture → optimizer → calculator → picture frame → academy → wood library (+ `SPECIES_PHOTOS`) → wood origins (static HTML, no render) → laser settings → projects → plans → supplies → hardware → to-do → init
+
+## Laser Settings tab (added 2026-09-03)
+Michael owns an **xTool M2 with the 10W diode**. The tab is a lookup table, nothing more: material + thickness + operation (cut/score/engrave) → power % / speed mm/s / passes, plus notes. Key design points:
+- **`tested` is the whole point.** Seeded rows are *starting brackets to test*, flagged Untested; tapping the badge marks a row "Dialed in" and stamps the date. Never present unverified numbers as verified — laser settings vary by machine AND by board.
+- Numbers render large (`.laser-num .v`) because he reads them standing at the machine in safety glasses.
+- ⧉ duplicates a row as the seed for the next thickness/op. Grouped by material.
+- Storage `woodshop-laser-v1`, cloud collection `laser` (array keyed by `id`).
+- **The M2 does NOT work with LightBurn** — it's xTool Studio only (no G-code import either). Studio's own grid tool is *Array → Material Test Array*. Don't suggest LightBurn workflows for this machine.
 
 ## Conventions (don't break these)
 1. **Live preview** — all input changes debounced 180ms then trigger re-render. No "Plan Build" or "Generate" buttons. Simplicity.

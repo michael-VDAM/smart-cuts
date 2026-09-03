@@ -1,6 +1,6 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-08-09 (Session 8 — Shop Notes quick-capture journal)
+Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
@@ -13,6 +13,12 @@ Last updated: 2026-08-09 (Session 8 — Shop Notes quick-capture journal)
 - **Sparky icons**: 22 character icons in `sparky/` (256px) — one per home tile + inline tab heroes.
 - **Species photos**: `species/` holds tree·leaf·bark JPEGs for every domestic species (Wikimedia Commons, PD/CC, attributed in the lightbox). ~7 MB, committed (offline-safe).
 - **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen, full-screen with the Sparky icon.
+
+## Session 9 (2026-09-03)
+
+**Laser Settings** — new tab in Workshop (⚡ / `sparky/cnc.png`) for the xTool M2 (10W diode). A recipe book: material + thickness + operation → power/speed/passes + notes, grouped by material, filterable by operation, searchable. Each row carries a **Untested ⇄ ✓ Dialed in** badge (one tap, stamps the date) because seeded values are deliberately *brackets to test*, not verified settings — laser numbers vary by machine and by board. ⧉ duplicates a row as a starting point for the next thickness. Storage `woodshop-laser-v1`, synced as the `laser` collection. Seeded with 6 untested starting points (baltic birch 3/6mm cut+engrave, basswood, maple, walnut) which double as his test-grid to-do list.
+
+Verified: CRUD (add/edit/duplicate/delete), tested toggle + date stamp, op filters, search, both themes, 375px mobile, nav↔home parity. NOT tested: real cross-device sync of the new collection.
 
 ## Session 8 (2026-08-09)
 

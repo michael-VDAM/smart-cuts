@@ -562,6 +562,38 @@
       .price-row .cat-tag { display: none; }
     }
 
+    /* LASER TAB — settings recipe book. Numbers are sized to be readable while
+       standing at the machine in safety glasses, which is the whole point. */
+    .laser-add { float: right; background: var(--accent); color: #1a1a1a; border: none; border-radius: 7px;
+                 padding: 6px 13px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    [data-theme="light"] .laser-add { color: #fff; }
+    .laser-group { margin-bottom: 16px; }
+    .laser-group-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+                         color: var(--accent); padding: 4px 2px 7px; }
+    .laser-row { background: var(--panel2); border: 1px solid var(--border); border-left: 3px solid var(--border);
+                 border-radius: 10px; padding: 10px 12px; margin-bottom: 7px; }
+    .laser-row.dialed { border-left-color: var(--success); }
+    .laser-row-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 9px; }
+    .laser-op { font-size: 11px; font-weight: 800; color: var(--op-color); white-space: nowrap; }
+    .laser-thick { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .laser-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+                   background: var(--panel3); color: var(--muted2); border: 1px solid var(--border);
+                   border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: inherit; }
+    .laser-badge.on { background: var(--success); border-color: var(--success); color: #fff; }
+    .laser-mini { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted);
+                  font-size: 11px; padding: 3px 7px; cursor: pointer; font-family: inherit; }
+    .laser-mini:hover { color: var(--accent); border-color: var(--accent); }
+    .laser-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .laser-num { background: var(--panel); border-radius: 8px; padding: 8px 6px; text-align: center; }
+    .laser-num .v { display: block; font-size: 21px; font-weight: 800; color: var(--text);
+                    line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .laser-num .v em { font-size: 11px; font-weight: 600; font-style: normal; color: var(--muted); margin-left: 1px; }
+    .laser-num .k { display: block; font-size: 9px; font-weight: 700; text-transform: uppercase;
+                    letter-spacing: 0.5px; color: var(--muted2); margin-top: 3px; }
+    .laser-note { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+    .laser-when { font-size: 10px; color: var(--success); font-weight: 700; margin-top: 5px; }
+    @media (max-width: 820px) { .laser-num .v { font-size: 19px; } }
+
     /* PLANS TAB — design catalog */
     .plans-col { padding: 28px 36px; max-width: 1300px; margin: 0 auto; width: 100%; }
     .plans-header { margin-bottom: 22px; }
@@ -1398,6 +1430,12 @@
           <p>Tool inventory + jigs + tool-for-the-job matrix. Quick reference.</p>
           <span class="home-tile-cta">Browse shop →</span>
         </button>
+        <button class="home-tile" data-tile-tab="laser">
+          <div class="home-tile-icon"><img src="sparky/cnc.png" alt=""></div>
+          <h3>Laser</h3>
+          <p>Your dialed-in xTool settings by material and thickness — power, speed, passes. Test once, look it up forever.</p>
+          <span class="home-tile-cta">Open settings →</span>
+        </button>
         <button class="home-tile" data-tile-tab="prices">
           <div class="home-tile-icon"><img src="sparky/lumber-prices.png" alt=""></div>
           <h3>Lumber Prices</h3>
@@ -1851,6 +1889,13 @@
   </div>
 </div>
 
+<!-- ════════════════════════════ TAB: LASER ══════════════════════════════════ -->
+<div id="tab-laser" style="display:none" class="workspace single-col">
+  <div class="output-col prices-col">
+    <div id="laser-content"></div>
+  </div>
+</div>
+
 <!-- ════════════════════════════ TAB: PLANS ═══════════════════════════════════ -->
 <div id="tab-plans" style="display:none" class="workspace single-col">
   <div class="output-col plans-col">
@@ -2120,6 +2165,7 @@ const NAV_GROUPS = [
     ['projects', 'My Projects', '📷'],
     ['todo', 'My To-Do', '✅'],
     ['shop', 'My Shop', '🪚'],
+    ['laser', 'Laser', '⚡'],
     ['prices', 'Lumber Prices', '🧾'],
     ['hardware', 'Hardware', '🔩'],
   ] },
@@ -6463,6 +6509,220 @@ function renderHardware() {
   `;
 }
 
+
+// ═════════════════════════════ LASER SETTINGS ══════════════════════════════
+// A lookup table for the xTool M2 (10W diode): material + thickness + operation
+// → the power/speed/passes that actually worked. Settings are machine-specific
+// and vary by board, so nothing here is trusted until Michael runs a test grid
+// and marks it Dialed in. Seeded rows are STARTING BRACKETS, not gospel.
+const LASER_KEY = 'woodshop-laser-v1';
+const LASER_OPS = [
+  ['cut',     'Cut',     '✂️', 'var(--danger, #d96d5a)'],
+  ['score',   'Score',   '➖', 'var(--accent)'],
+  ['engrave', 'Engrave', '▩',  'var(--success)'],
+];
+function laserOp(k) { return LASER_OPS.find(o => o[0] === k) || LASER_OPS[0]; }
+
+// First-run seed: the materials a 10W diode owner reaches for, pre-filled with
+// bracket midpoints to test. All flagged untested so they read as a to-do list.
+const LASER_SEED = [
+  { material: 'Baltic birch plywood', thickness: '1/8 in (3 mm)', op: 'cut',     power: 100, speed: 6,   passes: 2, tested: false, notes: 'Test 70–100% @ 3–12 mm/s. Air assist on, masking tape to kill scorch.' },
+  { material: 'Baltic birch plywood', thickness: '1/8 in (3 mm)', op: 'engrave', power: 35,  speed: 150, passes: 1, tested: false, notes: 'Test 20–45% @ 100–200 mm/s. Fastest speed that still gives the tone wins.' },
+  { material: 'Baltic birch plywood', thickness: '1/4 in (6 mm)', op: 'cut',     power: 100, speed: 3,   passes: 4, tested: false, notes: 'Slow going on 10W — test 2–6 mm/s, 3–6 passes.' },
+  { material: 'Basswood',             thickness: '1/8 in (3 mm)', op: 'cut',     power: 100, speed: 8,   passes: 1, tested: false, notes: 'Softer and cleaner than ply. Test 6–14 mm/s.' },
+  { material: 'Maple (hardwood)',     thickness: '1/8 in (3 mm)', op: 'cut',     power: 100, speed: 4,   passes: 3, tested: false, notes: 'Dense — test 2–8 mm/s. Expect more passes than ply.' },
+  { material: 'Walnut (hardwood)',    thickness: '1/8 in (3 mm)', op: 'engrave', power: 30,  speed: 160, passes: 1, tested: false, notes: 'Dark wood needs less power for contrast. Test 20–40%.' },
+];
+
+let laserSettings = [];
+let laserForm = null;          // null = list mode; object = add/edit
+let laserFilter = 'all';
+let laserSearch = '';
+
+function loadLaser() {
+  try { laserSettings = JSON.parse(localStorage.getItem(LASER_KEY) || 'null'); }
+  catch { laserSettings = null; }
+  if (!Array.isArray(laserSettings)) {
+    laserSettings = LASER_SEED.map((r, i) => ({ id: Date.now() + i, ...r, updated: '' }));
+    try { localStorage.setItem(LASER_KEY, JSON.stringify(laserSettings)); } catch {}
+  }
+  laserSettings.forEach(r => { if (r && r.id != null) r.id = String(r.id); });
+}
+function saveLaser() {
+  try { localStorage.setItem(LASER_KEY, JSON.stringify(laserSettings)); }
+  catch (e) { alert('Could not save — localStorage may be full.'); console.error(e); }
+  cloudPush('laser');
+}
+function newLaserDraft() {
+  return { id: String(Date.now()), material: '', thickness: '', op: 'cut',
+           power: 100, speed: 6, passes: 1, tested: false, notes: '', updated: '' };
+}
+function startNewLaser() { laserForm = newLaserDraft(); renderLaser(); }
+function editLaser(id) {
+  const r = laserSettings.find(x => x.id === id); if (!r) return;
+  laserForm = { ...r }; renderLaser();
+}
+function cancelLaserForm() { laserForm = null; renderLaser(); }
+function saveLaserForm() {
+  if (!laserForm) return;
+  if (!laserForm.material.trim()) { alert('Material is required.'); return; }
+  laserForm.power = Math.max(0, Math.min(100, parseFloat(laserForm.power) || 0));
+  laserForm.speed = Math.max(0, parseFloat(laserForm.speed) || 0);
+  laserForm.passes = Math.max(1, parseInt(laserForm.passes, 10) || 1);
+  laserForm.updated = new Date().toISOString().slice(0, 10);
+  const i = laserSettings.findIndex(x => x.id === laserForm.id);
+  if (i >= 0) laserSettings[i] = laserForm; else laserSettings.unshift(laserForm);
+  saveLaser(); laserForm = null; renderLaser();
+}
+function deleteLaserForm() {
+  if (!laserForm) return;
+  if (!confirm('Delete this setting?')) return;
+  laserSettings = laserSettings.filter(x => x.id !== laserForm.id);
+  saveLaser(); laserForm = null; renderLaser();
+}
+// One tap from "I tested it" to trusted — the distinction that makes the table useful.
+function toggleLaserTested(id) {
+  const r = laserSettings.find(x => x.id === id); if (!r) return;
+  r.tested = !r.tested;
+  if (r.tested) r.updated = new Date().toISOString().slice(0, 10);
+  saveLaser(); renderLaser();
+}
+// Duplicate a row as the starting point for the next thickness/operation.
+function dupLaser(id) {
+  const r = laserSettings.find(x => x.id === id); if (!r) return;
+  laserForm = { ...r, id: String(Date.now()), tested: false, updated: '' };
+  renderLaser();
+}
+function setLaserFilter(k) { laserFilter = k; renderLaser(); }
+function setLaserSearch(q) { laserSearch = q || ''; renderLaser(); }
+
+function renderLaser() {
+  const el = document.getElementById('laser-content');
+  if (!el) return;
+
+  if (laserForm) {
+    const d = laserForm;
+    const isEdit = laserSettings.some(r => r.id === d.id);
+    el.innerHTML = `
+      <button class="proj-detail-back" onclick="cancelLaserForm()">← Back to settings</button>
+      <div class="sup-form">
+        <h3>${isEdit ? 'Edit Setting' : 'Add Setting'}</h3>
+        <div class="grid cols2">
+          <div class="row" style="margin:0">
+            <label>Material *</label>
+            <input type="text" id="lf-material" value="${escapeHtml(d.material)}" placeholder="Baltic birch plywood" oninput="laserForm.material=this.value">
+          </div>
+          <div class="row" style="margin:0">
+            <label>Thickness</label>
+            <input type="text" id="lf-thickness" value="${escapeHtml(d.thickness)}" placeholder="1/8 in (3 mm)" oninput="laserForm.thickness=this.value">
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <label>Operation</label>
+          <select id="lf-op" onchange="laserForm.op=this.value">
+            ${LASER_OPS.map(([k, l, em]) => `<option value="${k}" ${k === d.op ? 'selected' : ''}>${em} ${l}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid cols3" style="margin-top:12px">
+          <div class="row" style="margin:0">
+            <label>Power (%)</label>
+            <input type="text" id="lf-power" inputmode="decimal" value="${d.power}" placeholder="100" oninput="laserForm.power=this.value">
+          </div>
+          <div class="row" style="margin:0">
+            <label>Speed (mm/s)</label>
+            <input type="text" id="lf-speed" inputmode="decimal" value="${d.speed}" placeholder="6" oninput="laserForm.speed=this.value">
+          </div>
+          <div class="row" style="margin:0">
+            <label>Passes</label>
+            <input type="text" id="lf-passes" inputmode="numeric" value="${d.passes}" placeholder="1" oninput="laserForm.passes=this.value">
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--text)">
+            <input type="checkbox" id="lf-tested" ${d.tested ? 'checked' : ''} onchange="laserForm.tested=this.checked" style="width:auto;margin:0;flex:0 0 auto">
+            <span>Dialed in — I ran a test grid and these numbers work</span>
+          </label>
+        </div>
+        <div class="row">
+          <label>Notes</label>
+          <textarea id="lf-notes" placeholder="Air assist, masking tape, focus height, which board it was cut from…" oninput="laserForm.notes=this.value">${escapeHtml(d.notes)}</textarea>
+        </div>
+        <div class="sup-actions">
+          <button class="cancel" onclick="cancelLaserForm()">Cancel</button>
+          ${isEdit ? `<button class="delete" onclick="deleteLaserForm()">Delete</button>` : ''}
+          <button class="save" onclick="saveLaserForm()">${isEdit ? 'Save Changes' : 'Add Setting'}</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const q = laserSearch.trim().toLowerCase();
+  const counts = { all: laserSettings.length };
+  LASER_OPS.forEach(([k]) => counts[k] = laserSettings.filter(r => r.op === k).length);
+  const filter = (k, label) => `<button class="lib-filter${laserFilter === k ? ' active' : ''}" onclick="setLaserFilter('${k}')">${label} <span class="lib-count">${counts[k] || 0}</span></button>`;
+  const shown = laserSettings.filter(r =>
+    (laserFilter === 'all' || r.op === laserFilter) &&
+    (!q || `${r.material} ${r.thickness} ${r.notes}`.toLowerCase().includes(q)));
+
+  // Group by material so a material's whole recipe card reads together.
+  const groups = [];
+  for (const r of shown) {
+    const g = groups.find(x => x.material.toLowerCase() === r.material.toLowerCase());
+    if (g) g.rows.push(r); else groups.push({ material: r.material, rows: [r] });
+  }
+  groups.forEach(g => g.rows.sort((a, b) =>
+    (a.thickness || '').localeCompare(b.thickness || '') || a.op.localeCompare(b.op)));
+
+  const body = groups.map(g => `
+    <div class="laser-group">
+      <div class="laser-group-title">${escapeHtml(g.material)}</div>
+      ${g.rows.map(r => {
+        const [, label, em, color] = laserOp(r.op);
+        return `<div class="laser-row${r.tested ? ' dialed' : ''}">
+          <div class="laser-row-head">
+            <span class="laser-op" style="--op-color:${color}">${em} ${label}</span>
+            ${r.thickness ? `<span class="laser-thick">${escapeHtml(r.thickness)}</span>` : ''}
+            <button class="laser-badge${r.tested ? ' on' : ''}" onclick="toggleLaserTested('${r.id}')"
+              title="${r.tested ? 'Verified by a test grid — tap to un-verify' : 'Not tested yet — tap once you have run a grid'}">
+              ${r.tested ? '✓ Dialed in' : 'Untested'}
+            </button>
+            <div style="flex:1"></div>
+            <button class="laser-mini" onclick="dupLaser('${r.id}')" title="Duplicate as a starting point">⧉</button>
+            <button class="laser-mini" onclick="editLaser('${r.id}')" title="Edit">✎</button>
+          </div>
+          <div class="laser-nums">
+            <div class="laser-num"><span class="v">${r.power}<em>%</em></span><span class="k">Power</span></div>
+            <div class="laser-num"><span class="v">${r.speed}<em>mm/s</em></span><span class="k">Speed</span></div>
+            <div class="laser-num"><span class="v">${r.passes}<em>×</em></span><span class="k">Passes</span></div>
+          </div>
+          ${r.notes ? `<div class="laser-note">${escapeHtml(r.notes)}</div>` : ''}
+          ${r.tested && r.updated ? `<div class="laser-when">Verified ${r.updated}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  const dialed = laserSettings.filter(r => r.tested).length;
+  el.innerHTML = `
+    <div class="prices-header">
+      <h2><img src="sparky/cnc.png" class="tab-hero-icon" alt="">Laser Settings</h2>
+      <p>Your xTool M2 recipe book — power, speed and passes by material and thickness. Numbers are machine- and board-specific, so run a test grid once, mark it <strong>Dialed in</strong>, and never guess again.</p>
+    </div>
+    <div class="prices-filter-row">
+      ${filter('all', 'All')}
+      ${LASER_OPS.map(([k, l]) => filter(k, l)).join('')}
+      <input class="lib-search" type="search" placeholder="Search material or notes…" value="${escapeHtml(laserSearch)}" oninput="setLaserSearch(this.value)" style="flex:1;min-width:140px;margin-left:auto">
+    </div>
+    <div class="prices-summary">
+      <span class="num">${dialed}</span> dialed in · <span class="num">${laserSettings.length - dialed}</span> still to test
+      <button class="laser-add" onclick="startNewLaser()">＋ Add setting</button>
+    </div>
+    ${body || `<div style="text-align:center;padding:30px 18px;color:var(--muted);font-size:13px">No matches.</div>`}
+    <p style="color:var(--muted2);font-size:11px;margin-top:14px;line-height:1.5">
+      Seeded rows are <strong>starting brackets to test</strong> on a 10W diode, not verified settings — every board behaves differently.
+      In xTool Studio: select a shape → <em>Array → Material Test Array</em> to burn a power/speed grid, then record the winner here.
+    </p>`;
+}
+
 // ═════════════════════════════ PLANS (Design catalog) ═════════════════════
 // A plan = a saved design (cutting board or furniture) that may or may not be
 // linked to a real-world Project. Unassigned plans live in their own inbox;
@@ -9053,6 +9313,10 @@ const CLOUD_COLLECTIONS = {
     get: () => hardwarePrices,
     set: v => { if (v && typeof v === 'object') { hardwarePrices = v; try { localStorage.setItem(HARDWARE_PRICES_KEY, JSON.stringify(hardwarePrices)); } catch {} renderHardware(); } },
   },
+  laser: {
+    get: () => laserSettings,
+    set: v => { if (Array.isArray(v)) { laserSettings = v; try { localStorage.setItem(LASER_KEY, JSON.stringify(laserSettings)); } catch {} renderLaser(); } },
+  },
   todos: {
     get: () => todos,
     set: v => { if (Array.isArray(v)) { todos = v; try { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); } catch {} renderTodos(); } },
@@ -9066,7 +9330,7 @@ const CLOUD_COLLECTIONS = {
 // Array collections merge by this unique key (union, never drop). Anything NOT
 // listed here is a key→value map (lumberPrices / hardware / shop_photos) and
 // merges by object key. Used by pullAll() to merge instead of overwrite.
-const CLOUD_ARRAY_KEYS = { projects: 'id', plans: 'id', todos: 'id', supplies: 'id', notes: 'id', customSpecies: 'name' };
+const CLOUD_ARRAY_KEYS = { projects: 'id', plans: 'id', todos: 'id', supplies: 'id', notes: 'id', laser: 'id', customSpecies: 'name' };
 
 function cloudInit() {
   const btn = document.getElementById('cloud-btn');
@@ -9522,6 +9786,8 @@ function init() {
   renderCalc();
   loadFrameState();
   renderFrame();
+  loadLaser();
+  renderLaser();
   loadTodos();
   renderTodos();
   loadNotes();
