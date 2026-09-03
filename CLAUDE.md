@@ -6,7 +6,7 @@
 **Bright Cuts** — a single-file HTML app for woodworking, installable on phone via Add to Home Screen (PWA). By **Michael Makes It Work** (Michael Ross's personal woodworking brand). Lives in `~/code/woodshop/` locally (folder name unchanged), pushed to https://github.com/michael-VDAM/smart-cuts (legacy slug from a brief 2026-05-27 rename that's since been undone), deployed to https://michael-vdam.github.io/smart-cuts/. The app's display name is **Bright Cuts**; the `smart-cuts/` URL is kept only to avoid breaking the existing PWA install on Michael's phone.
 
 ## Tech stack
-- **One file**: `index.html` (~8550 lines including inline CSS + JS) + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
+- **One file**: `index.html` (~10170 lines including inline CSS + JS) + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
 - **Vanilla JS** — no framework, no build step
 - **localStorage** for persistence (per-device, no backend)
 - **Canvas API** for photo auto-resize (1200px max, JPEG 0.82)
@@ -40,16 +40,27 @@ grep -n "^// ─── " index.html          # subsections
 ```
 Major sections in order:
 - CSS: BASE → HEADER → LAYOUT → COMPONENTS (TOGGLES, FIELDS, SPECIES, etc.) → tab-specific (PROJECTS, MY SHOP, ACADEMY, WOOD LIBRARY, WOOD ORIGINS, HOME) → MOBILE RESPONSIVE → PRINT
-- HTML: header → 15 tab divs — home, board (Cutting Board), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), laser (Laser Settings), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
+- HTML: header → 16 tab divs — home, board (Cutting Board), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), laser (Laser Settings), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
 - JS: STATE → HELPERS → STORAGE → MODE & PATTERN → SPECIES UI → cutting board math/render → furniture → optimizer → calculator → picture frame → academy → wood library (+ `SPECIES_PHOTOS`) → wood origins (static HTML, no render) → laser settings → projects → plans → supplies → hardware → to-do → init
 
-## Laser Settings tab (added 2026-09-03)
-Michael owns an **xTool M2 with the 10W diode**. The tab is a lookup table, nothing more: material + thickness + operation (cut/score/engrave) → power % / speed mm/s / passes, plus notes. Key design points:
-- **`tested` is the whole point.** Seeded rows are *starting brackets to test*, flagged Untested; tapping the badge marks a row "Dialed in" and stamps the date. Never present unverified numbers as verified — laser settings vary by machine AND by board.
-- Numbers render large (`.laser-num .v`) because he reads them standing at the machine in safety glasses.
-- ⧉ duplicates a row as the seed for the next thickness/op. Grouped by material.
-- Storage `woodshop-laser-v1`, cloud collection `laser` (array keyed by `id`).
-- **The M2 does NOT work with LightBurn** — it's xTool Studio only (no G-code import either). Studio's own grid tool is *Array → Material Test Array*. Don't suggest LightBurn workflows for this machine.
+## Laser tab (added 2026-09-03)
+Michael owns an **xTool M2 with the 10W diode**. Two sub-views behind one tab.
+
+**Settings** — pick a material (`laserMaterials`, seeded with 1/8" and 1/4" baltic birch), then fill in its **Score / Engrave / Cut** recipes. Fields are OPERATION-SPECIFIC and mirror xTool Studio exactly — see `LASER_COMMON` (power/speed/passes/air assist) + `LASER_EXTRA` per op: score 6 fields, engrave 11 (bitmap dither mode, lines-per-cm, engrave direction, cross hatch, outline tracing…), cut 9 (focus descent, tab generation, constant-vs-dynamic power…). **Don't reorder these — the order matches how Michael listed them.**
+
+**Projects** — a finished piece: photo (routed through `processPhotoFile`), material, notes, and a **frozen snapshot** of the settings it was burned with. The intent is explicitly *"months down the road I want to remake this and know the settings."* So:
+- Project ops are COPIES, never references. Refining the material library must never rewrite a project's history — there's a test for this.
+- `matText` freezes the material label as a string, so renaming or deleting a material can't orphan the record.
+- Clicking a project opens a READ-ONLY detail view (you're standing at the machine), with Edit behind a button.
+
+**`tested` is the point of the settings view.** A recipe reads Untested until he's run a grid and tapped the badge, which stamps the date. Never present unverified numbers as verified — laser settings vary by machine AND by board.
+
+**A settings record's identity is `(matId, op)`, not `id`** — one recipe per material per operation. `saveLaserForm` upserts on that pair, and `loadLaser` collapses duplicates + re-mints colliding ids. This exists because `String(Date.now())` ids collided within a millisecond and silently overwrote a saved recipe.
+
+Storage: `woodshop-laser-v2` (settings), `woodshop-laser-materials-v1`, `woodshop-laser-projects-v1`; cloud collections `laser` / `laserMaterials` / `laserProjects`, all keyed by `id`.
+
+**The M2 does NOT work with LightBurn** — xTool Studio only, no G-code import. Studio's grid tool is *Array → Material Test Array*. Don't suggest LightBurn workflows for this machine.
+
 
 ## Conventions (don't break these)
 1. **Live preview** — all input changes debounced 180ms then trigger re-render. No "Plan Build" or "Generate" buttons. Simplicity.

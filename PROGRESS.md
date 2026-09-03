@@ -5,7 +5,7 @@ Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~9855 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
+- **File**: ~10170 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
 - **16 tabs**: Home · Cutting Board · Furniture · Optimizer · Calculator · Picture Frame · My To-Do · My Plans · My Projects · My Shop · Laser Settings · Lumber Prices · Hardware · Wood Library · Wood Origins · Academy. (Wood Movement removed in Session 6.)
 - **Nav = home**: both grouped as **Design / Workshop / Learn**, identical items in identical order.
 - **Theme**: dark default on desktop, light default on phone (toggle persists). Wood-forward both modes. Accents are WCAG-checked: light `#a04f00` (burnt orange, ≥4.5:1), dark `#e8a838` (brand yellow, AAA).
@@ -16,9 +16,15 @@ Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
 
 ## Session 9 (2026-09-03)
 
-**Laser Settings** — new tab in Workshop (⚡ / `sparky/cnc.png`) for the xTool M2 (10W diode). A recipe book: material + thickness + operation → power/speed/passes + notes, grouped by material, filterable by operation, searchable. Each row carries a **Untested ⇄ ✓ Dialed in** badge (one tap, stamps the date) because seeded values are deliberately *brackets to test*, not verified settings — laser numbers vary by machine and by board. ⧉ duplicates a row as a starting point for the next thickness. Storage `woodshop-laser-v1`, synced as the `laser` collection. Seeded with 6 untested starting points (baltic birch 3/6mm cut+engrave, basswood, maple, walnut) which double as his test-grid to-do list.
+**Laser** — new tab in Workshop (⚡ / `sparky/cnc.png`) for the xTool M2 (10W diode), in two sub-views.
 
-Verified: CRUD (add/edit/duplicate/delete), tested toggle + date stamp, op filters, search, both themes, 375px mobile, nav↔home parity. NOT tested: real cross-device sync of the new collection.
+*Settings*: pick a material (seeded 1/8" + 1/4" baltic birch, extensible) → fill in its Score / Engrave / Cut recipes. Fields are operation-specific and mirror xTool Studio exactly — score 6, engrave 11 (bitmap dither, lines/cm, engrave direction, cross hatch, outline tracing), cut 9 (focus descent, tab generation, constant vs dynamic power). Four big tiles (power/speed/passes/air) sized to read at the machine, the rest as compact chips. **Untested ⇄ ✓ Dialed in** badge stamps a verification date; ⧉ copies a recipe to another material (landing untested, since it's unverified there).
+
+*Projects*: photo + material + notes + a **frozen snapshot** of the settings used — built for "months from now I want to remake this." Project ops are copies, never references, so refining the library never rewrites history; `matText` freezes the material name so a rename can't orphan the record. Clicking a project opens a read-only detail view.
+
+**Bug caught during testing:** `String(Date.now())` ids collided within a millisecond, and upserting by id silently overwrote a saved recipe (a Score setting vanished, a duplicate Cut appeared). Fixed structurally — a settings record's identity is now `(matId, op)`, duplicates are impossible, and `loadLaser` heals any already stored.
+
+Verified: all three field sets render/save, op-specific selects and toggles, material add/switch/delete, copy-to-material, photo through `processPhotoFile` (2000px → 9KB JPEG), project snapshot immunity to library edits + material rename, rapid-create id collision, both themes, 375px. NOT tested: real cross-device sync of the three new collections.
 
 ## Session 8 (2026-08-09)
 
