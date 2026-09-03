@@ -5,8 +5,8 @@ Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
 - **Repo**: https://github.com/michael-VDAM/smart-cuts (public)
-- **File**: ~9535 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
-- **15 tabs**: Home · Cutting Board · Furniture · Optimizer · Calculator · Picture Frame · My To-Do · My Plans · My Projects · My Shop · Lumber Prices · Hardware · Wood Library · Wood Origins · Academy. (Wood Movement removed in Session 6.)
+- **File**: ~9855 lines, single `index.html` + static assets (icons, manifest, `sparky/` art, `species/` reference photos)
+- **16 tabs**: Home · Cutting Board · Furniture · Optimizer · Calculator · Picture Frame · My To-Do · My Plans · My Projects · My Shop · Laser Settings · Lumber Prices · Hardware · Wood Library · Wood Origins · Academy. (Wood Movement removed in Session 6.)
 - **Nav = home**: both grouped as **Design / Workshop / Learn**, identical items in identical order.
 - **Theme**: dark default on desktop, light default on phone (toggle persists). Wood-forward both modes. Accents are WCAG-checked: light `#a04f00` (burnt orange, ≥4.5:1), dark `#e8a838` (brand yellow, AAA).
 - **App icon**: square Sparky General (bare character). Favicon + PWA icon + home hero avatar.

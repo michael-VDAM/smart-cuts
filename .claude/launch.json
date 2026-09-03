@@ -1,11 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    {
-      "name": "smart-cuts",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "4178"],
-      "port": 4178
-    }
+    { "name": "woodshop", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8471"], "port": 8471 },
+    { "name": "trailhead", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8482", "--directory", "/Users/michaelross/code/trailhead"], "port": 8482 }
   ]
 }
