@@ -40,7 +40,7 @@ grep -n "^// ─── " index.html          # subsections
 ```
 Major sections in order:
 - CSS: BASE → HEADER → LAYOUT → COMPONENTS (TOGGLES, FIELDS, SPECIES, etc.) → tab-specific (PROJECTS, MY SHOP, ACADEMY, WOOD LIBRARY, WOOD ORIGINS, HOME) → MOBILE RESPONSIVE → PRINT
-- HTML: header → 16 tab divs — home, board (Cutting Board), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), laser (Laser Settings), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
+- HTML: header → 16 tab divs — home, board (End Grain Calculator), furniture, optimizer, calc (Calculator), frame (Picture Frame), todo (My To-Do), plans (My Plans), projects (My Projects), shop (My Shop), laser (Laser Settings), prices (Lumber Prices), hardware, library (Wood Library), origins (Wood Origins), academy. Grouped in nav + home as **Design / Workshop / Learn** via `NAV_GROUPS` (the single source of truth for grouping).
 - JS: STATE → HELPERS → STORAGE → MODE & PATTERN → SPECIES UI → cutting board math/render → furniture → optimizer → calculator → picture frame → academy → wood library (+ `SPECIES_PHOTOS`) → wood origins (static HTML, no render) → laser settings → projects → plans → supplies → hardware → to-do → init
 
 ## Laser tab (added 2026-09-03)
@@ -62,12 +62,31 @@ Storage: `woodshop-laser-v2` (settings), `woodshop-laser-materials-v1`, `woodsho
 **The M2 does NOT work with LightBurn** — xTool Studio only, no G-code import. Studio's grid tool is *Array → Material Test Array*. Don't suggest LightBurn workflows for this machine.
 
 
+## End Grain Calculator (rebuilt 2026-09-11, replaced the old Cutting Board tab)
+Michael keeps his own `End Grain Cutting Board Calculator.xlsx` (Desktop, tabs **Square** and **Rectangle**). He likes it because it's simple and its lookup grids show where a size gets cheap. The tab is now a faithful port of it. **Match his sheet before adding anything.**
+
+**The model — his two tabs are ONE model with two knobs:**
+- `cellW` — the cell dimension **across the board's width**. Ripped off the lumber's **width** in Step 2. (his "width long rectangle", D4)
+- `cellT` — the cell dimension **along the board's length**. It IS the glued panel's thickness, so it's milled off the lumber's **thickness**. (his "length short rectangle", D3 — which is why his rule checks `D3 < lumber thickness`)
+- **Square is just `cellW === cellT`.** Don't build them as two code paths.
+- `kerf` is his single ⅛" allowance (kerf + cleanup), applied per cut exactly where his formulas apply it.
+
+`egSolve()` is the pure function; `calcEndGrain()` wraps it from the DOM; the data tables call it across a sweep. **Verified against 18 cells of his own grids — 16 match to the thousandth.** The 2 that don't are where he divides piece counts without rounding (12 / 1.75 = 6.857 pieces); we `ceil`, which never buys short.
+
+**Rules that matter:**
+- **Lumber length is an OUTPUT, never an input** — he buys custom-milled, so "how long a board do I need" is the whole question.
+- Lumber thickness/width are **always hand-typed**. No presets, no standard sizes. He doesn't buy S4S.
+- Every step shows **its own waste**, and the bottom shows `bought − finished = waste`. He asked for both.
+- Counts sit on integer boundaries where float drift flips the answer — always use `egCeil`/`egFloor`, never bare `Math.ceil`.
+- Data tables have a **"milled to cell"** toggle. With thick stock the milling loss swamps everything and the grid slides one way; matching lumber to the cell exposes the rip-fit sawtooth, which is the optimal-point signal he's actually looking for.
+- No face grain, no juice groove, no edge profile, no buffer %. He cut all of them. Don't reintroduce.
+
 ## Conventions (don't break these)
 1. **Live preview** — all input changes debounced 180ms then trigger re-render. No "Plan Build" or "Generate" buttons. Simplicity.
 2. **localStorage keys are versioned** (`woodshop-planner-v4`, `woodshop-projects-v1`, etc.). DO NOT change key names without a migration — wipes user data.
 3. **Yellow accent `#e8a838`** is the brand color = the **dark-theme** accent. The **light** theme uses `#a04f00` (burnt orange) — a deliberate split so the accent clears WCAG AA contrast on the parchment bg (the old `#b56a1f` failed at 3.36:1). Theme default is **dark on desktop, light on phone** (manual toggle persists). Light mode has its own variable overrides (search `[data-theme="light"]`); keep new accent-colored text legible in BOTH.
 4. **Photos auto-resize** via `processPhotoFile()` — every photo upload route through this. Keeps localStorage sane.
-5. **Standard vs Custom UI mode** on cutting board: `[data-ui-mode="standard"]` hides `.custom-only` + `.standard-hide`, `[data-ui-mode="custom"]` hides `.standard-only`. Stock Lumber is `display:none` always.
+5. **The board tab is Michael's spreadsheet, not ours.** See the End Grain Calculator section below before changing any of its math.
 6. **`node --check` on the script** after large edits to QUIZ_QUESTIONS or any object literal — I broke navigation once by missing a `};`.
 
 ## Update workflow

@@ -1,6 +1,6 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
+Last updated: 2026-09-11 (Session 10 — Cutting Board rebuilt as the End Grain Calculator)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
@@ -13,6 +13,26 @@ Last updated: 2026-09-03 (Session 9 — Laser Settings tab for the xTool M2)
 - **Sparky icons**: 22 character icons in `sparky/` (256px) — one per home tile + inline tab heroes.
 - **Species photos**: `species/` holds tree·leaf·bark JPEGs for every domestic species (Wikimedia Commons, PD/CC, attributed in the lightbox). ~7 MB, committed (offline-safe).
 - **Installable**: PWA via `manifest.webmanifest` + apple-touch-icon → Add to Home Screen, full-screen with the Sparky icon.
+
+## Session 10 (2026-09-11)
+
+**Cutting Board → End Grain Calculator.** Michael said he didn't like the tab and pointed at his own `End Grain Cutting Board Calculator.xlsx`. The tab is now a port of that workbook. His two sheets (Square / Rectangle) turned out to be one model: the cell's **across-width** dimension is ripped off the lumber's width, the **along-length** dimension is the glued panel's thickness and is milled off the lumber's thickness. Square is just the case where they're equal — one toggle, not two code paths.
+
+Ported faithfully: his four steps with each one's own cut count and length, his ⅛" kerf-and-cleanup allowance applied exactly where his formulas apply it, his leftovers block, and his lookup grids (now live, and reacting to the inputs). **Lumber length is an output, not an input** — he buys custom-milled, so that's the question the tool exists to answer. Lumber thickness/width are always hand-typed; no presets.
+
+**Verified against 18 cells of his own grids — 16 match to the thousandth.** The 2 that differ are where his sheet divides piece counts without rounding (12 / 1.75 = 6.857 pieces); we `ceil`, which is longer and never buys short. Told him; his call.
+
+**Two findings worth keeping:**
+- *His waste table was hiding the thing he wanted from it.* He said waste sometimes goes up and sometimes down as the cell grows. With his 2" stock it only ever falls (85→77→69→63→54→50→39%) because milling 2" down to the cell costs more than everything else combined. With lumber ordered at cell thickness it goes **39 → 39 → 39 → 41 → 39 → 43 → 39%** — the sawtooth he remembered. Added a **"milled to cell"** toggle so both readings are one click apart.
+- *His sheet never counts the milling loss.* On the default 18×12×1½ board from 2" stock that's 4.06 bf of shavings — the difference between 77% and 39% waste. Now a warning banner that names the fix (order lumber at cell thickness).
+
+**Two bugs fixed on the way through:**
+- `v()` ran *every* field through the unit converter, so in metric a quantity of 2 became `2 ÷ 25.4` and silently built one board. Added `vCount()` for unitless fields. (Pre-existing; `furn-qty`, `furn-sheetQ` and `furn-buffer` still have it — not touched this session.)
+- Piece counts sit on integer boundaries where float drift flips the answer: 14" stored as 355.6 mm returns 14.000000000000002, and a bare `Math.ceil` added a whole phantom row of cells. All boundaries now go through `egCeil`/`egFloor`.
+
+Removed with the rebuild: face grain, Standard/Custom UI mode, strip-pattern builder, edge profile, juice groove, buffer %. Michael cut all of them. The face-grain *functions* (`calcFaceGrain`, `renderFaceGrain`, `svgFinishedFaceGrain`, the strip machinery) are still in the file, now unreachable — left for a separate sweep so this change stayed reviewable.
+
+Verified: his Square and Rectangle defaults reproduced exactly, square/rectangle toggle, both data-table modes, all 16 tabs, old-save migration (a `mode:'face'` save coerces cleanly), save-plan round trip, metric round trip now stable and agreeing with imperial, both themes contrast-checked (light `--cut` was 2.4:1 on parchment → darkened to `#a8471c`, 4.6:1), 375px with no page overflow and tables scrolling inside. **NOT verified: physical print output** (print CSS for the new blocks was written but not rendered), and real cross-device sync.
 
 ## Session 9 (2026-09-03)
 

@@ -51,6 +51,7 @@
       --accent-soft: rgba(160,79,0,0.10);
       --accent2: #5a7a92;
       --money: #4d7a3d;
+      --cut: #a8471c;
       --shadow: 0 3px 14px rgba(80,55,25,0.12);
     }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 13px; min-height: 100vh; -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "cv01"; transition: background-color 0.2s, color 0.2s; }
@@ -360,6 +361,57 @@
     .scard:hover { border-color: var(--border2); }
     .scard .val { font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1.1; font-variant-numeric: tabular-nums; }
     .scard .lbl { font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.2px; }
+
+    .scard.hero { background: var(--accent-soft); border-color: rgba(212,160,86,0.35); }
+    .scard.hero .val { font-size: 21px; }
+
+    /* END GRAIN CALCULATOR — cell inputs, per-step waste, leftovers, sweep tables */
+    .cell-hint, .lumber-note { font-size: 10px; color: var(--muted2); line-height: 1.5; margin-top: 7px; }
+    .cell-hint strong, .lumber-note strong { color: var(--muted); }
+    .waste-line { display: flex; align-items: baseline; gap: 8px; font-size: 11px; color: var(--muted); line-height: 1.5; padding-top: 9px; border-top: 1px dashed var(--border); }
+    .waste-tag { flex: none; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--cut); border: 1px solid rgba(217,122,69,0.35); border-radius: 4px; padding: 1px 5px; }
+
+    .waste-panel { background: var(--panel2); border: 1px solid var(--border); border-radius: 9px; padding: 15px; margin-top: 6px; }
+    .waste-head { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 11px; }
+    .lo-list { margin-bottom: 14px; }
+    .lo-row { display: flex; align-items: baseline; gap: 10px; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+    .lo-row:last-child { border-bottom: none; }
+    .lo-row.lo-head { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted2); border-bottom-color: var(--border2); }
+    .lo-row.lo-none { color: var(--muted); font-style: italic; }
+    .lo-qty { flex: none; width: 38px; color: var(--accent); font-weight: 700; }
+    .lo-dim { flex: 1; color: var(--text); }
+    .lo-bf { flex: none; color: var(--muted); }
+    .waste-totals { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 0; border-top: 1px solid var(--border2); }
+    .wt { display: flex; flex-direction: column; gap: 2px; }
+    .wt-val { font-size: 16px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .wt-lbl { font-size: 9px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.4px; }
+    .wt-op { font-size: 15px; color: var(--muted2); }
+    .wt-waste .wt-val { color: var(--cut); }
+    .waste-split { font-size: 11px; color: var(--muted); line-height: 1.55; }
+    .waste-split strong { color: var(--text); }
+
+    .dt-head { margin-bottom: 18px; }
+    .dt-head h2 { font-size: 17px; color: var(--text); margin-bottom: 6px; }
+    .dt-head p { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .dt-head p strong { color: var(--text); }
+    .dt-toggle { display: flex; gap: 6px; margin: 10px 0 9px; }
+    .dt-toggle .seg-btn { flex: 0 1 auto; padding: 5px 12px; font-size: 11px; }
+    .dt-block { margin-bottom: 20px; }
+    .dt-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+    .dt-title span { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--muted2); margin-left: 7px; }
+    .dt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table.dt { border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; min-width: 100%; }
+    table.dt th, table.dt td { border: 1px solid var(--border); padding: 6px 9px; text-align: center; white-space: nowrap; }
+    table.dt th { background: var(--panel2); color: var(--muted); font-weight: 600; font-size: 10px; }
+    table.dt th.dt-corner { text-align: left; color: var(--muted2); font-weight: 400; font-size: 9px; }
+    table.dt th.dt-rowh { text-align: right; color: var(--text); font-weight: 700; }
+    .dt-cell { color: var(--text); background: var(--panel); }
+    .dt-best { background: rgba(143,184,120,0.20); color: var(--money); font-weight: 700; }
+    /* --money is 4.06:1 on the tinted cell over parchment — under AA for 11px bold. */
+    [data-theme="light"] .dt-best { color: #3f6631; }
+    .dt-worst { background: rgba(217,122,69,0.14); color: var(--cut); }
+    .dt-bad { background: var(--panel2); color: var(--muted2); }
+    .dt-cur { outline: 2px solid var(--accent); outline-offset: -2px; }
 
     /* BANNERS */
     .warn-banner { background: rgba(212,160,86,0.08); border: 1px solid rgba(212,160,86,0.3); border-radius: 8px; padding: 11px 14px; margin-bottom: 16px; font-size: 12px; color: var(--warn); display: flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
@@ -1324,6 +1376,24 @@
       .step-title, .preview-title h2 { color: black !important; }
       .meas { background: #fff7e8 !important; border-color: #e8c896 !important; color: black !important; }
       .finished-preview::before { display: none !important; }
+      /* New calculator blocks: they inherit theme vars, so in dark mode their text
+         would print near-white on white. Force them to ink on paper. */
+      .waste-panel { break-inside: avoid; page-break-inside: avoid; background: white !important; border-color: #ccc !important; }
+      .waste-head, .wt-val, .lo-dim, .waste-split strong { color: black !important; }
+      .waste-line, .waste-split, .lo-bf, .wt-lbl { color: #555 !important; }
+      .waste-tag, .wt-waste .wt-val, .lo-qty { color: #a04f00 !important; }
+      .lo-row { border-bottom-color: #ddd !important; }
+      .waste-totals { border-top-color: #bbb !important; }
+      .dt-scroll { overflow: visible !important; }
+      .dt-block { break-inside: avoid; page-break-inside: avoid; }
+      .dt-head h2, .dt-title, table.dt th.dt-rowh, .dt-cell { color: black !important; }
+      .dt-head p, .dt-title span, table.dt th, table.dt th.dt-corner, .dt-bad { color: #555 !important; }
+      table.dt th, .dt-cell, .dt-bad { background: white !important; }
+      table.dt th, table.dt td { border-color: #ccc !important; }
+      .dt-best { background: #eef4e8 !important; color: #3f6631 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .dt-worst { background: #fbeee6 !important; color: #a8471c !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .dt-cur { outline-color: #a04f00 !important; }
+      .dt-toggle { display: none !important; }
       .live-indicator { display: none !important; }
       .wood-photos, .species-lightbox { display: none !important; }
       .wood-swatch, .swatch-input, .mat-tag { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1513,40 +1583,23 @@
     <div class="tab-hero-inline">
       <img src="sparky/cutting-board.png" alt="">
       <div>
-        <h2>Cutting Board</h2>
-        <p>Design end- or face-grain boards. Live cut math, board-foot totals, build steps.</p>
+        <h2>End Grain Calculator</h2>
+        <p>Your lumber in, cut list out. Every step's cuts, lengths and waste.</p>
       </div>
     </div>
     <div class="input-body">
 
+      <!-- Two sub-views: the cut list, and the sweep tables that show optimal points -->
       <div class="section">
-        <div class="section-label">Board Type</div>
-        <div class="seg-toggle cols2" style="margin-bottom:6px">
-          <button class="seg-btn active" id="mode-end" onclick="setMode('end')">End Grain</button>
-          <button class="seg-btn" id="mode-face" onclick="setMode('face')">Face Grain</button>
-        </div>
         <div class="seg-toggle cols2">
-          <button class="seg-btn active" id="ui-standard" onclick="setUIMode('standard')">Standard</button>
-          <button class="seg-btn" id="ui-custom" onclick="setUIMode('custom')">Custom</button>
+          <button class="seg-btn active" id="bview-calc" onclick="setBoardView('calc')">Cut List</button>
+          <button class="seg-btn" id="bview-tables" onclick="setBoardView('tables')">Data Tables</button>
         </div>
       </div>
 
-      <!-- End grain pattern — tap the card to open the picker sheet -->
-      <div class="section" id="pattern-section">
-        <div class="section-label">End Grain Pattern</div>
-        <button class="pattern-trigger" id="pattern-trigger" onclick="openPatternPicker()">
-          <span class="pattern-trigger-thumb" id="pattern-trigger-thumb"></span>
-          <span class="pattern-trigger-text">
-            <span class="pattern-trigger-name" id="pattern-trigger-name">Checker</span>
-            <span class="pattern-trigger-hint">Tap to pick a pattern</span>
-          </span>
-          <span class="pattern-trigger-chev">›</span>
-        </button>
-      </div>
-
-      <!-- Standard sizes — only shown in Standard mode -->
-      <div class="section standard-only">
-        <div class="section-label">Standard Sizes</div>
+      <!-- Standard sizes -->
+      <div class="section">
+        <div class="section-label">Standard Sizes <span class="hint">tap to fill the board dimensions</span></div>
         <div class="preset-row" style="margin-bottom:4px">
           <button class="preset-btn" onclick="applyPreset('mini')"><span class="ttl">Mini</span><span class="sub">8×5×¾</span></button>
           <button class="preset-btn" onclick="applyPreset('cheese')"><span class="ttl">Cheese</span><span class="sub">10×7×¾</span></button>
@@ -1564,30 +1617,61 @@
         </div>
       </div>
 
-      <!-- Target board — L/W hidden in Standard (preset picks them); T always shown -->
+      <!-- Finished board -->
       <div class="section">
-        <div class="section-label">Cutting Board</div>
-        <div class="field-grid cols3 standard-hide" style="margin-bottom:6px">
-          <div class="field"><label>Length</label><input type="number" id="finalL" value="12" step="0.25" min="2"></div>
-          <div class="field"><label>Width</label><input type="number" id="finalW" value="8" step="0.25" min="2"></div>
+        <div class="section-label">Finished Board</div>
+        <div class="field-grid cols3" style="margin-bottom:6px">
+          <div class="field"><label>Length</label><input type="number" id="finalL" value="18" step="0.25" min="2"></div>
+          <div class="field"><label>Width</label><input type="number" id="finalW" value="12" step="0.25" min="2"></div>
           <div class="field"><label>Thickness</label><input type="number" id="finalT" value="1.5" step="0.125" min="0.5"></div>
-        </div>
-        <!-- In Standard mode, only thickness is editable here -->
-        <div class="field-grid cols3 standard-only" style="margin-bottom:6px">
-          <div class="field"><label>Thickness</label><input type="number" id="finalT-std" value="1.5" step="0.125" min="0.5" oninput="document.getElementById('finalT').value=this.value;document.getElementById('finalT').dispatchEvent(new Event('input'))"></div>
-          <div></div><div></div>
         </div>
         <div class="field-grid cols2">
           <div class="field"><label>Quantity</label><input type="number" id="quantity" value="1" step="1" min="1" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="50" data-step="1"></div>
-          <div class="field" id="tile-field"><label>Tile Size</label><input type="number" id="tileSize" value="0.75" step="0.125" min="0.375"></div>
+          <div class="field"><label>Kerf + cleanup</label><input type="number" id="kerf" value="0.125" step="0.0625" min="0" max="0.5"></div>
         </div>
       </div>
 
-      <!-- Stock — hidden in UI always; uses 4/4 × 6" × 36" defaults. Inputs kept in DOM for save/load -->
-      <div class="section" id="stock-section" style="display:none">
-        <input type="number" id="stockL" value="36">
-        <input type="number" id="stockW" value="6">
-        <input type="number" id="stockT" value="0.75">
+      <!-- The end grain cell — square is just the case where both dimensions match -->
+      <div class="section">
+        <div class="section-label">End Grain Cell <span class="hint">the shape you see on the finished top</span></div>
+        <div class="seg-toggle cols2" style="margin-bottom:8px">
+          <button class="seg-btn active" id="cell-square" onclick="setCellShape('square')">Square</button>
+          <button class="seg-btn" id="cell-rect" onclick="setCellShape('rect')">Rectangle</button>
+        </div>
+        <div class="field-grid cols2">
+          <div class="field">
+            <label id="cellW-label">Cell size</label>
+            <input type="number" id="tileSize" value="0.75" step="0.125" min="0.25">
+          </div>
+          <div class="field cell-rect-only" id="cellT-field" style="display:none">
+            <label>Along length</label>
+            <input type="number" id="cellT" value="0.75" step="0.125" min="0.25">
+          </div>
+        </div>
+        <div class="cell-hint" id="cell-hint"></div>
+      </div>
+
+      <!-- Raw lumber — custom milled, always hand typed. Length is an OUTPUT. -->
+      <div class="section">
+        <div class="section-label">Your Lumber <span class="hint">custom milled — type your actual sizes</span></div>
+        <div class="field-grid cols2">
+          <div class="field"><label>Thickness</label><input type="number" id="stockT" value="2" step="0.125" min="0.25"></div>
+          <div class="field"><label>Width</label><input type="number" id="stockW" value="6" step="0.25" min="1"></div>
+        </div>
+        <div class="lumber-note">Length isn't an input — it's the answer. See <strong>Lumber to buy</strong>.</div>
+      </div>
+
+      <!-- End grain pattern — tap the card to open the picker sheet -->
+      <div class="section" id="pattern-section">
+        <div class="section-label">Pattern</div>
+        <button class="pattern-trigger" id="pattern-trigger" onclick="openPatternPicker()">
+          <span class="pattern-trigger-thumb" id="pattern-trigger-thumb"></span>
+          <span class="pattern-trigger-text">
+            <span class="pattern-trigger-name" id="pattern-trigger-name">Checker</span>
+            <span class="pattern-trigger-hint">Tap to pick a pattern</span>
+          </span>
+          <span class="pattern-trigger-chev">›</span>
+        </button>
       </div>
 
       <!-- Species -->
@@ -1595,84 +1679,6 @@
         <div class="section-label">Wood Catalog <span class="hint">color · name</span></div>
         <div id="species-list"></div>
         <button class="add-btn" onclick="addSpecies()" id="add-species-btn">+ Add Species</button>
-      </div>
-
-      <!-- Face grain strip pattern -->
-      <div class="section" id="face-layout-section" style="display:none">
-        <div class="section-label">Strip Pattern <span class="hint">strips run long-ways<span class="custom-only"> · type formulas like x, x/2, 2x+y</span></span></div>
-        <div class="ratio-presets">
-          <div class="ratio-presets-label">Ratio templates <span class="hint">tap to seed variables + formulas</span></div>
-          <div class="ratio-chip-row">
-            <button class="ratio-chip" onclick="faceLayoutPreset('halves')" title="3-strip · outer x · middle x/2 · outer x">
-              <span class="ratio-name">Halves</span>
-              <span class="ratio-ratio">x · ½ · x</span>
-            </button>
-            <button class="ratio-chip" onclick="faceLayoutPreset('sym5')" title="5-strip · x · ¼ · ½ · ¼ · x">
-              <span class="ratio-name">Sym 5</span>
-              <span class="ratio-ratio">x · ¼ · ½ · ¼ · x</span>
-            </button>
-            <button class="ratio-chip" onclick="faceLayoutPreset('sym7')" title="7-strip · x · ¼ · ½ · ¼ · ½ · ¼ · x">
-              <span class="ratio-name">Sym 7</span>
-              <span class="ratio-ratio">x · ¼ · ½ · ¼ · ½ · ¼ · x</span>
-            </button>
-            <button class="ratio-chip" onclick="faceLayoutPreset('golden')" title="Golden Ratio · 1 : φ : 1">
-              <span class="ratio-name">Golden</span>
-              <span class="ratio-ratio">1 · φ · 1</span>
-            </button>
-            <button class="ratio-chip" onclick="faceLayoutPreset('goldenAccent')" title="Golden accent · φ · 1 · 1 · 1 · φ">
-              <span class="ratio-name">Golden 5</span>
-              <span class="ratio-ratio">φ · 1 · 1 · 1 · φ</span>
-            </button>
-          </div>
-        </div>
-        <div class="var-panel">
-          <div class="var-panel-label">Variables <span class="hint">tap value to set · referenced by formulas</span></div>
-          <div id="var-list"></div>
-          <button class="var-add-btn" onclick="addVariable()">+ Add variable</button>
-        </div>
-        <div class="field" style="margin-bottom:10px">
-          <label># of Strips</label>
-          <input type="number" id="stripCount" value="5" step="1" min="1" max="20" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="1" data-max="20" data-step="1" data-measure-label="Number of strips" onchange="setStripCount(parseInt(this.value)||1)" onblur="if(!this.value)this.value=stripPattern.length">
-        </div>
-        <div id="strip-list"></div>
-        <button class="add-btn" onclick="addStrip()">+ Add Strip</button>
-        <div id="strip-total" class="strip-total"></div>
-      </div>
-
-      <!-- Edge & Features -->
-      <div class="section">
-        <div class="section-label">Edge & Features</div>
-        <div class="field-grid cols2">
-          <div class="field">
-            <label>Edge Profile</label>
-            <select id="edgeProfile">
-              <option value="none">None (square)</option>
-              <option value="chamfer">45° Chamfer ⅛"</option>
-              <option value="round8" selected>1/8" Roundover</option>
-              <option value="round4">1/4" Roundover</option>
-              <option value="round2">1/2" Roundover</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Juice Groove</label>
-            <select id="juiceGroove">
-              <option value="none" selected>None</option>
-              <option value="standard">¼" × ¼" inset</option>
-              <option value="deep">⅜" × ½" inset</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Settings — hidden in Standard mode -->
-      <div class="section custom-only">
-        <div class="section-label">Settings <span class="hint">kerf is applied to every cut</span></div>
-        <div class="field-grid cols3" style="margin-bottom:6px">
-          <div class="field"><label>Kerf</label><input type="number" id="kerf" value="0.125" step="0.0625" min="0.0625" max="0.5"></div>
-          <div class="field"><label>Surface Loss</label><input type="number" id="surfaceAllowance" value="0.0625" step="0.03125" min="0" max="0.25"></div>
-          <div class="field"><label>Buffer %</label><input type="number" id="buffer" value="10" step="5" min="0" max="50" class="measure-input" readonly inputmode="none" data-wheel="count" data-min="0" data-max="50" data-step="5" data-unit="%" data-measure-label="Buffer"></div>
-        </div>
-        <div style="font-size:10px;color:var(--muted2);line-height:1.4">Buffer covers mistakes, defects, kerf overhead. <strong style="color:var(--muted)">Pros use 10% face / 20% end grain</strong>. Adjusts stock boards + board feet.</div>
       </div>
 
     </div>
@@ -2323,7 +2329,14 @@ document.addEventListener('click', e => {
 });
 
 // ═════════════════════════════ STATE ═══════════════════════════════════════
-let mode = 'end';
+let mode = 'end';           // end grain only — face grain was removed in the calculator rebuild
+let boardView = 'calc';     // 'calc' (cut list) | 'tables' (sweep grids)
+let cellShape = 'square';   // 'square' (one cell number) | 'rect' (two)
+// Data tables: milling 2" stock down to a 3/4" cell costs more than every other
+// source of waste combined, which flattens the grid into "bigger is always better"
+// and hides the real trade-off. Matching lumber thickness to the cell removes that
+// term so the rip-fit sawtooth — the actual optimal points — becomes visible.
+let dtMatch = false;
 let pattern = 'checker';
 let furnType = 'cabinet';
 let cabType = 'base';
@@ -3443,7 +3456,7 @@ function findSpecies(name) { return allSpecies().find(s => s.name === name); }
 const UNITS_KEY = 'woodshop-units';
 let unitSystem = 'imperial';
 const MM_PER_INCH = 25.4;
-const MEASURE_KEYS = ['finalL','finalW','finalT','finalT-std','tileSize','stockL','stockW','stockT','kerf','surfaceAllowance',
+const MEASURE_KEYS = ['finalL','finalW','finalT','finalT-std','tileSize','cellT','stockL','stockW','stockT','kerf','surfaceAllowance',
   'cab-W','cab-H','cab-D','cab-T','cab-back','cab-toe',
   'bsh-W','bsh-H','bsh-D','bsh-T',
   'drw-W','drw-D','drw-H','drw-T',
@@ -3730,6 +3743,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrumPic
 // ═════════════════════════════ HELPERS ════════════════════════════════════
 // v() returns the value of a measurement input AS INCHES (converting from the current display unit).
 const v = id => { const el = document.getElementById(id); if (!el) return 0; return toInches(el.value); };
+// Counts are unitless — never run them through toInches().
+const vCount = id => { const el = document.getElementById(id); if (!el) return 0; return parseFloat(el.value) || 0; };
 const sval = id => { const el = document.getElementById(id); return el ? el.value : ''; };
 const FRACS = [[0,''],[1/16,'1/16"'],[1/8,'1/8"'],[3/16,'3/16"'],[1/4,'1/4"'],[5/16,'5/16"'],
   [3/8,'3/8"'],[7/16,'7/16"'],[1/2,'1/2"'],[9/16,'9/16"'],[5/8,'5/8"'],[11/16,'11/16"'],
@@ -3754,7 +3769,7 @@ const bf = (l, w, t) => (l * w * t) / 144;
 const money = n => '$' + n.toFixed(2);
 
 // ═════════════════════════════ STORAGE ═════════════════════════════════════
-const SAVED_KEYS = ['finalL','finalW','finalT','quantity','tileSize','stockL','stockW','stockT','kerf','surfaceAllowance','edgeProfile','juiceGroove','buffer',
+const SAVED_KEYS = ['finalL','finalW','finalT','quantity','tileSize','cellT','stockW','stockT','kerf',
   'cab-W','cab-H','cab-D','cab-T','cab-shelves','cab-back','cab-toe','cab-door',
   'bsh-W','bsh-H','bsh-D','bsh-T','bsh-shelves',
   'drw-W','drw-D','drw-H','drw-T','drw-joinery',
@@ -3762,7 +3777,7 @@ const SAVED_KEYS = ['finalL','finalW','finalT','quantity','tileSize','stockL','s
 function save() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      mode, pattern, furnType, cabType, uiMode, species, stripPattern, stripVars,
+      mode, pattern, furnType, cabType, species, stripPattern, stripVars, cellShape,
       inputs: SAVED_KEYS.reduce((a, k) => {
         const el = document.getElementById(k); if (!el) return a;
         // Measurement values persist as inches so unit changes don't corrupt saved data.
@@ -3781,11 +3796,11 @@ function load() {
       // Stored measurement values are always inches → render in current unit.
       el.value = MEASURE_KEYS.includes(k) ? fromInches(parseFloat(val) || 0) : val;
     });
-    if (data.mode) mode = data.mode;
+    mode = 'end';  // face grain is gone; coerce any older save
+    if (data.cellShape === 'square' || data.cellShape === 'rect') cellShape = data.cellShape;
     if (data.pattern) pattern = data.pattern;
     if (data.furnType) furnType = data.furnType;
     if (data.cabType) cabType = data.cabType;
-    if (data.uiMode) uiMode = data.uiMode;
     if (Array.isArray(data.species) && data.species.length) species = data.species;
     if (Array.isArray(data.stripPattern)) stripPattern = data.stripPattern;
     if (data.stripVars && typeof data.stripVars === 'object') stripVars = data.stripVars;
@@ -3827,37 +3842,8 @@ function toggleTheme() {
 }
 applyTheme();
 
-let uiMode = 'standard';
-function setUIMode(m) {
-  uiMode = m;
-  document.getElementById('ui-standard').classList.toggle('active', m === 'standard');
-  document.getElementById('ui-custom').classList.toggle('active', m === 'custom');
-  const board = document.getElementById('tab-board');
-  if (board) board.setAttribute('data-ui-mode', m);
-  // Sync the std-thickness shim to the real finalT input on entering Standard mode
-  if (m === 'standard') {
-    const realT = document.getElementById('finalT');
-    const shimT = document.getElementById('finalT-std');
-    if (realT && shimT) shimT.value = realT.value;
-  }
-  save();
-}
-function setMode(m) {
-  const wasMode = mode;
-  mode = m;
-  document.getElementById('mode-end').classList.toggle('active', m === 'end');
-  document.getElementById('mode-face').classList.toggle('active', m === 'face');
-  document.getElementById('tile-field').style.display = m === 'end' ? '' : 'none';
-  document.getElementById('pattern-section').style.display = m === 'end' ? '' : 'none';
-  document.getElementById('face-layout-section').style.display = m === 'face' ? '' : 'none';
-  if (m === 'face' && stripPattern.length === 0) faceLayoutPreset('single');
-  // Suggest mode-appropriate buffer % default (only when actively switching modes)
-  if (wasMode && wasMode !== m) {
-    const bufEl = document.getElementById('buffer');
-    if (bufEl) bufEl.value = m === 'end' ? 20 : 10;
-  }
-  save(); scheduleRunPlanner();
-}
+function setMode() { mode = 'end'; }
+
 // Pattern catalog: visible label, description, and a thumbnail-SVG factory.
 // Adding a new end-grain pattern? Add an entry here + the rendering in the
 // real pattern renderer + the build-step description.
@@ -4461,110 +4447,97 @@ let furnitureDebounceTimer = null;
 function scheduleRunFurniture() { clearTimeout(furnitureDebounceTimer); furnitureDebounceTimer = setTimeout(runFurniture, 180); }
 
 // ═════════════════════════════ CUTTING BOARD MATH ═══════════════════════════
+// ══════════════════════════ END GRAIN MATH ═════════════════════════════════
+// Mirrors Michael's "End Grain Cutting Board Calculator" workbook (Square +
+// Rectangle tabs). The two tabs are ONE model with two knobs:
+//
+//   cellW — the cell dimension ACROSS the board's width. It is ripped off the
+//           lumber's WIDTH in Step 2.        (his "width long rectangle", D4)
+//   cellT — the cell dimension ALONG the board's length. It IS the glued
+//           panel's thickness, so it is milled off the lumber's THICKNESS.
+//                                            (his "length short rectangle", D3
+//           — which is why his rule checks D3 < lumber thickness.)
+//
+// Square is just cellW === cellT. `kerf` is his single 1/8" allowance (saw
+// kerf + cleanup), applied per cut exactly where his formulas apply it.
+//
+// One deliberate departure: his sheet divides piece counts without rounding
+// (12 / 1.75 = 6.857 pieces). You can't cut 0.857 of a strip, so we ceil every
+// count. Identical results whenever the cell divides evenly — which is his
+// normal case — and honest (never short) when it doesn't.
+
+// Piece counts sit right on integer boundaries, where float drift flips the answer:
+// a 14" length stored as 355.6 mm comes back as 14.000000000000002, and a bare
+// Math.ceil turns that into a whole phantom row of cells. Nudge every boundary.
+const EG_EPS = 1e-9;
+const egCeil  = n => Math.ceil(n - EG_EPS);
+const egFloor = n => Math.floor(n + EG_EPS);
+
+function egSolve(o) {
+  const k = Math.max(0, o.kerf);
+  const cellW = Math.max(0.0625, o.cellW), cellT = Math.max(0.0625, o.cellT);
+  const r = { cellW, cellT, kerf: k };
+
+  // ── Step 1 · cut to length ──  his D12 = (finalT + 1/8) × (finalL / cellT)
+  r.finalPieces = egCeil(o.finalL / cellT);        // his D22 — pieces in the final glue-up
+  r.cutLen      = (o.finalT + k) * r.finalPieces;     // his D12 — working length
+
+  // ── Step 2 · rip ──  his D15 / D16 / D17
+  r.ripsPerBoard   = egCeil(o.finalW / cellW);                  // his D15 (one board)
+  r.ripsNeeded     = r.ripsPerBoard * o.qty;
+  r.ripsPerLength  = egFloor(o.lumW / (cellW + k));             // his D16
+  r.ripLeftoverW   = o.lumW - r.ripsPerLength * (cellW + k);       // his D17
+  r.fits           = r.ripsPerLength > 0 && cellT <= o.lumT + 1e-9;
+
+  // ── Lumber to buy ──  his D11 → H4
+  r.lengths   = r.fits ? egCeil(r.ripsNeeded / r.ripsPerLength) : 0;
+  r.lumberLen = r.lengths * (r.cutLen + k);                        // his H4
+  r.unusedRips = r.fits ? r.lengths * r.ripsPerLength - r.ripsNeeded : 0;
+
+  // ── Board feet & waste ──
+  r.purchasedBf = bf(r.lumberLen, o.lumW, o.lumT);
+  r.finishedBf  = bf(o.finalL, o.finalW, o.finalT) * o.qty;
+  r.wasteBf     = Math.max(0, r.purchasedBf - r.finishedBf);
+  r.wastePct    = r.purchasedBf > 0 ? r.wasteBf / r.purchasedBf : 0;
+
+  // Waste broken out by where it happens, so the steps can each show their own.
+  // Offcuts keep the full lumber thickness — they haven't been milled yet.
+  r.ripOffcutBf    = bf(r.ripLeftoverW * r.lengths, r.cutLen, o.lumT);
+  r.unusedRipBf    = bf(r.unusedRips * cellW, r.cutLen, o.lumT);
+  r.offcutBf       = r.ripOffcutBf + r.unusedRipBf;
+  // Thickness milled away on every strip you actually use — the cost of a square
+  // cell cut from thicker stock. His sheet never shows this one.
+  r.millWaste      = Math.max(0, o.lumT - cellT);
+  r.millBf         = bf(r.ripsNeeded * cellW, r.cutLen, r.millWaste);
+  r.shavingsBf     = Math.max(0, r.wasteBf - r.offcutBf);
+  return r;
+}
+
 function calcEndGrain() {
   const p = {
-    finalL: Math.max(2, v('finalL')), finalW: Math.max(2, v('finalW')), finalT: Math.max(0.5, v('finalT')),
-    stockL: Math.max(6, v('stockL')), stockW: Math.max(1, v('stockW')), stockT: Math.max(0.25, v('stockT')),
-    tileSize: Math.max(0.375, v('tileSize')), kerf: Math.max(0.0625, v('kerf')), sa: Math.max(0, v('surfaceAllowance')),
-    qty: Math.max(1, Math.floor(v('quantity'))), species: species.slice(), pattern,
-    edgeProfile: sval('edgeProfile'), juiceGroove: sval('juiceGroove'),
+    finalL: Math.max(1, v('finalL')), finalW: Math.max(1, v('finalW')), finalT: Math.max(0.25, v('finalT')),
+    qty: Math.max(1, Math.floor(vCount('quantity'))), kerf: Math.max(0, v('kerf')),
+    lumT: Math.max(0.125, v('stockT')), lumW: Math.max(0.5, v('stockW')),
+    species: species.slice(), pattern, cellShape,
+    // Preview keeps a light eased edge; grooves and profiles aren't part of this tool.
+    edgeProfile: 'round8', juiceGroove: 'none',
   };
   if (p.species.length === 0) p.species = DEFAULT_SPECIES.slice();
-  p.slabEffT = p.stockT - 2 * p.sa;
-  p.nSlabs = Math.max(1, Math.ceil((p.finalW + 2 * p.sa) / Math.max(0.01, p.slabEffT)));
-  p.achievedW = p.nSlabs * p.slabEffT - 2 * p.sa;
-  p.slabCutT = p.finalT + 2 * p.sa;
-  p.endWaste = 0.5;
-  p.panelLNeeded = p.nSlabs * p.slabCutT + (p.nSlabs - 1) * p.kerf + p.endWaste * 2;
-  p.initialCutL = ceilQ(p.panelLNeeded);
-  p.trimL = 1;
-  p.nStrips = Math.max(1, Math.ceil((p.finalL + p.trimL) / p.tileSize));
-  p.panelW = p.nStrips * p.tileSize;
-  p.stripsPerBoard = Math.max(1, Math.floor((p.stockW + p.kerf) / (p.tileSize + p.kerf)));
-  p.wastePerBoard = Math.max(0, p.stockW - p.stripsPerBoard * p.tileSize - Math.max(0, p.stripsPerBoard - 1) * p.kerf);
-  p.totalStrips = p.nStrips * p.qty;
-  p.totalPieces = Math.ceil(p.totalStrips / p.stripsPerBoard);
-  p.piecesPerStockBoard = Math.max(1, Math.floor(p.stockL / (p.initialCutL + p.kerf)));
-  p.stockBoardsNeeded = Math.ceil(p.totalPieces / p.piecesPerStockBoard);
-  p.boardFeet = p.stockBoardsNeeded * bf(p.stockL, p.stockW, p.stockT);
-  const nSpec = p.species.length;
-  const baseStrips = Math.floor(p.totalStrips / nSpec);
-  const extraStrips = p.totalStrips % nSpec;
-  p.stripsPerSpecies = p.species.map((_, i) => baseStrips + (i < extraStrips ? 1 : 0));
-  // Per-species boards & cost (base, before buffer)
-  p.costPerSpecies = p.species.map((s, i) => {
-    const strips = p.stripsPerSpecies[i];
-    const pieces = Math.ceil(strips / p.stripsPerBoard);
-    const boards = Math.ceil(pieces / p.piecesPerStockBoard);
-    const speciesBf = boards * bf(p.stockL, p.stockW, p.stockT);
-    const cost = speciesBf * (s.price || 0);
-    return { species: s, strips, pieces, boards, bf: speciesBf, cost };
-  });
-  p.totalCost = p.costPerSpecies.reduce((s, c) => s + c.cost, 0);
-  // Buffer % — covers mistakes, defects, kerf overhead. Recommended: 10% face / 20% end grain.
-  p.bufferPct = Math.max(0, Math.min(50, v('buffer'))) / 100;
-  // ─── 3D Cube (tumbling block) construction override ───
-  // True 3D cubes are built from 60° bevel-ripped parallelogram bars of 3 species,
-  // glued into an offset "loaf," then sliced crossways into end-grain boards. The
-  // standard tiled-board math above models a flat checker board, so override the
-  // material/strip/cost fields here to reflect the angled-cut construction.
-  if (p.pattern === 'cube3d') {
-    p.cube3d = true;
-    p.cubeEdge = p.tileSize;                  // rhombus edge = bar face width = the cube-size knob
-    p.bevelAngle = 60;                        // parallelogram corner angle
-    p.bladeTilt = 30;                         // table-saw tilt off vertical (90 − 60)
-    const xPer = Math.sqrt(3) * p.cubeEdge;   // horizontal cube period on the finished face
-    const yPer = 1.5 * p.cubeEdge;            // vertical cube period (honeycomb)
-    p.cubesAcross = Math.max(1, Math.round(p.finalL / xPer));
-    p.cubesDown = Math.max(1, Math.round(p.finalW / yPer));
-    p.cubeCount = p.cubesAcross * p.cubesDown;
-    const nUsed = Math.min(3, p.species.length);
-    p.cubeSpeciesUsed = nUsed;
-    p.cubeBeveledStrips = 3 * p.cubeCount;    // 3 rhombus bars (one per species) per cube
-    // Material: finished volume scaled up for angled-cut yield loss, split across species.
-    p.cubeYield = 0.6;                        // ~40% waste from bevel offcuts + squaring the blank
-    const finishedBf = bf(p.finalL, p.finalW, p.finalT) * p.qty;
-    p.cubeRawBf = finishedBf / p.cubeYield;
-    const bfPerBoard = bf(p.stockL, p.stockW, p.stockT);
-    const perSpeciesRawBf = p.cubeRawBf / nUsed;
-    const perSpeciesStrips = Math.max(1, Math.round(p.cubeBeveledStrips / nUsed));
-    p.costPerSpecies = p.species.map((s, i) => {
-      if (i >= nUsed) return { species: s, strips: 0, pieces: 0, boards: 0, bf: 0, cost: 0 };
-      const boards = Math.max(1, Math.ceil(perSpeciesRawBf / bfPerBoard));
-      const speciesBf = boards * bfPerBoard;
-      return { species: s, strips: perSpeciesStrips, pieces: boards, boards, bf: speciesBf, cost: speciesBf * (s.price || 0) };
-    });
-    p.totalStrips = perSpeciesStrips * nUsed;
-    p.stripsPerSpecies = p.costPerSpecies.map(c => c.strips);
-    p.boardFeet = p.costPerSpecies.reduce((a, c) => a + c.bf, 0);
-    p.stockBoardsNeeded = p.costPerSpecies.reduce((a, c) => a + c.boards, 0);
-    p.totalCost = p.costPerSpecies.reduce((a, c) => a + c.cost, 0);
-  }
-  p.costPerSpeciesBuffered = p.costPerSpecies.map(c => {
-    if (c.strips === 0) return { ...c, boardsBuf: 0, bfBuf: 0, costBuf: 0 };
-    const boardsBuf = Math.ceil(c.boards * (1 + p.bufferPct));
-    const bfBuf = boardsBuf * bf(p.stockL, p.stockW, p.stockT);
-    return { ...c, boardsBuf, bfBuf, costBuf: bfBuf * (c.species.price || 0) };
-  });
-  // Buffered totals = sum of per-species (consistent with what user buys per species)
-  p.bufferedBoards = p.costPerSpeciesBuffered.reduce((s, c) => s + c.boardsBuf, 0);
-  p.bufferedBf = p.costPerSpeciesBuffered.reduce((s, c) => s + c.bfBuf, 0);
-  p.totalCostBuffered = p.costPerSpeciesBuffered.reduce((s, c) => s + c.costBuf, 0);
-  p.visStripCols = Math.max(1, Math.floor(p.finalL / p.tileSize));
-  p.visSlabRows = p.nSlabs;
-  const phase1Area = (p.nStrips - 1) * p.initialCutL * p.stockT;
-  const phase2Area = (p.nSlabs - 1) * p.panelW * p.slabCutT;
-  p.glueOz = Math.max(0.5, ((phase1Area + phase2Area) * 0.015 * 2 / 6 / 28.35));
+  p.cellW = Math.max(0.0625, v('tileSize'));
+  p.cellT = cellShape === 'square' ? p.cellW : Math.max(0.0625, v('cellT'));
+  Object.assign(p, egSolve(p));
+
+  // Preview grid: cells along the length are cellT wide, across the width cellW.
+  p.visStripCols = Math.max(1, p.finalPieces);
+  p.visSlabRows  = Math.max(1, p.ripsPerBoard);
+
   p.warnings = [];
-  if (p.tileSize > p.stockW) p.warnings.push(`Tile size ${dim(p.tileSize)} > stock width ${dim(p.stockW)} — strips won't fit. Use wider stock or smaller tiles.`);
-  if (p.pattern === 'cube3d') {
-    if (p.species.length < 3) p.warnings.push(`3D cube needs <strong>3 contrasting species</strong> for the tumbling-block illusion — you have ${p.species.length}. Add species in the palette above (classic: maple · cherry · walnut).`);
-  } else {
-    if (p.stockL < p.initialCutL) p.warnings.push(`Stock length ${dim(p.stockL)} < required crosscut ${dim(p.initialCutL)}. Use longer stock.`);
-    if (p.tileSize > p.stockT + 0.05) p.warnings.push(`Surface tiles will be rectangular (${dim(p.tileSize)} × ${dim(p.stockT)}). For square tiles, set tile size = stock thickness.`);
-    if (p.tileSize < p.stockT - 0.05) p.warnings.push(`Tile size < stock thickness. Tiles will be tall rectangles.`);
-    if (p.slabEffT <= 0.25) p.warnings.push(`After surfacing, slabs only ${dim(p.slabEffT)} thick — structurally risky.`);
-  }
+  if (p.cellT > p.lumT + 1e-9)
+    p.warnings.push(`Cell is ${dim(p.cellT)} along the length, but your lumber is only ${dim(p.lumT)} thick. That dimension is milled off the thickness, so it can't exceed it — thicker lumber, or a smaller cell.`);
+  if (p.ripsPerLength < 1)
+    p.warnings.push(`A ${dim(p.cellW)} cell + ${dim(p.kerf)} kerf won't fit across ${dim(p.lumW)}-wide lumber. Wider lumber, or a smaller cell.`);
+  if (p.millWaste > 0.01 && p.fits)
+    p.warnings.push(`Milling ${dim(p.lumT)} lumber down to a ${dim(p.cellT)} cell throws away ${dim(p.millWaste)} of thickness on every strip — ${p.millBf.toFixed(2)} bf of shavings. Ordering your lumber at ${dim(p.cellT)} thick removes it entirely.`);
   return p;
 }
 
@@ -5044,11 +5017,15 @@ function edgeProfileLabel(v) { return ({none:'square edge',chamfer:'45° chamfer
 function juiceGrooveLabel(v) { return ({none:'no juice groove',standard:'¼" × ¼" inset groove',deep:'⅜" × ½" inset groove'})[v] || v; }
 function patternLabel(p) { return ({checker:'checkerboard',brick:'brick',stripe:'stripes',plaid:'plaid',cube3d:'3D cube',herring:'herringbone',chevron:'chevron',basket:'basketweave',diag:'diagonal',random:'random'})[p] || p; }
 
+// ═════════════════════════ END GRAIN RENDER ════════════════════════════════
 function renderEndGrain(p) {
+  if (boardView === 'tables') return renderBoardTables(p);
+
+  const cellLabel = p.cellShape === 'square' ? `${dim(p.cellW)} square` : `${dim(p.cellW)} × ${dim(p.cellT)}`;
   let html = `<div class="finished-preview">
     <div class="preview-title">
       <h2>Finished Board Preview</h2>
-      <span class="dims">${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} · ${patternLabel(p.pattern)} · ${p.species.map(s => s.name).join(' + ')}</span>
+      <span class="dims">${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} · ${cellLabel} cells · ${patternLabel(p.pattern)} · ${p.species.map(s => s.name).join(' + ')}</span>
     </div>
     <div class="preview-svg-wrap">${svgFinishedBoard(p)}</div>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
@@ -5057,87 +5034,167 @@ function renderEndGrain(p) {
     </div>
   </div>`;
   p.warnings.forEach(w => html += `<div class="warn-banner"><span class="icon">&#9888;</span><span>${w}</span></div>`);
-  const bufPct = Math.round(p.bufferPct * 100);
-  const tailCards = p.cube3d ? `
-    <div class="scard"><div class="val">${p.cubeCount}</div><div class="lbl">3D Cubes</div></div>
-    <div class="scard"><div class="val">${p.cubeBeveledStrips}</div><div class="lbl">Bevel Bars</div></div>
-    <div class="scard"><div class="val">${p.bladeTilt}°</div><div class="lbl">Blade Tilt</div></div>` : `
-    <div class="scard"><div class="val">${p.totalStrips}</div><div class="lbl">Strips to Rip</div></div>
-    <div class="scard"><div class="val">${p.nSlabs}</div><div class="lbl">Slabs Cut</div></div>
-    <div class="scard"><div class="val">${dim(p.initialCutL)}</div><div class="lbl">Init. Crosscut</div></div>`;
-  html += `<div class="summary-cards cols5">
-    <div class="scard"><div class="val">${p.bufferedBoards}</div><div class="lbl">Stock Boards${bufPct > 0 ? ` <span style="color:var(--muted2)">+${bufPct}%</span>` : ''}</div></div>
-    <div class="scard"><div class="val">${p.bufferedBf.toFixed(1)}</div><div class="lbl">Board Feet</div></div>
-    ${tailCards}
+
+  html += `<div class="summary-cards cols4">
+    <div class="scard hero"><div class="val">${dim(p.lumberLen)}</div><div class="lbl">Lumber to Buy <span style="color:var(--muted2)">${dim(p.lumT)} × ${dim(p.lumW)}</span></div></div>
+    <div class="scard"><div class="val">${p.purchasedBf.toFixed(2)}</div><div class="lbl">Board Feet</div></div>
+    <div class="scard"><div class="val">${Math.round(p.wastePct * 100)}%</div><div class="lbl">Waste</div></div>
+    <div class="scard"><div class="val">${p.finalPieces * p.ripsPerBoard}</div><div class="lbl">Cells / Board</div></div>
   </div>`;
 
-  const finishStep = `Surface both faces (remove ${dim(p.sa)} per face) to final ${dim(p.finalT)}. Trim length to ${dim(p.finalL)}, rip to ${dim(p.finalW)}. Profile edges: <strong>${edgeProfileLabel(p.edgeProfile)}</strong>${p.juiceGroove !== 'none' ? `. Route <strong>${juiceGrooveLabel(p.juiceGroove)}</strong> on the top face` : ''}. Sand 80 → 120 → 180 → 220. Finish with mineral oil + beeswax (food-safe).`;
-  const cubeSteps = [
-    { title: 'Mill 3 Contrasting Species',
-      desc: `Surface a light, medium, and dark species to identical thickness — classic combo is <strong>hard maple · cherry · walnut</strong>. Grain runs the length of every bar.`,
-      measures: [{label:'cube size',val:dim(p.cubeEdge)},{label:'species',val:p.cubeSpeciesUsed},{label:'kerf',val:dim(p.kerf)}], svg: null },
-    { title: `Bevel-Rip Parallelogram Bars — ${p.bladeTilt}° tilt`,
-      desc: `Tilt the saw blade to <strong>${p.bladeTilt}°</strong> off vertical so each rip leaves a <strong>${p.bevelAngle}° parallelogram</strong> cross-section. Rip every species into bars ${dim(p.cubeEdge)} wide on the face. You need about <strong>${p.cubeBeveledStrips} bars</strong> (~${Math.round(p.cubeBeveledStrips / Math.max(1, p.cubeSpeciesUsed))} per species). Bevel cuts are wasteful — ~40% extra stock is already budgeted into the board count.`,
-      measures: [{label:'blade tilt',val:`${p.bladeTilt}°`},{label:'parallelogram',val:`${p.bevelAngle}°`},{label:'bar width',val:dim(p.cubeEdge)},{label:'total bars',val:p.cubeBeveledStrips}], svg: null },
-    { title: 'Glue the Loaf — Offset A-B-C',
-      desc: `Stack the bars into a block, repeating the three species in the same order and <strong>offsetting each course by one bar</strong> so the three faces nest into hexagonal "cubes" across the end. Beveled faces slip under clamp pressure — use cauls or tape hinges and clamp lightly. <strong>Dry-fit and check the cube alignment before glue.</strong> Cure 24h.`,
-      measures: [{label:'offset',val:'1 bar'},{label:'cubes',val:p.cubeCount},{label:'across',val:p.cubesAcross},{label:'rows',val:p.cubesDown}], svg: null },
-    { title: 'Crosscut Into Boards — End Grain Up',
-      desc: `Slice the loaf crossways into ${p.qty} board blank${p.qty>1?'s':''} at ${dim(p.slabCutT)} thick (final ${dim(p.finalT)} + surfacing allowance). Each slice is one cutting board showing the end-grain cube pattern.`,
-      measures: [{label:'slab thickness',val:dim(p.slabCutT)},{label:p.qty>1?'boards':'board',val:p.qty},{label:'kerf',val:dim(p.kerf)}], svg: diagPhase2(p) },
-    { title: 'Surface, Trim & Finish',
-      desc: finishStep,
-      measures: [{label:'length',val:dim(p.finalL)},{label:'width',val:dim(p.finalW)},{label:'thickness',val:dim(p.finalT)},{label:'edge',val:edgeProfileLabel(p.edgeProfile)}], svg: null },
+  const steps = [
+    { title: `Step 1 · Cut to Length — ${p.lengths} pieces at ${dim(p.cutLen)}`,
+      desc: `Crosscut your ${dim(p.lumT)} × ${dim(p.lumW)} lumber into <strong>${p.lengths} piece${p.lengths === 1 ? '' : 's'}</strong> at <strong>${dim(p.cutLen)}</strong> each. That length is ${p.finalPieces} final pieces × (${dim(p.finalT)} board + ${dim(p.kerf)}).`,
+      measures: [{label:'cut length', val:dim(p.cutLen)}, {label:'pieces to cut', val:p.lengths}, {label:'total length', val:dim(p.lumberLen)}],
+      waste: `${dim(p.kerf)} per crosscut · ${p.lengths} cut${p.lengths === 1 ? '' : 's'} = ${dim(p.kerf * p.lengths)} of length`,
+      svg: null },
+
+    { title: `Step 2 · Rip — ${p.ripsNeeded} strips at ${dim(p.cellW)}`,
+      desc: `Rip each length into <strong>${p.ripsPerLength} strip${p.ripsPerLength === 1 ? '' : 's'}</strong> at ${dim(p.cellW)} wide. You need <strong>${p.ripsNeeded}</strong> in all${p.qty > 1 ? ` (${p.ripsPerBoard} per board × ${p.qty})` : ''}.`,
+      measures: [{label:'strip width', val:dim(p.cellW)}, {label:'strips / length', val:p.ripsPerLength}, {label:'strips needed', val:p.ripsNeeded}, {label:'off each length', val:dim(p.ripLeftoverW)}],
+      waste: `${dim(p.ripLeftoverW)} left off the width of each length — ${p.ripOffcutBf.toFixed(2)} bf${p.unusedRips > 0 ? ` · plus ${p.unusedRips} spare strip${p.unusedRips === 1 ? '' : 's'} (${p.unusedRipBf.toFixed(2)} bf)` : ''}`,
+      svg: null },
+
+    { title: `Step 3 · Mill & Glue Up`,
+      desc: `Mill every strip to <strong>${dim(p.cellT)}</strong> thick${p.millWaste > 0.01 ? ` — taking ${dim(p.millWaste)} off ${dim(p.lumT)} stock` : ''}. Joint the ripped edges, lay the ${p.ripsPerBoard} strips out in ${patternLabel(p.pattern)} (${p.species.map(s => s.name).join(' / ')}), then glue and clamp. Cure 24h, flatten both faces.`,
+      measures: [{label:'panel thickness', val:dim(p.cellT)}, {label:'panel width', val:dim(p.finalW)}, {label:'panel length', val:dim(p.cutLen)}, {label:'strips', val:p.ripsPerBoard}],
+      waste: p.millWaste > 0.01 ? `${dim(p.millWaste)} of thickness off every strip — ${p.millBf.toFixed(2)} bf of shavings` : `none — your lumber is already at cell thickness`,
+      svg: null },
+
+    { title: `Step 4 · Rip Final Pieces — ${p.finalPieces} at ${dim(p.cellT)}`,
+      desc: `Cut the panel into <strong>${p.finalPieces} pieces ${dim(p.cellT)} wide</strong>. Stand each on edge so the end grain faces up, rotate to your pattern, and glue up the board. Cure, flatten to ${dim(p.finalT)}, trim to ${dim(p.finalL)} × ${dim(p.finalW)}.`,
+      measures: [{label:'piece width', val:dim(p.cellT)}, {label:'pieces', val:p.finalPieces}, {label:'finished', val:`${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)}`}],
+      waste: `${dim(p.kerf)} per cut · ${p.finalPieces} cuts, plus flattening down to ${dim(p.finalT)}`,
+      svg: null },
+
+    { title: `Step 5 · Sand & Finish`,
+      desc: `Ease the edges, sand 80 → 120 → 180 → 220, raise the grain with a damp rag and knock it back at 220. Finish with mineral oil, then a beeswax/oil paste. End grain drinks oil — expect three or four coats.`,
+      measures: [{label:'boards', val:p.qty}],
+      waste: null, svg: null },
   ];
-  const steps = p.cube3d ? cubeSteps : [
-    { title: `Initial Crosscut — ${dim(p.initialCutL)}`,
-      desc: `Crosscut all boards to working length. Compounds: ${p.nSlabs} slabs × ${dim(p.slabCutT)} + ${p.nSlabs - 1} kerfs + 1" end waste.`,
-      measures: [{label:'cut length',val:dim(p.initialCutL)},{label:'pieces / board',val:p.piecesPerStockBoard},{label:'total pieces',val:p.totalPieces},{label:'stock boards',val:p.stockBoardsNeeded}],
-      svg: diagInitialCrosscut(p) },
-    { title: `Rip Strips at ${dim(p.tileSize)}`,
-      desc: `Rip each piece into ${dim(p.tileSize)} strips.`,
-      measures: [{label:'strip width',val:dim(p.tileSize)},{label:'strips / piece',val:p.stripsPerBoard},{label:'rip waste',val:dim(p.wastePerBoard)},{label:'total strips',val:p.totalStrips}],
-      svg: diagRip(p) },
-    { title: 'Phase 1 Glue-Up — Edge Panel',
-      desc: `Joint ripped edges. Lay ${p.nStrips} strips in ${patternLabel(p.pattern)} pattern (${p.species.map(s => s.name).join(' / ')}). Glue, clamp 100-150 psi, cure 24h.`,
-      measures: [{label:'panel length',val:dim(p.initialCutL)},{label:'panel width',val:dim(p.panelW)},{label:'thickness',val:dim(p.stockT)},{label:'strips',val:p.nStrips}],
-      svg: diagPhase1(p) },
-    { title: 'Flatten Phase 1 Panel',
-      desc: `Drum-sand or hand-plane both faces flat — remove ${dim(p.sa)} per face.`,
-      measures: [{label:'remove / face',val:dim(p.sa)},{label:'thickness after',val:dim(p.slabEffT)}], svg: null },
-    { title: `Crosscut ${p.nSlabs} Slabs at ${dim(p.slabCutT)}`,
-      desc: `Crosscut into ${p.nSlabs} slabs at ${dim(p.slabCutT)} each — slightly oversized for Step 7 surfacing.`,
-      measures: [{label:'slab thickness',val:dim(p.slabCutT)},{label:'count',val:p.nSlabs},{label:'kerf',val:dim(p.kerf)}],
-      svg: diagSlabCrosscut(p) },
-    { title: 'Phase 2 Glue-Up — Stand Slabs on Edge',
-      desc: `Stand each slab on its long edge. End grain now faces up. ${({
-        checker: 'Flip every other slab 180° to create the classic checkerboard.',
-        brick: 'Shift every other slab by one tile width for the offset brick pattern.',
-        cube3d: '<strong>3D Cube construction</strong>: cut the strips at <strong>60° bevels</strong> before Phase 1 and use 3 contrasting species (classic: maple/walnut/cherry). The cross-section shows hexagonal "cubes." Stagger slabs by one tile per row to create the floating-cube illusion.',
-        plaid: 'Arrange so accent species form intersecting grid lines — every 4th column + every 4th row gets the accent, with intersections in a 3rd contrast color (tartan-style).',
-        herring: '<strong>Herringbone construction</strong>: different from standard end grain — crosscut your strips into shorter pieces (~3–4" long), then arrange at alternating <strong>±45°</strong> in V-pattern using a 45° miter jig. Each "V" is two pieces meeting at a right angle. Glue the Vs into rows, then rows together. See Workshop Companion plan for jig design.',
-        chevron: '<strong>Chevron construction</strong>: like herringbone but the V points line up cleanly. Crosscut strips at <strong>45° miters</strong> with one end mirrored. Glue mirrored pairs along the miter to form one row of perfect Vs, then stack row-pairs alternating slope direction (↗ then ↘) so the V points meet across rows. Cleaner-looking than herringbone but less forgiving — every miter has to be dialed in.',
-        basket: '<strong>Basketweave construction</strong>: rip wider strips (~2× tile size) and crosscut into squares. Arrange squares in 2×2 mega-blocks, rotating every other block 90° so adjacent blocks alternate between end-grain-up and side-grain-up. The contrast in grain direction (not species) carries the woven look — works great in a single species or two contrasting ones.',
-        diag: '<strong>Diagonal stripe construction</strong>: build the Phase 1 panel as a standard stripe, then crosscut at <strong>45°</strong> instead of 90°. The angled cut converts the vertical stripes into 45° diagonal bands across the slab face. Trim the resulting parallelogram square at the end.',
-        stripe: 'Keep all slabs in the same orientation — produces clean vertical stripes.',
-        random: 'Rotate slabs randomly for organic, rustic look. Mix species freely — great use for offcuts.',
-      })[p.pattern] || 'Keep slabs in same orientation.'} Glue ${dim(p.slabEffT)} faces, clamp, cure 24h.`,
-      measures: [{label:'blank width',val:dim(p.achievedW)},{label:'blank length',val:dim(p.panelW)},{label:'blank thickness',val:dim(p.slabCutT)}],
-      svg: diagPhase2(p) },
-    { title: 'Final Surfacing, Trim & Finish',
-      desc: finishStep,
-      measures: [{label:'length',val:dim(p.finalL)},{label:'width',val:dim(p.finalW)},{label:'thickness',val:dim(p.finalT)},{label:'edge',val:edgeProfileLabel(p.edgeProfile)}], svg: null },
-  ];
+
   html += `<div class="steps-title"><span>Step-by-step · ${p.qty} board${p.qty > 1 ? 's' : ''}</span><button class="copy-btn" onclick="copyPlan()">&#128203; Copy</button></div>`;
   steps.forEach((s, i) => {
     html += `<div class="step-card">
       <div class="step-header"><div class="step-num">${i + 1}</div><div><div class="step-title">${s.title}</div><div class="step-desc">${s.desc}</div></div></div>
       <div class="step-body">
         <div class="measurements">${s.measures.map(m => `<div class="meas"><strong>${m.val}</strong> &nbsp;${m.label}</div>`).join('')}</div>
+        ${s.waste ? `<div class="waste-line"><span class="waste-tag">waste</span>${s.waste}</div>` : ''}
         ${s.svg ? `<div class="diagram">${s.svg}</div>` : ''}
       </div></div>`;
   });
+
+  // ── Leftovers + the bottom line on waste ──
+  const offcuts = [];
+  if (p.ripLeftoverW > 0.01 && p.lengths > 0)
+    offcuts.push(`<div class="lo-row"><span class="lo-qty">${p.lengths}×</span><span class="lo-dim">${dim(p.ripLeftoverW)} × ${dim(p.cutLen)} × ${dim(p.lumT)}</span><span class="lo-bf">${p.ripOffcutBf.toFixed(2)} bf</span></div>`);
+  if (p.unusedRips > 0)
+    offcuts.push(`<div class="lo-row"><span class="lo-qty">${p.unusedRips}×</span><span class="lo-dim">${dim(p.cellW)} × ${dim(p.cutLen)} × ${dim(p.lumT)}</span><span class="lo-bf">${p.unusedRipBf.toFixed(2)} bf</span></div>`);
+  if (!offcuts.length) offcuts.push(`<div class="lo-row lo-none">Nothing usable left over — this size cuts clean.</div>`);
+
+  html += `<div class="waste-panel">
+    <div class="waste-head">Leftovers &amp; Waste</div>
+    <div class="lo-list">
+      <div class="lo-row lo-head"><span class="lo-qty">qty</span><span class="lo-dim">usable offcuts</span><span class="lo-bf">board feet</span></div>
+      ${offcuts.join('')}
+    </div>
+    <div class="waste-totals">
+      <div class="wt"><span class="wt-val">${p.purchasedBf.toFixed(2)}</span><span class="wt-lbl">bought</span></div>
+      <div class="wt-op">−</div>
+      <div class="wt"><span class="wt-val">${p.finishedBf.toFixed(2)}</span><span class="wt-lbl">in the board${p.qty > 1 ? 's' : ''}</span></div>
+      <div class="wt-op">=</div>
+      <div class="wt wt-waste"><span class="wt-val">${p.wasteBf.toFixed(2)}</span><span class="wt-lbl">waste · ${Math.round(p.wastePct * 100)}%</span></div>
+    </div>
+    <div class="waste-split">Of that: <strong>${p.offcutBf.toFixed(2)} bf</strong> is usable offcut you keep, <strong>${p.shavingsBf.toFixed(2)} bf</strong> is shavings, kerf and trim.</div>
+  </div>`;
   return html;
+}
+
+// ════════════════════ END GRAIN DATA TABLES (sweep) ════════════════════════
+// Michael's workbook carries lookup grids so he can see where a size gets
+// cheap. These are the same grids, live: rows sweep the cell size, columns
+// sweep the finished board thickness, everything else stays as entered.
+const DT_CELLS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+const DT_THICK = [0.75, 1, 1.25, 1.5, 1.75, 2];
+
+function renderBoardTables(p) {
+  const rowLabel = p.cellShape === 'square' ? 'cell (square)' : 'cell across width';
+  const note = p.cellShape === 'square'
+    ? `Rows sweep the square cell size. Columns sweep the finished board thickness.`
+    : `Rows sweep the cell's <strong>across-width</strong> dimension; the along-length dimension stays at ${dim(p.cellT)}. Columns sweep the finished board thickness.`;
+
+  const grid = DT_CELLS.map(cw => DT_THICK.map(ft => {
+    const cellT = p.cellShape === 'square' ? cw : p.cellT;
+    return egSolve({
+      finalL: p.finalL, finalW: p.finalW, finalT: ft, qty: p.qty, kerf: p.kerf,
+      lumT: dtMatch ? cellT : p.lumT, lumW: p.lumW,
+      cellW: cw, cellT,
+    });
+  }));
+
+  const table = (title, sub, pick, fmt, lowerIsBetter) => {
+    const vals = [];
+    grid.forEach(row => row.forEach(r => { if (r.fits) vals.push(pick(r)); }));
+    const best = lowerIsBetter ? Math.min(...vals) : Math.max(...vals);
+    const worst = lowerIsBetter ? Math.max(...vals) : Math.min(...vals);
+    let h = `<div class="dt-block"><div class="dt-title">${title}<span>${sub}</span></div><div class="dt-scroll"><table class="dt">
+      <tr><th class="dt-corner">${rowLabel}</th>${DT_THICK.map(t => `<th>${dim(t)}</th>`).join('')}</tr>`;
+    DT_CELLS.forEach((cw, i) => {
+      h += `<tr><th class="dt-rowh">${dim(cw)}</th>`;
+      DT_THICK.forEach((ft, j) => {
+        const r = grid[i][j];
+        if (!r.fits) { h += `<td class="dt-bad">—</td>`; return; }
+        const val = pick(r);
+        const isCur = Math.abs(cw - p.cellW) < 1e-6 && Math.abs(ft - p.finalT) < 1e-6;
+        let cls = 'dt-cell';
+        if (vals.length > 1 && Math.abs(val - best) < 1e-9) cls += ' dt-best';
+        else if (vals.length > 1 && Math.abs(val - worst) < 1e-9) cls += ' dt-worst';
+        if (isCur) cls += ' dt-cur';
+        h += `<td class="${cls}">${fmt(val)}</td>`;
+      });
+      h += `</tr>`;
+    });
+    return h + `</table></div></div>`;
+  };
+
+  let html = `<div class="dt-head">
+    <h2>Data Tables</h2>
+    <div class="dt-toggle">
+      <button class="seg-btn${dtMatch ? '' : ' active'}" onclick="setDtMatch(false)">Lumber ${dim(p.lumT)} thick</button>
+      <button class="seg-btn${dtMatch ? ' active' : ''}" onclick="setDtMatch(true)">Milled to cell</button>
+    </div>
+    <p>${note} ${dtMatch
+      ? `Each row assumes you <strong>order your lumber at that cell's thickness</strong>, so nothing is lost to milling. This is the grid that shows real optimal points — waste stops sliding one way and starts jumping around as the rips fit the width better or worse.`
+      : `Lumber stays <strong>${dim(p.lumT)} thick</strong>, so every row pays to mill that down to its cell. That cost alone is bigger than everything else combined, which is why waste just slides one direction — switch to <strong>Milled to cell</strong> to see where the sizes actually differ.`}
+      Board ${dim(p.finalL)} × ${dim(p.finalW)}, lumber ${dim(p.lumW)} wide, ${p.qty} up, ${dim(p.kerf)} kerf. Green is best in each grid, amber worst, your current setting ringed. A dash won't fit your lumber.</p>
+  </div>`;
+  html += table('Lumber Length Needed', 'inches of your stock', r => r.lumberLen, x => dim(x), true);
+  html += table('Board Feet', 'purchased', r => r.purchasedBf, x => x.toFixed(2), true);
+  html += table('Waste', '% of what you buy', r => r.wastePct, x => Math.round(x * 100) + '%', true);
+  html += table('Usable Offcut', 'board feet you keep', r => r.offcutBf, x => x.toFixed(2), false);
+  return html;
+}
+
+function setDtMatch(on) { dtMatch = on; runPlanner(); }
+
+function setBoardView(view) {
+  boardView = view;
+  document.getElementById('bview-calc').classList.toggle('active', view === 'calc');
+  document.getElementById('bview-tables').classList.toggle('active', view === 'tables');
+  runPlanner();
+}
+
+function setCellShape(shape) {
+  cellShape = shape;
+  document.getElementById('cell-square').classList.toggle('active', shape === 'square');
+  document.getElementById('cell-rect').classList.toggle('active', shape === 'rect');
+  document.getElementById('cellT-field').style.display = shape === 'rect' ? '' : 'none';
+  document.getElementById('cellW-label').textContent = shape === 'square' ? 'Cell size' : 'Across width';
+  const hint = document.getElementById('cell-hint');
+  if (hint) hint.innerHTML = shape === 'square'
+    ? `One number — the cell is square on the finished top.`
+    : `<strong>Across width</strong> is ripped off your lumber's width. <strong>Along length</strong> is milled off its thickness, so it can't exceed it.`;
+  save(); scheduleRunPlanner();
 }
 
 function renderFaceGrain(p) {
@@ -5213,9 +5270,9 @@ let lastPlan = null;
 function runPlanner() {
   save();
   try {
-    const p = mode === 'end' ? calcEndGrain() : calcFaceGrain();
+    const p = calcEndGrain();
     lastPlan = p;
-    document.getElementById('planner-output').innerHTML = mode === 'end' ? renderEndGrain(p) : renderFaceGrain(p);
+    document.getElementById('planner-output').innerHTML = renderEndGrain(p);
   } catch(e) {
     console.error(e);
     document.getElementById('planner-output').innerHTML = `<div class="empty-state"><p style="color:var(--danger)">Error: ${e.message}</p></div>`;
@@ -5224,20 +5281,19 @@ function runPlanner() {
 function copyPlan() {
   if (!lastPlan) return;
   const p = lastPlan;
-  const bufPct = Math.round((p.bufferPct || 0) * 100);
-  let text = `BRIGHT CUTS · BUILD PLAN\n${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} ${mode === 'end' ? 'end grain' : 'face grain'} cutting board\nQty: ${p.qty}\n`;
-  if (mode === 'end') text += `Pattern: ${patternLabel(p.pattern)}\n`;
-  text += `\nSTOCK (incl. ${bufPct}% buffer): ${p.bufferedBoards} boards · ${p.bufferedBf.toFixed(1)} bf\n`;
-  text += p.costPerSpeciesBuffered.filter(c => c.strips > 0).map(c => `  ${c.species.name}: ${c.bfBuf.toFixed(2)} bf`).join('\n');
-  text += `\n  (base before buffer: ${p.boardFeet.toFixed(2)} bf)\n\n`;
-  if (mode === 'end') text += `CUTS:\n  Initial crosscut: ${dim(p.initialCutL)}\n  Rip strips: ${dim(p.tileSize)}\n  Crosscut slabs: ${dim(p.slabCutT)} × ${p.nSlabs}\n  Kerf: ${dim(p.kerf)} per cut\n\n`;
-  else {
-    text += `STRIP PATTERN (panel width ${dim(p.panelW)}):\n`;
-    p.stripPattern.forEach((s, i) => { text += `  ${i+1}. ${p.species[s.speciesIdx % p.species.length]?.name}: ${dim(s.width)}\n`; });
-    text += `\nCUTS:\n  Crosscut: ${dim(p.cutL)}\n  Kerf: ${dim(p.kerf)} per cut\n\n`;
-  }
-  text += `EDGE: ${edgeProfileLabel(p.edgeProfile)}\n`;
-  if (p.juiceGroove !== 'none') text += `JUICE GROOVE: ${juiceGrooveLabel(p.juiceGroove)}\n`;
+  const cell = p.cellShape === 'square' ? `${dim(p.cellW)} square` : `${dim(p.cellW)} across × ${dim(p.cellT)} along`;
+  let text = `BRIGHT CUTS · END GRAIN CUT LIST\n`;
+  text += `${dim(p.finalL)} × ${dim(p.finalW)} × ${dim(p.finalT)} · qty ${p.qty}\n`;
+  text += `Cell: ${cell} · Pattern: ${patternLabel(p.pattern)}\n`;
+  text += `Species: ${p.species.map(s => s.name).join(' + ')}\n\n`;
+  text += `LUMBER TO BUY\n  ${dim(p.lumT)} × ${dim(p.lumW)} × ${dim(p.lumberLen)}  (${p.purchasedBf.toFixed(2)} bf)\n\n`;
+  text += `STEP 1 · CUT TO LENGTH\n  ${p.lengths} pieces at ${dim(p.cutLen)}\n\n`;
+  text += `STEP 2 · RIP\n  ${p.ripsPerLength} strips per length at ${dim(p.cellW)} · ${p.ripsNeeded} needed\n  ${dim(p.ripLeftoverW)} left off each length\n\n`;
+  text += `STEP 3 · MILL & GLUE UP\n  Mill strips to ${dim(p.cellT)} · glue ${p.ripsPerBoard} strips into a panel\n\n`;
+  text += `STEP 4 · RIP FINAL PIECES\n  ${p.finalPieces} pieces at ${dim(p.cellT)} · stand on edge, glue up\n\n`;
+  text += `WASTE\n  ${p.purchasedBf.toFixed(2)} bf bought − ${p.finishedBf.toFixed(2)} bf in the board = ${p.wasteBf.toFixed(2)} bf (${Math.round(p.wastePct * 100)}%)\n`;
+  text += `  ${p.offcutBf.toFixed(2)} bf usable offcut · ${p.shavingsBf.toFixed(2)} bf shavings/kerf/trim\n`;
+  text += `  Kerf + cleanup allowance: ${dim(p.kerf)} per cut\n`;
   text += `\nGenerated by Bright Cuts · Michael Makes It Work\n`;
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.copy-btn');
@@ -7091,13 +7147,14 @@ function savePlanFromBoard() {
       finalL: p.finalL, finalW: p.finalW, finalT: p.finalT,
       qty: p.qty,
       species: (p.species || []).map(s => ({ name: s.name, color: s.color || s.hex || '#a87a4a', price: s.price })),
-      edgeProfile: p.edgeProfile,
-      juiceGroove: p.juiceGroove,
-      stripPattern: p.stripPattern,
-      bufferPct: p.bufferPct,
-      bufferedBoards: p.bufferedBoards,
-      bufferedBf: p.bufferedBf,
-      totalCostBuffered: p.totalCostBuffered,
+      cellShape: p.cellShape,
+      cellW: p.cellW,
+      cellT: p.cellT,
+      lumT: p.lumT,
+      lumW: p.lumW,
+      lumberLen: p.lumberLen,
+      purchasedBf: p.purchasedBf,
+      wasteBf: p.wasteBf,
       kerf: p.kerf,
     },
     projectId: null,
@@ -10065,7 +10122,7 @@ function init() {
   species.forEach(s => {
     if (s && s.name) s.price = priceFor(s.name);
   });
-  setMode(mode); setPattern(pattern); setFurnType(furnType); setUIMode(uiMode);
+  setMode(); setCellShape(cellShape); setBoardView(boardView); setPattern(pattern); setFurnType(furnType);
   ['base','wall','tall'].forEach(x => document.getElementById('cabt-' + x).classList.toggle('active', x === cabType));
   renderSpecies();
   refreshStripList();
