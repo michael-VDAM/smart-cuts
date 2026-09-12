@@ -74,7 +74,11 @@ Michael keeps his own `End Grain Cutting Board Calculator.xlsx` (Desktop, tabs *
 `egSolve()` is the pure function; `calcEndGrain()` wraps it from the DOM; the data tables call it across a sweep. **Verified against 18 cells of his own grids — 16 match to the thousandth.** The 2 that don't are where he divides piece counts without rounding (12 / 1.75 = 6.857 pieces); we `ceil`, which never buys short.
 
 **Rules that matter:**
+- **Opens blank.** The numbers in his workbook are test data, not defaults. Nothing computes until every required dimension is filled (`EG_REQUIRED` / `egMissing()`).
 - **Lumber length is an OUTPUT, never an input** — he buys custom-milled, so "how long a board do I need" is the whole question.
+- **Show the unrounded count beside the rounded one** — `egCount()` renders "11 (10.29)". He asked for this explicitly: knowing a size wastes most of a piece is a reason to nudge a dimension.
+- **The glue-up lands on whole cells, so it often overshoots the target** — 18" of 1¾" cells comes out 19¼". That surplus is board, not waste: `achievedL`/`achievedW` drive `finishedBf`, and Step 4 says whether to keep or trim it.
+- **The three data tables are his three, in his order**: lumber length · board feet in the finished board · waste. (A fourth, board feet to buy, is ours.)
 - Lumber thickness/width are **always hand-typed**. No presets, no standard sizes. He doesn't buy S4S.
 - Every step shows **its own waste**, and the bottom shows `bought − finished = waste`. He asked for both.
 - Counts sit on integer boundaries where float drift flips the answer — always use `egCeil`/`egFloor`, never bare `Math.ceil`.

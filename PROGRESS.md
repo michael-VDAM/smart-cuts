@@ -30,7 +30,14 @@ Ported faithfully: his four steps with each one's own cut count and length, his 
 - `v()` ran *every* field through the unit converter, so in metric a quantity of 2 became `2 ÷ 25.4` and silently built one board. Added `vCount()` for unitless fields. (Pre-existing; `furn-qty`, `furn-sheetQ` and `furn-buffer` still have it — not touched this session.)
 - Piece counts sit on integer boundaries where float drift flips the answer: 14" stored as 355.6 mm returns 14.000000000000002, and a bare `Math.ceil` added a whole phantom row of cells. All boundaries now go through `egCeil`/`egFloor`.
 
-Removed with the rebuild: face grain, Standard/Custom UI mode, strip-pattern builder, edge profile, juice groove, buffer %. Michael cut all of them. The face-grain *functions* (`calcFaceGrain`, `renderFaceGrain`, `svgFinishedFaceGrain`, the strip machinery) are still in the file, now unreachable — left for a separate sweep so this change stayed reviewable.
+**Second pass, same day, after Michael reviewed:**
+- **Opens blank.** His workbook's numbers are test data; the tab now computes nothing until the dimensions are in, and lists what's still needed.
+- **Unrounded counts shown beside rounded ones** — "11 (10.29) pieces". His call, and a good one: a size that wastes most of a piece is now visible, which is a reason to nudge a dimension rather than a number to hide.
+- **The glue-up's real size is now modelled.** Whole cells rarely land on the target — 18" of 1¾" cells makes 19¼". That was being counted as waste; it's board. `achievedL`/`achievedW` now drive the finished board feet, and Step 4 says whether to keep the surplus or trim it. It also makes the finished-bf table non-degenerate (1.13 bf where cells divide evenly, 1.22–1.23 where they overshoot).
+- **Tables re-spec'd to his three**: lumber length · board feet in the finished board · waste, plus board feet to buy.
+- **Face grain swept out** — `calcFaceGrain`, `renderFaceGrain`, `svgFinishedFaceGrain`, the two face diagrams, the whole strip-pattern/variable machinery, `evalFormula`, and their CSS. **659 lines out, index.html 10,200 → 9,654.** Old `mode:'face'` saves still migrate cleanly (re-verified).
+
+Removed with the rebuild: face grain, Standard/Custom UI mode, strip-pattern builder, edge profile, juice groove, buffer %. Michael cut all of them.
 
 Verified: his Square and Rectangle defaults reproduced exactly, square/rectangle toggle, both data-table modes, all 16 tabs, old-save migration (a `mode:'face'` save coerces cleanly), save-plan round trip, metric round trip now stable and agreeing with imperial, both themes contrast-checked (light `--cut` was 2.4:1 on parchment → darkened to `#a8471c`, 4.6:1), 375px with no page overflow and tables scrolling inside. **NOT verified: physical print output** (print CSS for the new blocks was written but not rendered), and real cross-device sync.
 
