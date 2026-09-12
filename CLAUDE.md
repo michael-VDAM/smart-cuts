@@ -85,6 +85,12 @@ Michael keeps his own `End Grain Cutting Board Calculator.xlsx` (Desktop, tabs *
 - Data tables have a **"milled to cell"** toggle. With thick stock the milling loss swamps everything and the grid slides one way; matching lumber to the cell exposes the rip-fit sawtooth, which is the optimal-point signal he's actually looking for.
 - No face grain, no juice groove, no edge profile, no buffer %. He cut all of them. Don't reintroduce.
 
+## Scrolling (fixed 2026-09-12 — don't regress)
+- **Phones have exactly ONE scroller: the page.** `.input-body` / `.output-col` are `overflow: visible` under 820px. Never reintroduce a nested scroller or a `max-height` cap there — stacked scrollers trap momentum and make the sticky header flicker.
+- **Anything sized against the header uses `var(--header-h)`**, measured at runtime. The old hardcoded 45px was 14px short of the real 59px and made the whole page overflow.
+- **Grid tracks holding arbitrary content use `minmax(0, 1fr)`**, and wide tables get a `.table-scroll` wrapper. A track's default `min-width: auto` lets one long label push the page sideways.
+- **`overflow-x: auto` always pairs with `overflow-y: hidden`** — otherwise the other axis computes to `auto` and the box swallows vertical touch scrolling.
+
 ## Conventions (don't break these)
 1. **Live preview** — all input changes debounced 180ms then trigger re-render. No "Plan Build" or "Generate" buttons. Simplicity.
 2. **localStorage keys are versioned** (`woodshop-planner-v4`, `woodshop-projects-v1`, etc.). DO NOT change key names without a migration — wipes user data.

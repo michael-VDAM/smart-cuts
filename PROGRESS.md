@@ -1,6 +1,6 @@
 # PROGRESS.md — Smart Cuts Current State
 
-Last updated: 2026-09-11 (Session 10 — Cutting Board rebuilt as the End Grain Calculator)
+Last updated: 2026-09-12 (Session 10b — scrolling fixed app-wide)
 
 ## Live state
 - **URL**: https://michael-vdam.github.io/smart-cuts/
@@ -40,6 +40,20 @@ Ported faithfully: his four steps with each one's own cut count and length, his 
 Removed with the rebuild: face grain, Standard/Custom UI mode, strip-pattern builder, edge profile, juice groove, buffer %. Michael cut all of them.
 
 Verified: his Square and Rectangle defaults reproduced exactly, square/rectangle toggle, both data-table modes, all 16 tabs, old-save migration (a `mode:'face'` save coerces cleanly), save-plan round trip, metric round trip now stable and agreeing with imperial, both themes contrast-checked (light `--cut` was 2.4:1 on parchment → darkened to `#a8471c`, 4.6:1), 375px with no page overflow and tables scrolling inside. **NOT verified: physical print output** (print CSS for the new blocks was written but not rendered), and real cross-device sync.
+
+## Session 10b (2026-09-12) — scrolling fixed
+
+Michael: "scrolling is very buggy." Three separate causes, all found by measuring rather than guessing.
+
+**1. Desktop: the page overflowed by exactly 14px on every tab.** `.workspace` was sized `calc(100vh - 45px)`, but the header actually renders **59px**. So every scroll gesture first dragged the whole app down 14px, stopped, and only then handed off to the pane underneath — a two-stage lurch on every swipe. The 45px was a hardcoded guess that was never right. Now measured into `--header-h` at runtime (ResizeObserver + resize + load), so it also survives the header wrapping to two rows on a phone. Desktop page overflow is now **0px on all 16 tabs**.
+
+**2. Mobile: three stacked scroll containers.** The page scrolled, `.input-body` was a second scroller capped at `70vh`, and `.output-col` a third. The top half of the screen scrolled a different box than the bottom half, momentum got trapped at each boundary, and the sticky header flickered because scroll events arrived from whichever box the thumb landed on — the old handler listened in the *capture* phase specifically to catch them, and then fed unrelated `scrollTop` values into one direction check. Phones now have exactly **one scroller: the page** (`overflow: visible` on both panes, cap removed). Verified 0 nested scrollers across all 16 tabs. Desktop keeps its two independent panes, which is correct when the viewport height is fixed.
+
+**3. Horizontal overflow pushing the page sideways.** Furniture was 93px wider than a 375px phone. Two causes: a grid track's default `min-width: auto` let one unshrinkable toggle label widen the whole column (fixed with `minmax(0, 1fr)` + `min-width: 0` on the panes and seg buttons), and the 6-column cut-list table can't shrink below its content (now wrapped in `.table-scroll`, scrolling inside its own box like the data tables). **0px horizontal overflow on all 16 tabs.**
+
+Also: the header handler was rewritten to read window scroll only, coalesce through `requestAnimationFrame` (one update per frame instead of one per event), and use an 8px deadband instead of 4px so jitter and rubber-band don't flip it. Added a `visibilitychange` reset — backgrounding the PWA mid-scroll could park a pending frame and leave the handler dead for the rest of the session. `.dt-scroll` got `overflow-y: hidden`: per spec, once one axis isn't `visible` the other computes to `auto`, so the horizontal table scroller was silently trapping vertical touch too.
+
+Verified: all 16 tabs at 375px and desktop (0 nested scrollers, 0 horizontal overflow), header show/hide transitions live in-browser and as a deterministic unit test of the state machine, desktop panes still scroll independently, calculator output unchanged. **NOT verified: the feel on Michael's actual iPhone** — momentum and rubber-band behaviour can't be reproduced in an emulated viewport.
 
 ## Session 9 (2026-09-03)
 
