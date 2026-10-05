@@ -1,7 +1,39 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "woodshop", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8471"], "port": 8471 },
-    { "name": "trailhead", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8482", "--directory", "/Users/michaelross/code/trailhead"], "port": 8482 }
+    {
+      "name": "woodshop",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8471"
+      ],
+      "port": 8471
+    },
+    {
+      "name": "trailhead",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8482",
+        "--directory",
+        "/Users/michaelross/code/trailhead"
+      ],
+      "port": 8482
+    },
+    {
+      "name": "starter",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8493",
+        "--directory",
+        "/Users/michaelross/code/family-app-starter"
+      ],
+      "port": 8493
+    }
   ]
 }
