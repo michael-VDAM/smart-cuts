@@ -304,8 +304,16 @@ Twenty-six commits in one session. Major themes:
 - **localStorage** persistence for all user state
 - **PWA install** — manifest + apple-touch-icon + apple-mobile-web-app meta; standalone full-screen on phone with custom lightbulb icon
 
+## To-Do: completion notes + working delete (2026-10-05)
+- **Checking an item off now requires a completion note.** Tapping ✓ opens a bottom sheet asking how it went / what you'd change. Save stays disabled until there's non-whitespace text. The item then leaves the active list and lands under a collapsed **Completed (n)** section with its date, section, and note. Reopen (↺), edit the note (✎), or remove (✕) from there.
+- **Delete actually works now.** Items are *tombstoned* (`deleted: true`), never spliced out of the array. `pullAll()` merges collections as a **union by id with cloud winning collisions** — so a spliced item still living on his phone counted as "local extra", got re-pushed, and resurrected on the next pull. A flag rides along with the item and survives that merge. Verified by replicating the merge both ways.
+- Removed the old **"Clear done"** button — it hard-deleted history, which is the opposite of what's wanted now.
+- `moveTodo` now walks only visible rows (done/deleted items were making the ↑↓ arrows skip a slot).
+- Pre-existing done items with no note render "Completed before notes were required" rather than breaking.
+- **Residual race (not fixed):** if the phone edits todos *after* a delete but *before* pulling, its push can still overwrite the tombstone. Much narrower than the old guaranteed resurrection. A general tombstone layer for all collections is the real fix if it ever bites.
+
 ## Known issues / fixes deferred
-- (none currently — broke navigation once with missing `};`, fixed)
+- Deletes in collections *other than* todos (projects, plans, supplies, laser…) can still be resurrected across devices — same union-merge limitation, not yet tombstoned.
 
 ## Deferred features (not yet built)
 1. **Export / Import backup** — JSON download/upload for cross-device sync (offered to user, awaiting "yes")
