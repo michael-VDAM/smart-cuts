@@ -5585,6 +5585,8 @@ function loadTodos() {
   // Ids must be strings — inline onclick handlers pass them as string literals,
   // and a numeric id (older/hand-edited data) would fail every strict-equality lookup.
   todos.forEach(t => { if (t && t.id != null) t.id = String(t.id); });
+  // Drop tombstones left by the interim delete fix — real deletes now sync properly.
+  todos = todos.filter(t => t && !t.deleted);
 }
 function saveTodos() {
   try { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); } catch {}
@@ -5607,14 +5609,12 @@ function addTodo() {
   renderTodos();
   inp.focus();
 }
-// Removed items are TOMBSTONED (`deleted:true`), never spliced out. The cloud
-// merge in pullAll() is a UNION by id, so an item spliced off one device gets
-// re-added from another device's copy on the next pull — which is exactly why
-// delete appeared to do nothing. A flag travels with the item and survives it.
+// A plain removal is correct again: pullAll() does a three-way merge against the
+// sync shadow, so a delete here is recognized as a delete everywhere instead of
+// being re-added from another device's copy.
 function liveTodos() { return todos.filter(t => t && !t.deleted); }
 function deleteTodo(id) {
-  const t = todos.find(t => t.id === id); if (!t) return;
-  t.deleted = true;
+  todos = todos.filter(t => t.id !== id);
   saveTodos(); renderTodos();
 }
 // Completing is deliberate: it demands a note and pulls the item off the active
@@ -9335,6 +9335,81 @@ async function cloudAccountClick() {
   if (vErr) alert('That code didn\'t work: ' + vErr.message + '\n\nCodes expire after a few minutes — tap ☁ Sign in to get a fresh one.');
 }
 
+// ─── Three-way sync merge ─────────────────────────────────────────────────
+// A two-way union CANNOT express a delete. With only "mine" and "theirs" to
+// look at, an item removed here is indistinguishable from an item the other
+// device just added — so the union puts it back, and the delete silently undoes
+// itself on the next pull. The same blind spot made "cloud always wins" clobber
+// a fresh local edit with a stale remote copy.
+//
+// The fix is a third reference point: a SHADOW of what each item looked like at
+// the last confirmed sync. Comparing mine/theirs against that base says which
+// side actually changed, so a delete, an add, and a stale copy stop looking
+// alike. Shadows hold only a fingerprint per item — never the payload — so this
+// costs a few hundred bytes, not a second copy of every project photo.
+const SYNC_SHADOW_KEY = 'woodshop-sync-shadow-v1';
+let syncShadow = {};
+try { syncShadow = JSON.parse(localStorage.getItem(SYNC_SHADOW_KEY) || '{}') || {}; } catch { syncShadow = {}; }
+function saveSyncShadow() { try { localStorage.setItem(SYNC_SHADOW_KEY, JSON.stringify(syncShadow)); } catch {} }
+
+// Two devices can serialize the same object with different key order, so hash a
+// stably-ordered form — otherwise every item looks edited on every sync.
+function stableStr(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v) ?? 'null';
+  if (Array.isArray(v)) return '[' + v.map(stableStr).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stableStr(v[k])).join(',') + '}';
+}
+function itemHash(v) {
+  const str = stableStr(v);
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return str.length.toString(36) + ':' + (h >>> 0).toString(36);
+}
+// Legacy: the first pass at fixing delete flagged items instead of removing
+// them. Treat any that are still floating around as already gone.
+function isTombstone(v) { return !!(v && typeof v === 'object' && v.deleted === true); }
+
+// Normalize either collection shape to a plain {key: item} map.
+function asKeyed(name, val) {
+  const key = CLOUD_ARRAY_KEYS[name], out = {};
+  if (key) {
+    for (const it of (Array.isArray(val) ? val : [])) {
+      if (it && it[key] != null && !isTombstone(it)) out[it[key]] = it;
+    }
+  } else if (val && typeof val === 'object') {
+    for (const k of Object.keys(val)) if (!isTombstone(val[k])) out[k] = val[k];
+  }
+  return out;
+}
+function shadowOf(name, val) {
+  const keyed = asKeyed(name, val), out = {};
+  for (const k of Object.keys(keyed)) out[k] = itemHash(keyed[k]);
+  return out;
+}
+
+// base = {key: hash} at last confirmed sync, or null when we've never synced
+// this collection (first sign-in → union, so signing in can't wipe a device).
+function mergeThreeWay(base, mine, theirs) {
+  const out = {};
+  for (const id of new Set([...Object.keys(mine), ...Object.keys(theirs)])) {
+    const hasMine = id in mine, hasTheirs = id in theirs;
+    if (!base) { out[id] = hasTheirs ? theirs[id] : mine[id]; continue; }
+    const inBase = id in base;
+    // Present on one side only: it's an ADD if the base never had it, otherwise
+    // the other side deleted it and that delete should stand.
+    if (hasMine !== hasTheirs) {
+      if (!inBase) out[id] = hasMine ? mine[id] : theirs[id];
+      continue;
+    }
+    const mh = itemHash(mine[id]), th = itemHash(theirs[id]);
+    if (mh === th) { out[id] = theirs[id]; continue; }
+    // Only one side moved off the base → that side is the real edit. If both
+    // moved it's a genuine conflict, and cloud wins so every device converges.
+    out[id] = (base[id] !== mh && base[id] === th) ? mine[id] : theirs[id];
+  }
+  return out;
+}
+
 // Push one collection's current state up to the cloud (no-op unless signed in).
 async function cloudPush(collection) {
   if (!CLOUD_ENABLED || !sb || !cloudUser || cloudPulling) return;
@@ -9343,16 +9418,22 @@ async function cloudPush(collection) {
   const row = { user_id: cloudUser.id, collection, data: coll.get(), updated_at: new Date().toISOString() };
   const { error } = await sb.from('smartcuts_state').upsert(row, { onConflict: 'user_id,collection' });
   if (error) { cloudDirty[collection] = true; console.warn('cloudPush failed', collection, error.message); }
-  else { delete cloudDirty[collection]; }
+  else {
+    delete cloudDirty[collection];
+    // The cloud now matches what we just sent. Recording that is what lets the
+    // next merge tell "this device deleted it" from "this device never had it".
+    syncShadow[collection] = shadowOf(collection, row.data);
+    saveSyncShadow();
+  }
   updateCloudUI();   // surface failures immediately (and clear the ⚠ once flushed)
 }
 
-// Merge every collection (cloud + local) and apply locally, then seed the cloud
-// with anything it didn't already have. UNION merge — it never drops an item, so
-// signing in can't wipe a device's projects, and existing local data uploads on
-// first sign-in. Cloud wins the rare same-key conflict, which keeps every device
-// converging without push loops. (Limitation: deletes don't propagate across
-// devices — a deleted item can be resurrected from another device's copy.)
+// Merge every collection (cloud + local) and apply locally, then push back
+// anything the cloud doesn't already have. Each collection goes through a
+// three-way merge against the shadow (see above), so deletes propagate in both
+// directions and a stale cloud copy no longer overwrites a fresh local edit.
+// Item ORDER stays local — two devices reordering the same list is inherently
+// ambiguous, and keeping local order preserves the user's manual arrangement.
 async function pullAll() {
   if (!CLOUD_ENABLED || !sb || !cloudUser) return;
   // First flush any local changes that failed to push earlier.
@@ -9361,36 +9442,52 @@ async function pullAll() {
   if (error) { console.warn('pullAll failed', error.message); return; }
   const cloudByColl = {};
   for (const r of (data || [])) cloudByColl[r.collection] = r.data;
-  const toPush = [];
+  const toPush = [], nextShadow = {};
   cloudPulling = true;
   try {
     for (const [name, coll] of Object.entries(CLOUD_COLLECTIONS)) {
       if (cloudDirty[name]) continue;                // local is newer/unsynced — keep it
       const key = CLOUD_ARRAY_KEYS[name];
+      const cloudHasRow = (name in cloudByColl);
       const cloud = cloudByColl[name];
+      const localVal = coll.get();
+      const mine = asKeyed(name, localVal);
+
+      // No row at all for this collection → nothing to merge against. Keep what
+      // we have and seed the cloud; never read a missing row as "all deleted".
+      const merged = cloudHasRow
+        ? mergeThreeWay(syncShadow[name] || null, mine, asKeyed(name, cloud))
+        : mine;
+
       if (key) {
-        // Array collection: union by `key`, cloud wins on collision.
-        const localArr = Array.isArray(coll.get()) ? coll.get() : [];
-        const cloudArr = Array.isArray(cloud) ? cloud : [];
-        const m = new Map();
-        for (const it of localArr) if (it && it[key] != null) m.set(it[key], it);
-        for (const it of cloudArr) if (it && it[key] != null) m.set(it[key], it);
-        const cloudKeys = new Set(cloudArr.map(it => it && it[key]));
-        const localHasExtra = localArr.some(it => it && !cloudKeys.has(it[key]));
-        coll.set([...m.values()]);
-        if (localHasExtra) toPush.push(name);
+        // Rebuild in local order, then append anything only the cloud had.
+        const order = [], seen = new Set();
+        const take = arr => { for (const it of (Array.isArray(arr) ? arr : [])) {
+          const k = it && it[key];
+          if (k != null && !seen.has(k) && Object.prototype.hasOwnProperty.call(merged, k)) { order.push(k); seen.add(k); }
+        } };
+        take(localVal); take(cloud);
+        coll.set(order.map(k => merged[k]));
       } else {
-        // Map collection: union by object key, cloud wins on collision.
-        const localObj = (coll.get() && typeof coll.get() === 'object') ? coll.get() : {};
-        const cloudObj = (cloud && typeof cloud === 'object') ? cloud : {};
-        const localHasExtra = Object.keys(localObj).some(k => !(k in cloudObj));
-        coll.set({ ...localObj, ...cloudObj });
-        if (localHasExtra) toPush.push(name);
+        coll.set(merged);
       }
+
+      // set() may refuse a value (e.g. laserMaterials rejects an empty list), so
+      // fingerprint what actually landed rather than what we computed.
+      const landed = coll.get();
+      nextShadow[name] = shadowOf(name, landed);
+      if (!cloudHasRow || stableStr(landed) !== stableStr(cloud)) toPush.push(name);
     }
   } finally { cloudPulling = false; }
-  // Seed the cloud with collections that had local-only data.
+
   for (const name of toPush) await cloudPush(name);
+  // Advance the shadow only where the cloud really matches us. A failed push
+  // must not leave a shadow claiming we're in sync — the next pull would read
+  // that gap as a remote delete and drop the data for real.
+  for (const name of Object.keys(nextShadow)) {
+    if (!cloudDirty[name]) syncShadow[name] = nextShadow[name];
+  }
+  saveSyncShadow();
 }
 
 function subscribeCloud() {

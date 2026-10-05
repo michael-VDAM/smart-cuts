@@ -310,10 +310,18 @@ Twenty-six commits in one session. Major themes:
 - Removed the old **"Clear done"** button — it hard-deleted history, which is the opposite of what's wanted now.
 - `moveTodo` now walks only visible rows (done/deleted items were making the ↑↓ arrows skip a slot).
 - Pre-existing done items with no note render "Completed before notes were required" rather than breaking.
-- **Residual race (not fixed):** if the phone edits todos *after* a delete but *before* pulling, its push can still overwrite the tombstone. Much narrower than the old guaranteed resurrection. A general tombstone layer for all collections is the real fix if it ever bites.
+- Tombstones were an interim patch on to-dos only; superseded same day by the three-way sync merge below. `loadTodos` strips any that shipped.
+
+## Sync: three-way merge across all 12 collections (2026-10-05)
+- **Root cause of the delete bug was structural.** `pullAll()` merged with only two inputs — mine and theirs — and a two-way union *cannot express a delete*: an item removed here is indistinguishable from an item the other device just added, so the union puts it back. Same blind spot made "cloud always wins" clobber a fresh local edit with a stale remote copy.
+- **Fix: a sync shadow** (`woodshop-sync-shadow-v1`) — a fingerprint of each item at the last *confirmed* sync, giving the merge a third reference point. Delete / add / stale-copy stop looking alike, in both directions. Shadows store a hash per item, never the payload, so this costs a few hundred bytes rather than a second copy of every project photo.
+- Applies to **all 12 collections**, arrays and maps alike. Also fixes `resetAllLumberPrices()`, which was silently undone by the cloud.
+- Safety properties, each covered by a test: no shadow → union (first sign-in can't wipe a device); a missing cloud row is never read as "everything deleted"; a *failed* push never advances the shadow (which would fake a sync and read the gap as a remote delete next time); `set()` refusals are fingerprinted from what actually landed.
+- Item **order stays local** — two devices reordering the same list is inherently ambiguous, and keeping local order preserves manual arrangement.
+- **Residual race (known, self-healing):** if a device writes while stale, its push can re-add an item deleted elsewhere. It comes back *once*; deleting again sticks, because both devices are current by then. Closing it fully needs per-item timestamps or a server-side log. Verified as self-healing by test E8.
 
 ## Known issues / fixes deferred
-- Deletes in collections *other than* todos (projects, plans, supplies, laser…) can still be resurrected across devices — same union-merge limitation, not yet tombstoned.
+- (none currently)
 
 ## Deferred features (not yet built)
 1. **Export / Import backup** — JSON download/upload for cross-device sync (offered to user, awaiting "yes")
