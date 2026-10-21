@@ -1245,6 +1245,10 @@
     input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
 
     /* ═══════════════════════ BUILD GUIDE ═══════════════════════ */
+    .bg-picker { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+    .bg-chip { background: var(--panel); border: 1px solid var(--border); color: var(--muted); border-radius: 99px; padding: 7px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .bg-chip.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .bg-chip.add { border-style: dashed; color: var(--muted2); }
     .bg-hero { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
     .bg-hero h2 { font-size: 20px; margin: 0 0 4px; }
     .bg-hero p { font-size: 13px; color: var(--muted); margin: 0 0 12px; line-height: 1.5; }
@@ -9322,207 +9326,320 @@ function deleteNote(id) {
 }
 
 // ═════════════════════════════ BUILD GUIDE ═════════════════════════════════
-// The end grain cutting board process, start to finish. The step list and the
-// per-step minutes are Michael's own, lifted from the Time Sheet tab of his
-// "End Grain Cutting Board Calculator.xlsx" — so this is a record of what the
-// build actually takes, not a generic tutorial.
+// A library of repeatable projects. Each one is an ordered list of steps; a
+// step carries an optional PHASE label, and consecutive steps sharing a phase
+// render as a group — so grouping is just data, not a second structure to keep
+// in sync.
 //
-// Each step can carry INSTRUCTIONS. Seeded ones ship in BUILD_STEPS[].body;
-// anything Michael writes is stored separately in `buildGuide` keyed by step
-// number, so a future seed update can never clobber his words — his win, and
-// "revert" puts the seed back. Same self-updating pattern as the laser recipes.
+// The end grain cutting board ships as a seeded project: its step list and
+// minutes come from the Time Sheet tab of Michael's End Grain Cutting Board
+// Calculator.xlsx, and its instructions are his own bench notes written up.
+// Anything he writes over a seeded step lives in `buildGuide` keyed by step
+// number, SEPARATE from the seed, so a future seed edit can never clobber his
+// words and revert always has something to go back to. Projects he creates
+// himself are fully his — body and minutes live inline on the step.
 const BUILD_KEY = 'woodshop-buildguide-v1';
-let buildGuide = {};          // { "20": "his instructions", … }
-let buildOpen = null;         // step number currently expanded
-let buildEditing = null;      // step number currently in edit mode
+const BUILD_PROJ_KEY = 'woodshop-buildprojects-v1';
+let buildGuide = {};        // seeded-project overrides + _min / _qty / _proj
+let buildProjects = [];     // user-created projects
+let buildOpen = null;       // step n currently expanded
+let buildEditing = null;    // step n currently in edit mode
 
-const BUILD_PHASES = [
-  { id: 'mill',   name: 'Mill the stock',   em: '🪚', from: 1,  to: 4  },
-  { id: 'panel',  name: 'Panel glue-up',    em: '🗜️', from: 5,  to: 9  },
-  { id: 'second', name: 'Second glue-up',   em: '🧩', from: 10, to: 12 },
-  { id: 'shape',  name: 'Square and shape', em: '📐', from: 13, to: 16 },
-  { id: 'finish', name: 'Sand and finish',  em: '✨', from: 17, to: 23 },
-];
-
-const BUILD_STEPS = [
-  { n: 1,  name: 'Cut to 18.75" long',            min: 1.84, tip: 'Miter saw',
+const EG_STEPS = [
+  { n: 1,  phase: 'Mill the stock', pem: '🪚', name: 'Cut to 18.75" long', min: 1.84, tip: 'Miter saw',
     body: 'Miter saw.\n\n18.75" is deliberately oversize. Panel Math puts the panel at 18.5" and the finished board at 18", so there is 3/4" of cleanup allowance built in across squaring up and the final edge work.' },
-  { n: 2,  name: 'Joint 1 edge',                   min: 2.03, tip: 'One edge only',
+  { n: 2,  phase: 'Mill the stock', name: 'Joint 1 edge', min: 2.03, tip: 'One edge only',
     body: 'Jointer.\n\nJoint the edge that is flattest and will yield the most usable stock.\n\nONE edge only. The final clean-up cuts the other side off anyway, so jointing both is wasted time.' },
-  { n: 3,  name: 'Rip down to 1 13/16"',           min: 4.42, tip: 'CMT rip blade',
+  { n: 3,  phase: 'Mill the stock', name: 'Rip down to 1 13/16"', min: 4.42, tip: 'CMT rip blade',
     body: 'Table saw, CMT rip blade.\n\nThe rip blade rather than a combination blade — fewer teeth clear thick walnut faster with less burning, and the saw marks come off in step 4 regardless.' },
-  { n: 4,  name: 'Joint saw edge, 4 @ 1/64"',      min: 4.61, tip: '4 passes @ 1/64"',
+  { n: 4,  phase: 'Mill the stock', name: 'Joint saw edge, 4 @ 1/64"', min: 4.61, tip: '4 passes @ 1/64"',
     body: 'Four passes at 1/64" — two per side, both directions.\n\nTwo jobs at once: clear the saw marks, and get the edges true enough that the panel glue-up closes tight with no gaps.' },
-  { n: 5,  name: 'Panel glue-up',                  min: 19.25 },
-  { n: 6,  name: 'Plane panel',                    min: 12 },
-  { n: 7,  name: 'Square up both sides',           min: 2.25 },
-  { n: 8,  name: 'Joint saw marks',                min: 1.2 },
-  { n: 9,  name: 'Cut strips @ 1 5/8"',            min: 6.1 },
-  { n: 10, name: 'Joint saw edge, 4 @ 1/64"',      min: null },
-  { n: 11, name: 'Glue up final board',            min: null },
-  { n: 12, name: 'Plane final board',              min: 17.36 },
-  { n: 13, name: 'Square 1 edge with track saw',   min: 2.5 },
-  { n: 14, name: 'Joint / square up edges',        min: 4.19, tip: 'Clean-up took forever last run' },
-  { n: 15, name: 'Round over edges',               min: 3,    tip: '1/8" bit' },
-  { n: 16, name: 'Route handle',                   min: 9,    tip: '1/8" bit, 3/4" deep' },
-  { n: 17, name: 'Drum sand faces',                min: null, tip: '120 grit',
-    body: 'Drum sander at 120. This is the baseline the whole finishing schedule is built on — everything after it is ROS work.\n\nBlow the faces off with compressed air before moving on. End grain packs dust down into open pores and it will show under oil.' },
-  { n: 18, name: 'Sand edges to 150',              min: null },
-  { n: 19, name: 'Brand VDAF',                     min: null,
+
+  { n: 5,  phase: 'Panel glue-up', pem: '🗜️', name: 'Panel glue-up', min: 19.25, tip: '3 cauls, 4 clamps',
+    body: '3 cauls, 4 clamps.\n\nSTAGED CLAMPING\nFirst hour at full clamping pressure. Then scrape the squeeze-out and back off to 2 clamps, set wider and looser than the first hour.\n\nMinimum 3 hours in clamps. 24 hours to cure before working the panel.\n\nThe staging is the point: full pressure only as long as it takes to close the joint, then just enough to hold it while the glue cures. Scraping at the hour mark catches the squeeze-out while it is still rubbery, which is far easier than chiselling it off hard.' },
+  { n: 6,  phase: 'Panel glue-up', name: 'Plane panel', min: 12, tip: 'Router sled',
+    body: 'Router sled, plunge router, 1" flattening bit.\n\nSet the depth from the LOWEST point on the board, then take one playing card deeper per pass.\n\nFinish by knocking the chips off with 80 grit.' },
+  { n: 7,  phase: 'Panel glue-up', name: 'Square up both sides', min: 2.25, tip: 'Cross-cut sled',
+    body: 'Table saw, cross-cut sled, cross-cut blade.' },
+  { n: 8,  phase: 'Panel glue-up', name: 'Joint saw marks', min: 1.2,
+    body: 'Joint both sides to clear the saw marks.' },
+  { n: 9,  phase: 'Panel glue-up', name: 'Cut strips @ 1 5/8"', min: 6.1, tip: 'Cross-cut blade',
+    body: 'Table saw, cross-cut blade.\n\nKeep the offcuts. They are already milled and grain-matched, and they come in useful on a later project.' },
+
+  { n: 10, phase: 'Second glue-up', pem: '🧩', name: 'Joint saw edge, 4 @ 1/64"', min: null,
+    body: 'Both sides, both directions.\n\nSame job as step 4 — clear the saw marks so the second glue-up closes perfectly.' },
+  { n: 11, phase: 'Second glue-up', name: 'Glue up final board', min: null, tip: '2 cauls, 4 parallel clamps',
+    body: '2 cauls and 4 parallel clamps.' },
+  { n: 12, phase: 'Second glue-up', name: 'Plane final board', min: 17.36, tip: 'Router sled',
+    body: 'Same as step 6 — router sled, plunge router, 1" flattening bit, one playing card deeper per pass, then 80 grit to knock off the chips.\n\nThis is the longest machining step of the build. Worth having the sled already set up before you start.' },
+
+  { n: 13, phase: 'Square and shape', pem: '📐', name: 'Square 1 edge with track saw', min: 2.5, tip: 'One side only',
+    body: 'Track saw. Square the track to the board first, then cut ONE side only.\n\nThat edge becomes the reference everything else is squared from.' },
+  { n: 14, phase: 'Square and shape', name: 'Joint / square up edges', min: 4.19, tip: 'Clean-up took forever',
+    body: 'Joint the saw marks off the edge you cut in step 13. Then table saw the opposite edge parallel to it. Then joint the remaining three edges.' },
+  { n: 15, phase: 'Square and shape', name: 'Round over edges', min: 3, tip: '1/8" bit, faces only',
+    body: 'Router table, 1/8" round-over bit.\n\nTop and bottom faces only. Do NOT round the vertical corners.' },
+  { n: 16, phase: 'Square and shape', name: 'Route handle', min: 9, tip: '3/4" deep',
+    body: 'Plunge router, 3/4" deep, template for the jig adjustment. Round the handle over with the 1/8" bit in the DeWalt palm router.\n\nSPACERS FOR THE JIG OFFSET\n  spacers = (2" − board thickness) ÷ 2 × 16\n\nThat is the count of 1/16" spacers, rounded to the nearest whole one — you cannot stack 0.8 of a spacer. A 2" board needs none; anything thinner needs the stack to bring the jig back to the reference height.\n\n  1 1/2"  →  4 spacers  (1/4")\n  1 5/8"  →  3 spacers  (3/16")\n  1 3/4"  →  2 spacers  (1/8")\n\nThe live version is in Calculator → Handle spacers. Same formula, copied here so you are not switching tabs mid-setup.' },
+
+  { n: 17, phase: 'Sand and finish', pem: '✨', name: 'Drum sand faces', min: null, tip: '120 grit',
+    body: 'Drum sander at 120. This is the baseline the whole finishing schedule is built on — everything after it is ROS work.\n\nCLEARING THE PORES\nEnd grain pores are open tubes pointing straight up, so they pack with dust and it shows under oil. Shop vac with a brush attachment is the tool — it lifts dust out rather than dragging it around the way a rag does.\n\nMost shop vacs will also take the hose on the exhaust port, which gives you a blower for free.' },
+  { n: 18, phase: 'Sand and finish', name: 'Sand edges to 150', min: null },
+  { n: 19, phase: 'Sand and finish', name: 'Brand VDAF', min: null,
     body: 'Brand before the final sanding, not after — the 320 pass cleans up any scorch halo around the mark.' },
-  { n: 20, name: 'Sand to 320',                    min: null, tip: 'Two water pops',
-    body: 'GRIT LADDER (faces)\n120 drum → 180 → 220 → pop → 220 → 320 → pop → 320\n\nNo 150 pass is needed. Every jump stays inside the 50% rule: 120→180 is exactly 1.50×, 180→220 is 1.22×, 220→320 is 1.45×. What matters is the scratch-depth ratio between grits, not how many steps a given chart lists.\n\nWATER POPPING\nMist both faces lightly with a spray bottle — never soak. End grain plus standing water can cup or check. Let it dry fully, 1–2 hours, until the surface feels rough.\n\nThen re-sand at the SAME grit you popped at, not the next one up. A finer paper asked to cut raised fibers and refine the surface at the same time does neither job completely.\n\nTwo pops, after 220 and after 320, so the final grit is the one that gets tested against water. Use the second pop as a diagnostic: if the board comes up fuzzy, the 220 pop did not go deep enough and a third cycle is worth it. If it comes up nearly smooth, you are done and you will know it.\n\nDO NOT GLAZE IT\nAt 320 the real risk with a random orbit is heat and pressure folding the fibers over instead of cutting them — which seals the surface far more than the grit alone does. A glazed board looks fine and drinks almost nothing. Light pressure, keep it moving, let the disc work.\n\nThere is no grain direction to follow. The face of an end grain board IS end grain, so the usual "hand sand with the grain on the final pass" rule does not apply here — the random orbit pattern is genuinely the right tool. Just a light one.\n\nBlow the pores out with compressed air between every grit.' },
-  { n: 21, name: 'Apply board oil',                min: null, tip: 'Flood 2–3×, then overnight',
+  { n: 20, phase: 'Sand and finish', name: 'Sand to 320', min: null, tip: 'Two water pops',
+    body: 'GRIT LADDER (faces)\n120 drum → 180 → 220 → pop → 220 → 320 → pop → 320\n\nNo 150 pass is needed. Every jump stays inside the 50% rule: 120→180 is exactly 1.50×, 180→220 is 1.22×, 220→320 is 1.45×. What matters is the scratch-depth ratio between grits, not how many steps a given chart lists.\n\nWATER POPPING\nMist both faces lightly with a spray bottle — never soak. End grain plus standing water can cup or check. Let it dry fully, 1–2 hours, until the surface feels rough.\n\nThen re-sand at the SAME grit you popped at, not the next one up. A finer paper asked to cut raised fibers and refine the surface at the same time does neither job completely.\n\nTwo pops, after 220 and after 320, so the final grit is the one that gets tested against water. Use the second pop as a diagnostic: if the board comes up fuzzy, the 220 pop did not go deep enough and a third cycle is worth it. If it comes up nearly smooth, you are done and you will know it.\n\nDO NOT GLAZE IT\nAt 320 the real risk with a random orbit is heat and pressure folding the fibers over instead of cutting them — which seals the surface far more than the grit alone does. A glazed board looks fine and drinks almost nothing. Light pressure, keep it moving, let the disc work.\n\nThere is no grain direction to follow. The face of an end grain board IS end grain, so the usual "hand sand with the grain on the final pass" rule does not apply here — the random orbit pattern is genuinely the right tool. Just a light one.\n\nCLEARING THE PORES\nShop vac with a brush attachment between grits — and above all before each water pop and before oiling. Those are the two moments that lock dust in: misting dust-packed pores turns the dust to mud, and oil carries it in for good.\n\nNo damp rag between grits. That is an unplanned water pop at the wrong grit.' },
+  { n: 21, phase: 'Sand and finish', name: 'Apply board oil', min: null, tip: 'Flood 2–3×, then overnight',
     body: 'Walrus Oil Cutting Board Oil is beeswax, fractionated coconut oil, mineral oil and vitamin E — NON-POLYMERIZING by the manufacturer\'s own spec. It never cures.\n\nThat one fact drives everything else: penetration is the entire protective mechanism, which is why burnishing matters so much and why a single coat is not enough.\n\nWARM IT FIRST\nStand the bottle in hot tap water for ten minutes. There is beeswax in the blend, so it is thicker than straight mineral oil, and warming it measurably improves how far it gets into a 320 surface.\n\nFLOOD, DO NOT COAT\nApply heavily to all six faces. Wait 20–30 minutes and re-flood anywhere that has gone dull. Two or three floods in the first hour. End grain drinks — one application sitting for 24 hours penetrates less than three applications in the first hour.\n\nThen leave it overnight and buff off the excess. Walrus says 6–12 hours; 12–24 is fine and makes no difference to a non-curing oil beyond scheduling.\n\nBudget 1–2 oz per board for the first soak. Across a 32-board run that is 32–64 oz — worth confirming stock before you start rather than running dry at board 19.' },
-  { n: 22, name: 'Apply board butter',             min: null, tip: '20 minutes, not an hour',
+  { n: 22, phase: 'Sand and finish', name: 'Apply board butter', min: null, tip: '20 minutes, not an hour',
     body: 'Twenty minutes, then buff. You are wiping it off either way, and left for an hour or more it goes gummy and fights the buff. Walrus\'s own wax guidance is 15 minutes.' },
-  { n: 23, name: 'Final buff with microfiber',     min: null, tip: 'Hand-wipe first, then machine',
+  { n: 23, phase: 'Sand and finish', name: 'Final buff with microfiber', min: null, tip: 'Hand-wipe first, then machine',
     body: 'WIPE THE EXCESS OFF BY HAND FIRST\nClean cotton rag, all six faces, until nothing more comes away. Put the machine onto a thick film and you smear it rather than buff it — that is what produces a blotchy, streaky sheen.\n\nThen the random orbit with a soft, NON-ABRASIVE pad — microfiber or foam, never a worn abrasive disc. Low speed, light pressure, keep it moving.\n\nHEAT IS THE WHOLE RISK\nThe standard objection to buffing wax with a random orbit is real: the small orbit can overheat the surface before the wax has done its job, melting the beeswax into haze and streaks instead of a sheen. Manage it by keeping the speed down, never parking the pad in one spot, and letting a board cool if it starts to feel warm under your hand.\n\nDone is when the surface stops looking wet and settles into an even dry sheen, and the pad comes away barely loaded.\n\nHand-buffing with a rag always works and never hazes — it is just slow. At 32 boards the machine earns its place; on a single showpiece, do it by hand.\n\nAFTER THE FIRST WASH\nThe board will feel slightly rough again. That is end grain being end grain, not a finishing failure. A light hand-sand and a re-oil settles it permanently — worth saying on the care card.' },
 ];
+const EG_PROJECT = { id: 'endgrain', name: 'End Grain Cutting Board', em: '🔪', seeded: true, steps: EG_STEPS };
 
+// ─── Project accessors ──────────────────────────────────────────────────────
+function bgProjects() { return [EG_PROJECT, ...buildProjects]; }
+function bgCur() { return bgProjects().find(p => p.id === buildGuide._proj) || EG_PROJECT; }
+function bgSelect(id) { buildGuide._proj = id; buildOpen = null; buildEditing = null; saveBuildGuide(); renderBuildGuide(); }
+function bgStepOf(proj, n) { return proj.steps.find(s => s.n === n); }
+
+// Seeded steps resolve through the override map; user projects store inline.
+function bgBody(proj, s) {
+  if (!proj.seeded) return s.body || '';
+  const own = buildGuide[String(s.n)];
+  if (own != null && String(own).trim()) return String(own);
+  return s.body || '';
+}
+function bgHasOwnBody(proj, s) {
+  if (!proj.seeded) return false;
+  const o = buildGuide[String(s.n)];
+  return o != null && String(o).trim() !== '';
+}
+function bgMin(proj, s) {
+  if (!proj.seeded) return s.min == null ? null : s.min;
+  const o = (buildGuide._min || {})[String(s.n)];
+  const v = parseFloat(o);
+  if (o != null && o !== '' && !isNaN(v) && v > 0) return v;
+  return s.min == null ? null : s.min;
+}
+function bgHasOwnMin(proj, s) {
+  if (!proj.seeded) return false;
+  const o = (buildGuide._min || {})[String(s.n)];
+  const v = parseFloat(o);
+  return o != null && o !== '' && !isNaN(v) && v > 0;
+}
+function bgTotalMin(proj) { return proj.steps.reduce((a, s) => a + (bgMin(proj, s) || 0), 0); }
+function bgFmtMin(m) { if (!m) return ''; return m >= 60 ? (m / 60).toFixed(1) + ' hr' : (Math.round(m * 10) / 10) + ' min'; }
+// Consecutive steps sharing a phase render as one group.
+function bgGroups(proj) {
+  const out = [];
+  for (const s of proj.steps) {
+    const ph = s.phase || '';
+    const last = out[out.length - 1];
+    if (last && last.phase === ph) last.steps.push(s);
+    else out.push({ phase: ph, em: s.pem || '', steps: [s] });
+  }
+  return out;
+}
+function bgPhaseNames() {
+  const seen = [];
+  for (const p of bgProjects()) for (const s of p.steps) if (s.phase && !seen.includes(s.phase)) seen.push(s.phase);
+  return seen;
+}
+
+// ─── Storage ────────────────────────────────────────────────────────────────
 function loadBuildGuide() {
-  try { buildGuide = JSON.parse(localStorage.getItem(BUILD_KEY) || '{}') || {}; }
-  catch { buildGuide = {}; }
+  try { buildGuide = JSON.parse(localStorage.getItem(BUILD_KEY) || '{}') || {}; } catch { buildGuide = {}; }
+  try { buildProjects = JSON.parse(localStorage.getItem(BUILD_PROJ_KEY) || '[]'); if (!Array.isArray(buildProjects)) buildProjects = []; }
+  catch { buildProjects = []; }
+  buildProjects.forEach(p => { if (p && p.id != null) p.id = String(p.id); });
 }
 function saveBuildGuide() {
   try { localStorage.setItem(BUILD_KEY, JSON.stringify(buildGuide)); } catch {}
   if (typeof cloudPush === 'function') cloudPush('buildGuide');
 }
-function buildStep(n) { return BUILD_STEPS.find(s => s.n === n); }
-function buildBody(n) {
-  const own = buildGuide[String(n)];
-  if (own != null && String(own).trim()) return String(own);
-  return buildStep(n)?.body || '';
-}
-function buildHasOwn(n) { const o = buildGuide[String(n)]; return o != null && String(o).trim() !== ''; }
-// Times are a starting point, not a fact — they drop as the run goes on. An
-// override lives in buildGuide._min beside _qty, so the seeded figure stays
-// available to revert to and every total reads through buildMin().
-function buildMin(n) {
-  const o = (buildGuide._min || {})[String(n)];
-  const v = parseFloat(o);
-  if (o != null && o !== '' && !isNaN(v) && v > 0) return v;
-  const seed = buildStep(n)?.min;
-  return seed == null ? null : seed;
-}
-function buildHasOwnMin(n) {
-  const o = (buildGuide._min || {})[String(n)];
-  const v = parseFloat(o);
-  return o != null && o !== '' && !isNaN(v) && v > 0;
-}
-function buildSetMin(n, val) {
-  buildGuide._min = buildGuide._min || {};
-  const v = parseFloat(val);
-  if (val === '' || isNaN(v) || v <= 0) delete buildGuide._min[String(n)];
-  else buildGuide._min[String(n)] = Math.round(v * 100) / 100;
-  saveBuildGuide(); renderBuildGuide();
-}
-function buildRevertMin(n) {
-  if (buildGuide._min) delete buildGuide._min[String(n)];
-  saveBuildGuide(); renderBuildGuide();
-}
-function buildPhaseMin(p) {
-  return BUILD_STEPS.filter(s => s.n >= p.from && s.n <= p.to).reduce((a, s) => a + (buildMin(s.n) || 0), 0);
-}
-function buildTotalMin() { return BUILD_STEPS.reduce((a, s) => a + (buildMin(s.n) || 0), 0); }
-function buildFmtMin(m) {
-  if (!m) return '';
-  return m >= 60 ? (m / 60).toFixed(1) + ' hr' : (Math.round(m * 10) / 10) + ' min';
+function saveBuildProjects() {
+  try { localStorage.setItem(BUILD_PROJ_KEY, JSON.stringify(buildProjects)); } catch {}
+  if (typeof cloudPush === 'function') cloudPush('buildProjects');
 }
 
-function buildToggle(n) {
-  if (buildEditing != null && buildEditing !== n) buildSaveEdit(buildEditing, true);
-  buildOpen = buildOpen === n ? null : n;
-  buildEditing = null;
-  renderBuildGuide();
-}
+// ─── Editing ────────────────────────────────────────────────────────────────
+function buildToggle(n) { buildOpen = buildOpen === n ? null : n; buildEditing = null; renderBuildGuide(); }
 function buildEdit(n) { buildOpen = n; buildEditing = n; renderBuildGuide(); }
-function buildSaveEdit(n, quiet) {
+function buildCancelEdit() { buildEditing = null; renderBuildGuide(); }
+function buildSaveEdit(n) {
   const ta = document.getElementById('bg-edit-' + n);
   if (ta) {
-    const v = ta.value.trim();
-    if (v) buildGuide[String(n)] = v; else delete buildGuide[String(n)];
-    saveBuildGuide();
+    const proj = bgCur(), v = ta.value.trim();
+    if (proj.seeded) { if (v) buildGuide[String(n)] = v; else delete buildGuide[String(n)]; saveBuildGuide(); }
+    else { const s = bgStepOf(proj, n); if (s) { s.body = v; saveBuildProjects(); } }
   }
-  buildEditing = null;
-  if (!quiet) renderBuildGuide();
+  buildEditing = null; renderBuildGuide();
 }
-function buildCancelEdit() { buildEditing = null; renderBuildGuide(); }
 function buildRevert(n) {
   if (!confirm('Put the built-in instructions back for step ' + n + '? Your version is discarded.')) return;
-  delete buildGuide[String(n)];
-  saveBuildGuide(); buildEditing = null; renderBuildGuide();
+  delete buildGuide[String(n)]; saveBuildGuide(); buildEditing = null; renderBuildGuide();
 }
-function buildSetQty(v) {
-  const n = Math.max(1, Math.min(999, parseInt(v, 10) || 1));
-  buildGuide._qty = n; saveBuildGuide(); renderBuildGuide();
+function buildSetMin(n, val) {
+  const proj = bgCur(), v = parseFloat(val), blank = (val === '' || isNaN(v) || v <= 0);
+  if (proj.seeded) {
+    buildGuide._min = buildGuide._min || {};
+    if (blank) delete buildGuide._min[String(n)]; else buildGuide._min[String(n)] = Math.round(v * 100) / 100;
+    saveBuildGuide();
+  } else {
+    const s = bgStepOf(proj, n); if (s) { s.min = blank ? null : Math.round(v * 100) / 100; saveBuildProjects(); }
+  }
+  renderBuildGuide();
+}
+function buildRevertMin(n) { if (buildGuide._min) delete buildGuide._min[String(n)]; saveBuildGuide(); renderBuildGuide(); }
+function buildSetQty(v) { buildGuide._qty = Math.max(1, Math.min(999, parseInt(v, 10) || 1)); saveBuildGuide(); renderBuildGuide(); }
+
+// ─── Project + step management (user projects only) ─────────────────────────
+function bgNewProject() {
+  const name = (prompt('Name this project (e.g. Floating Shelf, Shaker Box):') || '').trim();
+  if (!name) return;
+  const id = 'p' + Date.now().toString(36);
+  buildProjects.push({ id, name, em: '🪵', steps: [] });
+  saveBuildProjects();
+  bgSelect(id);
+}
+function bgRenameProject() {
+  const p = bgCur();
+  if (p.seeded) { alert('The built-in project keeps its name. Make a new project to start your own.'); return; }
+  const name = (prompt('Rename project:', p.name) || '').trim();
+  if (!name) return;
+  p.name = name; saveBuildProjects(); renderBuildGuide();
+}
+function bgDeleteProject() {
+  const p = bgCur();
+  if (p.seeded) { alert('The built-in project cannot be deleted.'); return; }
+  if (!confirm('Delete "' + p.name + '" and all ' + p.steps.length + ' of its steps? This cannot be undone.')) return;
+  buildProjects = buildProjects.filter(x => x.id !== p.id);
+  saveBuildProjects(); bgSelect('endgrain');
+}
+function bgAddStep() {
+  const p = bgCur();
+  if (p.seeded) { alert('The built-in step list matches your Time Sheet. Make a new project to build your own list.'); return; }
+  const name = (prompt('Step name (e.g. Cut dados):') || '').trim();
+  if (!name) return;
+  const last = p.steps[p.steps.length - 1];
+  const phases = bgPhaseNames();
+  const phase = (prompt('Phase for this step — groups it with the ones around it.' +
+    (phases.length ? '\n\nAlready used: ' + phases.join(', ') : '') + '\n\nLeave blank for none:', last?.phase || '') || '').trim();
+  const n = p.steps.reduce((m, s) => Math.max(m, s.n), 0) + 1;
+  p.steps.push({ n, name, phase, min: null, body: '' });
+  saveBuildProjects(); buildOpen = n; buildEditing = n; renderBuildGuide();
+}
+function bgEditStep(n) {
+  const p = bgCur();
+  if (p.seeded) return;
+  const s = bgStepOf(p, n); if (!s) return;
+  const name = (prompt('Step name:', s.name) || '').trim();
+  if (!name) return;
+  s.name = name;
+  const phase = prompt('Phase (blank for none):', s.phase || '');
+  if (phase !== null) s.phase = phase.trim();
+  const tip = prompt('Short chip shown on the row (blank for none):', s.tip || '');
+  if (tip !== null) s.tip = tip.trim();
+  saveBuildProjects(); renderBuildGuide();
+}
+function bgDeleteStep(n) {
+  const p = bgCur();
+  if (p.seeded) return;
+  const s = bgStepOf(p, n); if (!s) return;
+  if (!confirm('Delete step "' + s.name + '"?')) return;
+  p.steps = p.steps.filter(x => x.n !== n);
+  saveBuildProjects(); buildOpen = null; buildEditing = null; renderBuildGuide();
+}
+function bgMoveStep(n, dir) {
+  const p = bgCur(); if (p.seeded) return;
+  const i = p.steps.findIndex(s => s.n === n), j = i + dir;
+  if (i < 0 || j < 0 || j >= p.steps.length) return;
+  const tmp = p.steps[i]; p.steps[i] = p.steps[j]; p.steps[j] = tmp;
+  saveBuildProjects(); renderBuildGuide();
 }
 
+// ─── Render ─────────────────────────────────────────────────────────────────
 function renderBuildGuide() {
   const el = document.getElementById('build-content');
   if (!el) return;
-  const total = buildTotalMin();
+  const proj = bgCur();
+  const total = bgTotalMin(proj);
   const qty = Math.max(1, parseInt(buildGuide._qty, 10) || 1);
-  const documented = BUILD_STEPS.filter(s => buildBody(s.n)).length;
+  const documented = proj.steps.filter(s => bgBody(proj, s)).length;
+  const clocked = proj.steps.filter(s => bgMin(proj, s)).length;
 
-  let h = `<div class="bg-hero">
-    <h2>End grain cutting board</h2>
-    <p>The whole build, in order. Times started from your Time Sheet — edit any of them as you get faster, and fill in the ones never clocked.</p>
-    <div class="bg-stats">
-      <div class="bg-stat"><b>${BUILD_STEPS.length}</b><span>steps</span></div>
-      <div class="bg-stat"><b>${buildFmtMin(total)}</b><span>per board</span></div>
-      <div class="bg-stat"><b>${documented}</b><span>documented</span></div>
-      <div class="bg-stat"><b>${BUILD_STEPS.filter(s => buildMin(s.n)).length}</b><span>clocked</span></div>
-    </div>
-    <div class="bg-batch">
-      <label for="bg-qty">Batch of</label>
-      <input id="bg-qty" type="number" min="1" max="999" value="${qty}" onchange="buildSetQty(this.value)">
-      <span>boards &nbsp;=&nbsp; <b>${(total * qty / 60).toFixed(1)} hours</b> of bench time</span>
-    </div>
+  let h = `<div class="bg-picker">
+    ${bgProjects().map(p => `<button class="bg-chip${p.id === proj.id ? ' on' : ''}" onclick="bgSelect('${p.id}')">${p.em} ${escapeHtml(p.name)}</button>`).join('')}
+    <button class="bg-chip add" onclick="bgNewProject()">＋ New project</button>
   </div>`;
 
-  for (const p of BUILD_PHASES) {
-    const steps = BUILD_STEPS.filter(s => s.n >= p.from && s.n <= p.to);
-    const pm = buildPhaseMin(p);
-    h += `<div class="bg-phase">
-      <div class="bg-phase-head"><span class="em">${p.em}</span><h3>${escapeHtml(p.name)}</h3>
-        <span class="bg-phase-min">${pm ? buildFmtMin(pm) : ''}</span></div>`;
-    for (const s of steps) {
-      const body = buildBody(s.n);
-      const open = buildOpen === s.n;
-      const editing = buildEditing === s.n;
+  h += `<div class="bg-hero">
+    <h2>${proj.em} ${escapeHtml(proj.name)}</h2>
+    <p>${proj.seeded
+        ? 'The whole build, in order. Times started from your Time Sheet — edit any of them as you get faster, and fill in the ones never clocked.'
+        : 'Your project. Add steps as you work out the process, and write the instructions up as you go.'}</p>
+    <div class="bg-stats">
+      <div class="bg-stat"><b>${proj.steps.length}</b><span>steps</span></div>
+      <div class="bg-stat"><b>${total ? bgFmtMin(total) : '—'}</b><span>per unit</span></div>
+      <div class="bg-stat"><b>${documented}</b><span>documented</span></div>
+      <div class="bg-stat"><b>${clocked}</b><span>clocked</span></div>
+    </div>
+    ${total ? `<div class="bg-batch"><label for="bg-qty">Batch of</label>
+      <input id="bg-qty" type="number" min="1" max="999" value="${qty}" onchange="buildSetQty(this.value)">
+      <span>&nbsp;=&nbsp; <b>${(total * qty / 60).toFixed(1)} hours</b> of bench time</span></div>` : ''}
+    ${proj.seeded ? '' : `<div class="bg-acts" style="margin-top:12px">
+      <button class="bg-btn primary" onclick="bgAddStep()">＋ Add step</button>
+      <button class="bg-btn" onclick="bgRenameProject()">✎ Rename</button>
+      <button class="bg-btn warn" onclick="bgDeleteProject()">Delete project</button></div>`}
+  </div>`;
+
+  if (!proj.steps.length) {
+    h += `<div class="bg-step bare"><div class="bg-body" style="padding:16px"><div class="bg-empty">No steps yet. Add the first one and the instructions follow.</div></div></div>`;
+    el.innerHTML = h; return;
+  }
+
+  for (const g of bgGroups(proj)) {
+    const gm = g.steps.reduce((a, s) => a + (bgMin(proj, s) || 0), 0);
+    if (g.phase) h += `<div class="bg-phase"><div class="bg-phase-head">${g.em ? `<span class="em">${g.em}</span>` : ''}<h3>${escapeHtml(g.phase)}</h3><span class="bg-phase-min">${gm ? bgFmtMin(gm) : ''}</span></div>`;
+    else h += '<div class="bg-phase">';
+    for (const s of g.steps) {
+      const body = bgBody(proj, s), open = buildOpen === s.n, editing = buildEditing === s.n, m = bgMin(proj, s);
       h += `<div class="bg-step${open ? ' open' : ''}${body ? '' : ' bare'}">
         <button class="bg-step-head" onclick="buildToggle(${s.n})">
           <span class="bg-n">${s.n}</span>
           <span class="bg-nm">${escapeHtml(s.name)}</span>
           ${s.tip ? `<span class="bg-tip">${escapeHtml(s.tip)}</span>` : ''}
-          ${buildMin(s.n) ? `<span class="bg-min${buildHasOwnMin(s.n) ? ' own' : ''}">${buildFmtMin(buildMin(s.n))}</span>` : ''}
+          ${m ? `<span class="bg-min${bgHasOwnMin(proj, s) ? ' own' : ''}">${bgFmtMin(m)}</span>` : ''}
           <span class="bg-caret">${open ? '▾' : '▸'}</span>
         </button>`;
       if (open) {
-        const m = buildMin(s.n), seedMin = buildStep(s.n)?.min;
+        const seedMin = proj.seeded ? bgStepOf(EG_PROJECT, s.n)?.min : null;
         h += `<div class="bg-timerow">
-          <span class="lbl">⏱ Minutes per board</span>
+          <span class="lbl">⏱ Minutes per unit</span>
           <input type="number" step="0.1" min="0" inputmode="decimal" value="${m != null ? m : ''}" placeholder="not clocked" onchange="buildSetMin(${s.n}, this.value)">
-          ${buildHasOwnMin(s.n)
-            ? `<span class="bg-own">yours${seedMin != null ? ` · was ${seedMin}` : ''}</span><button class="bg-btn" onclick="buildRevertMin(${s.n})" title="Back to the original time">↺</button>`
-            : ''}
+          ${bgHasOwnMin(proj, s) ? `<span class="bg-own">yours${seedMin != null ? ` · was ${seedMin}` : ''}</span><button class="bg-btn" onclick="buildRevertMin(${s.n})" title="Back to the original time">↺</button>` : ''}
         </div>`;
         if (editing) {
           h += `<div class="bg-body">
-            <textarea class="bg-edit" id="bg-edit-${s.n}" placeholder="How this step is done — settings, gotchas, what went wrong last time…">${escapeHtml(body)}</textarea>
+            <textarea class="bg-edit" id="bg-edit-${s.n}" placeholder="How this step is done — settings, bits, counts, what went wrong last time…">${escapeHtml(body)}</textarea>
             <div class="bg-acts">
               <button class="bg-btn primary" onclick="buildSaveEdit(${s.n})">Save</button>
               <button class="bg-btn" onclick="buildCancelEdit()">Cancel</button>
-              ${buildHasOwn(s.n) && buildStep(s.n)?.body ? `<button class="bg-btn warn" onclick="buildRevert(${s.n})">↺ Revert to built-in</button>` : ''}
+              ${bgHasOwnBody(proj, s) && bgStepOf(EG_PROJECT, s.n)?.body ? `<button class="bg-btn warn" onclick="buildRevert(${s.n})">↺ Revert to built-in</button>` : ''}
             </div></div>`;
-        } else if (body) {
-          h += `<div class="bg-body"><div class="bg-text">${escapeHtml(body)}</div>
-            <div class="bg-acts"><button class="bg-btn" onclick="buildEdit(${s.n})">✎ Edit</button>
-            ${buildHasOwn(s.n) ? '<span class="bg-own">your version</span>' : ''}</div></div>`;
         } else {
-          h += `<div class="bg-body"><div class="bg-empty">No instructions yet.</div>
-            <div class="bg-acts"><button class="bg-btn primary" onclick="buildEdit(${s.n})">+ Write them</button></div></div>`;
+          h += `<div class="bg-body">
+            ${body ? `<div class="bg-text">${escapeHtml(body)}</div>` : '<div class="bg-empty">No instructions yet.</div>'}
+            <div class="bg-acts">
+              <button class="bg-btn${body ? '' : ' primary'}" onclick="buildEdit(${s.n})">${body ? '✎ Edit' : '+ Write them'}</button>
+              ${bgHasOwnBody(proj, s) ? '<span class="bg-own">your version</span>' : ''}
+              ${proj.seeded ? '' : `<button class="bg-btn" onclick="bgEditStep(${s.n})">Rename</button>
+                <button class="bg-btn" onclick="bgMoveStep(${s.n},-1)" title="Move up">↑</button>
+                <button class="bg-btn" onclick="bgMoveStep(${s.n},1)" title="Move down">↓</button>
+                <button class="bg-btn warn" onclick="bgDeleteStep(${s.n})">Delete</button>`}
+            </div></div>`;
         }
       }
       h += '</div>';
@@ -9530,7 +9647,9 @@ function renderBuildGuide() {
     h += '</div>';
   }
 
-  h += `<p class="bg-foot">Step list and times come from the Time Sheet tab of your End Grain Cutting Board Calculator. Instructions you write are saved on this device and synced to the cloud.</p>`;
+  h += `<p class="bg-foot">${proj.seeded
+    ? 'Step list and times come from the Time Sheet tab of your End Grain Cutting Board Calculator. Instructions you write are saved on this device and synced to the cloud.'
+    : 'Saved on this device and synced to the cloud.'}</p>`;
   el.innerHTML = h;
 }
 
@@ -9551,6 +9670,10 @@ const cloudDirty = {};               // collection -> true when a push failed (o
 
 // Map each synced collection to its in-memory state + a local-only writer (no re-push).
 const CLOUD_COLLECTIONS = {
+  buildProjects: {
+    get: () => buildProjects,
+    set: v => { if (Array.isArray(v)) { buildProjects = v; try { localStorage.setItem(BUILD_PROJ_KEY, JSON.stringify(buildProjects)); } catch {} renderBuildGuide(); } },
+  },
   buildGuide: {
     get: () => buildGuide,
     set: v => { if (v && typeof v === 'object') { buildGuide = v; try { localStorage.setItem(BUILD_KEY, JSON.stringify(buildGuide)); } catch {} renderBuildGuide(); } },
