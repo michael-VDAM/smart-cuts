@@ -1245,6 +1245,22 @@
     input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
 
     /* ═══════════════════════ BUILD GUIDE ═══════════════════════ */
+    .pl-seg { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .pl-seg-btn { display: flex; align-items: center; gap: 7px; background: var(--panel); border: 1px solid var(--border); color: var(--muted); border-radius: 9px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .pl-seg-btn.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .pl-seg-btn .n { font-size: 10px; font-weight: 700; background: var(--panel3); color: var(--muted2); border-radius: 99px; padding: 2px 7px; }
+    .pl-seg-btn.on .n { background: rgba(0,0,0,0.22); color: inherit; }
+    .pf-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; margin-bottom: 9px; }
+    .pf-top { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+    .pf-icon { font-size: 22px; }
+    .pf-meta { flex: 1; min-width: 160px; }
+    .pf-title { width: 100%; background: none; border: none; color: var(--text); font-size: 14.5px; font-weight: 700; font-family: inherit; padding: 2px 0; }
+    .pf-title:focus { outline: none; border-bottom: 1px solid var(--accent); }
+    .pf-sub { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+    .pf-fields { margin-top: 9px; }
+    .pf-fields input, .pf-notes { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 8px 10px; font-size: 13px; font-family: inherit; }
+    .pf-notes { margin-top: 7px; min-height: 48px; resize: vertical; line-height: 1.5; }
+    .pf-warn { margin-top: 11px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; line-height: 1.5; }
     .bg-picker { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
     .bg-chip { background: var(--panel); border: 1px solid var(--border); color: var(--muted); border-radius: 99px; padding: 7px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; }
     .bg-chip.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
@@ -1558,9 +1574,9 @@
       <div class="home-tile-grid">
         <button class="home-tile" data-tile-tab="plans">
           <div class="home-tile-icon"><img src="sparky/plans.png" alt=""></div>
-          <h3>My Plans</h3>
-          <p>Save designs to build later. Assign to projects when you finish — catalog grows over time.</p>
-          <span class="home-tile-cta">Open plans →</span>
+          <h3>Plan Library</h3>
+          <p>Saved designs, how-to-build step guides, and the plan PDFs you have bought — all in one place.</p>
+          <span class="home-tile-cta">Open library →</span>
         </button>
         <button class="home-tile" data-tile-tab="projects">
           <div class="home-tile-icon"><img src="sparky/camera.png" alt=""></div>
@@ -1761,7 +1777,9 @@
       <div class="section">
         <div class="section-label">Project Type</div>
         <div class="seg-toggle cols3">
-          <button class="seg-btn active" id="furn-cabinet" onclick="setFurnType('cabinet')">Cabinet</button>
+          <!-- Cabinet hidden 2026-10-21 at Michael's request — he doesn't build these.
+               Delete this comment and the style to bring it back; all the math still works. -->
+          <button class="seg-btn" id="furn-cabinet" style="display:none" onclick="setFurnType('cabinet')">Cabinet</button>
           <button class="seg-btn" id="furn-shelf" onclick="setFurnType('shelf')">Bookshelf</button>
           <button class="seg-btn" id="furn-drawer" onclick="setFurnType('drawer')">Drawer Box</button>
         </div>
@@ -1983,17 +2001,15 @@
   </div>
 </div>
 
-<!-- ════════════════════════════ TAB: BUILD GUIDE ═════════════════════════════ -->
-<div id="tab-build" style="display:none" class="workspace single-col">
-  <div class="output-col plans-col">
-    <div id="build-content"></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════ TAB: PLANS ═══════════════════════════════════ -->
+<!-- ════════════════════════════ TAB: PLAN LIBRARY ════════════════════════════ -->
+<!-- Three kinds of plan under one roof: designs saved from the calculators,
+     how-to-build step guides, and third-party files. -->
 <div id="tab-plans" style="display:none" class="workspace single-col">
   <div class="output-col plans-col">
-    <div id="plans-content"></div>
+    <div class="pl-seg" id="pl-seg"></div>
+    <div id="pl-designs"><div id="plans-content"></div></div>
+    <div id="pl-processes" style="display:none"><div id="build-content"></div></div>
+    <div id="pl-files" style="display:none"><div id="files-content"></div></div>
   </div>
 </div>
 
@@ -2255,8 +2271,7 @@ const NAV_GROUPS = [
     ['calc', 'Calculator', '🔢'],
   ] },
   { id: 'workshop', label: 'Workshop', tabs: [
-    ['build', 'Build Guide', '📖'],
-    ['plans', 'My Plans', '📋'],
+    ['plans', 'Plan Library', '📚'],
     ['projects', 'My Projects', '📷'],
     ['todo', 'My To-Do', '✅'],
     ['shop', 'My Shop', '🪚'],
@@ -2355,6 +2370,7 @@ function switchTab(name) {
   updateNavActive();
   // New page starts with the nav visible and scrolled to the top
   document.querySelector('header')?.classList.remove('nav-hidden');
+  if (name === 'plans') renderPlanLibrary();
   window.scrollTo(0, 0);
 }
 
@@ -2404,7 +2420,7 @@ let cellShape = 'square';   // 'square' (one cell number) | 'rect' (two)
 // term so the rip-fit sawtooth — the actual optimal points — becomes visible.
 let dtMatch = false;
 let pattern = 'checker';
-let furnType = 'cabinet';
+let furnType = 'shelf';   // cabinet hidden — see #furn-cabinet
 let cabType = 'base';
 let species = [];
 
@@ -3800,7 +3816,7 @@ function load() {
     mode = 'end';  // face grain is gone; coerce any older save
     if (data.cellShape === 'square' || data.cellShape === 'rect') cellShape = data.cellShape;
     if (data.pattern) pattern = data.pattern;
-    if (data.furnType) furnType = data.furnType;
+    if (data.furnType) furnType = data.furnType === 'cabinet' ? 'shelf' : data.furnType;   // cabinet hidden
     if (data.cabType) cabType = data.cabType;
     if (Array.isArray(data.species) && data.species.length) species = data.species;
 
@@ -9398,34 +9414,67 @@ const EG_STEPS = [
 ];
 const EG_PROJECT = { id: 'endgrain', name: 'End Grain Cutting Board', em: '🔪', seeded: true, steps: EG_STEPS };
 
+// Second seeded project: the numbers for shaker doors, which are all
+// arithmetic off the opening. Ranges are given where the sources genuinely
+// disagree (reveal especially) rather than picking one and sounding certain —
+// the hinge spec settles it, not a blog.
+const SHAKER_STEPS = [
+  { n: 1, phase: 'Size the door', pem: '📏', name: 'Measure the opening', min: null, tip: 'Every opening',
+    body: 'Measure the cabinet opening, width and height.\n\nMeasure EVERY opening, not one and multiply. Face frames are rarely identical, and a 1/8" difference shows badly once two doors hang side by side.' },
+  { n: 2, phase: 'Size the door', name: 'Pick overlay or inset', min: null, tip: '1/2" per side',
+    body: 'FULL OVERLAY — the common default\nAdd 1/2" per side, so the door is the opening plus 1" in both directions.\n\n  15" × 20" opening  →  16" × 21" door\n\nINSET\nSubtract the reveal instead — somewhere between 1/16" and 1/8" overall.\n\nSources genuinely disagree on inset reveal: some say 1/16" all round, others 1/8". Your HINGE spec settles it, not a rule of thumb. Check what the hinge needs before you cut.' },
+  { n: 3, phase: 'Size the door', name: 'Write down the finished size', min: null,
+    body: 'Fix the finished door width and height before anything is cut. Every number below is derived from them, so changing your mind later means recutting the lot.' },
+
+  { n: 4, phase: 'Cut list', pem: '📐', name: 'Stiles — 2 per door', min: null, tip: 'Full door height',
+    body: 'Two per door, cut to the FULL finished door height.\n\nWidth 2 1/4" to 2 1/2" is the usual Shaker range. The whole range in use is about 2" to 3"; a large door can carry 3" without looking heavy.\n\nRails get the SAME width as the stiles. Equal frame on all four sides is what makes a door read as Shaker — unequal widths are the single most common thing that makes a home-built one look wrong.' },
+  { n: 5, phase: 'Cut list', name: 'Rails — 2 per door', min: null, tip: 'W − 2 stiles + tenons',
+    body: '  rail length = door width − (2 × stile width) + (2 × tenon length)\n\nWorked, with 2 1/2" stiles and 3/8" tenons:\n\n  rail = door width − 5" + 3/4"\n\nSo a 16" wide door gives 16 − 5 + 0.75 = 11 3/4" rails.\n\nIf you are using a groove-and-stub-tenon rather than a true tenon, the "tenon length" is just your groove depth — measure it, do not assume 3/8".' },
+  { n: 6, phase: 'Cut list', name: 'Panel', min: null, tip: 'Let it float',
+    body: 'Panel size = the opening between the stile grooves, plus the groove depth on both sides, MINUS about 1/2" overall so it can move.\n\nAim for roughly 1/4" of gap all round. The panel must never be cut tight and must never be glued in — it has to float, or the door splits itself the first time the humidity swings.' },
+
+  { n: 7, phase: 'Build', pem: '🔨', name: 'Cut one test rail first', min: null, tip: 'Before batching',
+    body: 'Cut ONE rail, dry-assemble it with two stiles, and measure the outside width against your target.\n\nDo this before cutting the whole batch. Every rail is wrong by the same amount if the arithmetic was off, and a single test piece is the cheapest insurance in the build.' },
+  { n: 8, phase: 'Build', name: 'Grooves and joinery', min: null,
+    body: 'Groove the inside edge of every stile and rail to take the panel, then cut whatever joinery you are using at the corners.\n\nGroove depth has to match what you assumed in the rail length in step 5. If you change it, the rail length changes with it.' },
+  { n: 9, phase: 'Build', name: 'Dry fit and check diagonals', min: null, tip: 'Square = equal diagonals',
+    body: 'Assemble dry with the panel in. Measure both diagonals — they are equal when the door is square.\n\nFix it now. A door that is out of square at glue-up stays out of square, and it shows the moment it hangs next to a square one.' },
+  { n: 10, phase: 'Build', name: 'Glue up — frame only', min: null, tip: 'Never glue the panel',
+    body: 'Glue the four frame joints only. The panel stays dry and floating.\n\nClamp, check the diagonals again before the glue grabs, and check the frame is flat — a twisted door is obvious on a cabinet and very hard to fix afterwards.' },
+];
+const SHAKER_PROJECT = { id: 'shaker', name: 'Shaker Cabinet Doors', em: '🚪', seeded: true, steps: SHAKER_STEPS };
+
+
 // ─── Project accessors ──────────────────────────────────────────────────────
-function bgProjects() { return [EG_PROJECT, ...buildProjects]; }
+function bgProjects() { return [EG_PROJECT, SHAKER_PROJECT, ...buildProjects]; }
+function bgSeeded(id) { return bgProjects().find(p => p.id === id && p.seeded); }
 function bgCur() { return bgProjects().find(p => p.id === buildGuide._proj) || EG_PROJECT; }
 function bgSelect(id) { buildGuide._proj = id; buildOpen = null; buildEditing = null; saveBuildGuide(); renderBuildGuide(); }
 function bgStepOf(proj, n) { return proj.steps.find(s => s.n === n); }
 
 // Seeded steps resolve through the override map; user projects store inline.
+function bgKey(proj, s) { return proj.id === 'endgrain' ? String(s.n) : proj.id + ':' + s.n; }
 function bgBody(proj, s) {
   if (!proj.seeded) return s.body || '';
-  const own = buildGuide[String(s.n)];
+  const own = buildGuide[bgKey(proj, s)];
   if (own != null && String(own).trim()) return String(own);
   return s.body || '';
 }
 function bgHasOwnBody(proj, s) {
   if (!proj.seeded) return false;
-  const o = buildGuide[String(s.n)];
+  const o = buildGuide[bgKey(proj, s)];
   return o != null && String(o).trim() !== '';
 }
 function bgMin(proj, s) {
   if (!proj.seeded) return s.min == null ? null : s.min;
-  const o = (buildGuide._min || {})[String(s.n)];
+  const o = (buildGuide._min || {})[bgKey(proj, s)];
   const v = parseFloat(o);
   if (o != null && o !== '' && !isNaN(v) && v > 0) return v;
   return s.min == null ? null : s.min;
 }
 function bgHasOwnMin(proj, s) {
   if (!proj.seeded) return false;
-  const o = (buildGuide._min || {})[String(s.n)];
+  const o = (buildGuide._min || {})[bgKey(proj, s)];
   const v = parseFloat(o);
   return o != null && o !== '' && !isNaN(v) && v > 0;
 }
@@ -9472,27 +9521,28 @@ function buildSaveEdit(n) {
   const ta = document.getElementById('bg-edit-' + n);
   if (ta) {
     const proj = bgCur(), v = ta.value.trim();
-    if (proj.seeded) { if (v) buildGuide[String(n)] = v; else delete buildGuide[String(n)]; saveBuildGuide(); }
+    if (proj.seeded) { const k = bgKey(proj, { n }); if (v) buildGuide[k] = v; else delete buildGuide[k]; saveBuildGuide(); }
     else { const s = bgStepOf(proj, n); if (s) { s.body = v; saveBuildProjects(); } }
   }
   buildEditing = null; renderBuildGuide();
 }
 function buildRevert(n) {
   if (!confirm('Put the built-in instructions back for step ' + n + '? Your version is discarded.')) return;
-  delete buildGuide[String(n)]; saveBuildGuide(); buildEditing = null; renderBuildGuide();
+  delete buildGuide[bgKey(bgCur(), { n })]; saveBuildGuide(); buildEditing = null; renderBuildGuide();
 }
 function buildSetMin(n, val) {
   const proj = bgCur(), v = parseFloat(val), blank = (val === '' || isNaN(v) || v <= 0);
   if (proj.seeded) {
     buildGuide._min = buildGuide._min || {};
-    if (blank) delete buildGuide._min[String(n)]; else buildGuide._min[String(n)] = Math.round(v * 100) / 100;
+    const k = bgKey(proj, { n });
+    if (blank) delete buildGuide._min[k]; else buildGuide._min[k] = Math.round(v * 100) / 100;
     saveBuildGuide();
   } else {
     const s = bgStepOf(proj, n); if (s) { s.min = blank ? null : Math.round(v * 100) / 100; saveBuildProjects(); }
   }
   renderBuildGuide();
 }
-function buildRevertMin(n) { if (buildGuide._min) delete buildGuide._min[String(n)]; saveBuildGuide(); renderBuildGuide(); }
+function buildRevertMin(n) { if (buildGuide._min) delete buildGuide._min[bgKey(bgCur(), { n })]; saveBuildGuide(); renderBuildGuide(); }
 function buildSetQty(v) { buildGuide._qty = Math.max(1, Math.min(999, parseInt(v, 10) || 1)); saveBuildGuide(); renderBuildGuide(); }
 
 // ─── Project + step management (user projects only) ─────────────────────────
@@ -9615,7 +9665,7 @@ function renderBuildGuide() {
           <span class="bg-caret">${open ? '▾' : '▸'}</span>
         </button>`;
       if (open) {
-        const seedMin = proj.seeded ? bgStepOf(EG_PROJECT, s.n)?.min : null;
+        const seedMin = proj.seeded ? bgStepOf(proj, s.n)?.min : null;
         h += `<div class="bg-timerow">
           <span class="lbl">⏱ Minutes per unit</span>
           <input type="number" step="0.1" min="0" inputmode="decimal" value="${m != null ? m : ''}" placeholder="not clocked" onchange="buildSetMin(${s.n}, this.value)">
@@ -9627,7 +9677,7 @@ function renderBuildGuide() {
             <div class="bg-acts">
               <button class="bg-btn primary" onclick="buildSaveEdit(${s.n})">Save</button>
               <button class="bg-btn" onclick="buildCancelEdit()">Cancel</button>
-              ${bgHasOwnBody(proj, s) && bgStepOf(EG_PROJECT, s.n)?.body ? `<button class="bg-btn warn" onclick="buildRevert(${s.n})">↺ Revert to built-in</button>` : ''}
+              ${bgHasOwnBody(proj, s) && bgStepOf(proj, s.n)?.body ? `<button class="bg-btn warn" onclick="buildRevert(${s.n})">↺ Revert to built-in</button>` : ''}
             </div></div>`;
         } else {
           h += `<div class="bg-body">
@@ -9653,6 +9703,157 @@ function renderBuildGuide() {
   el.innerHTML = h;
 }
 
+// ═════════════════════════════ PLAN FILES ══════════════════════════════════
+// Third-party plans Michael buys or downloads (PDFs, mostly). The FILE lives
+// in the private `plan-files` Supabase bucket under <uid>/<id>/<name>, which
+// is what the bucket's RLS policies key on; only the small metadata record
+// rides the normal sync. A 4 MB PDF would blow both localStorage and the
+// JSONB row, which is why the bytes go to storage and not into the blob.
+const PLAN_FILES_KEY = 'woodshop-planfiles-v1';
+const PLAN_BUCKET = 'plan-files';
+let planFiles = [];
+let pfBusy = false;
+
+function loadPlanFiles() {
+  try { planFiles = JSON.parse(localStorage.getItem(PLAN_FILES_KEY) || '[]'); if (!Array.isArray(planFiles)) planFiles = []; }
+  catch { planFiles = []; }
+  planFiles.forEach(f => { if (f && f.id != null) f.id = String(f.id); });
+}
+function savePlanFiles() {
+  try { localStorage.setItem(PLAN_FILES_KEY, JSON.stringify(planFiles)); } catch {}
+  if (typeof cloudPush === 'function') cloudPush('planFiles');
+}
+function pfSize(b) {
+  if (!b) return '';
+  return b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+}
+function pfIcon(mime, name) {
+  const n = (name || '').toLowerCase();
+  if ((mime || '').includes('pdf') || n.endsWith('.pdf')) return '📕';
+  if ((mime || '').startsWith('image/')) return '🖼️';
+  if (n.endsWith('.zip')) return '🗜️';
+  return '📄';
+}
+
+async function pfPickFile() {
+  if (!cloudUser) { showToast('Sign in first — plan files live in the cloud so every device can open them.'); return; }
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.pdf,image/*,.zip,.txt';
+  inp.onchange = () => { const f = inp.files && inp.files[0]; if (f) pfUpload(f); };
+  inp.click();
+}
+
+async function pfUpload(file) {
+  if (pfBusy) return;
+  if (file.size > 25 * 1024 * 1024) { showToast('That file is over the 25 MB limit.'); return; }
+  pfBusy = true; renderPlanFiles();
+  try {
+    const id = 'f' + Date.now().toString(36);
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${cloudUser.id}/${id}/${safe}`;
+    const { error } = await sb.storage.from(PLAN_BUCKET).upload(path, file, { upsert: false, contentType: file.type || undefined });
+    if (error) throw error;
+    planFiles.unshift({
+      id, path, name: file.name, size: file.size, mime: file.type || '',
+      title: file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim(),
+      source: '', notes: '', createdAt: Date.now(),
+    });
+    savePlanFiles();
+    showToast('Uploaded — ' + file.name);
+  } catch (e) {
+    console.warn('plan file upload failed', e);
+    showToast('Upload failed: ' + (e.message || 'unknown error'));
+  }
+  pfBusy = false; renderPlanFiles();
+}
+
+// Bucket is private, so opening a file means minting a short-lived signed URL.
+async function pfOpen(id) {
+  const f = planFiles.find(x => x.id === id); if (!f) return;
+  if (!cloudUser) { showToast('Sign in to open plan files.'); return; }
+  try {
+    const { data, error } = await sb.storage.from(PLAN_BUCKET).createSignedUrl(f.path, 3600);
+    if (error) throw error;
+    window.open(data.signedUrl, '_blank', 'noopener');
+  } catch (e) { showToast('Could not open that file: ' + (e.message || 'unknown error')); }
+}
+async function pfDelete(id) {
+  const f = planFiles.find(x => x.id === id); if (!f) return;
+  if (!confirm('Delete "' + (f.title || f.name) + '"? The file is removed from storage too.')) return;
+  try { if (cloudUser) await sb.storage.from(PLAN_BUCKET).remove([f.path]); }
+  catch (e) { console.warn('storage remove failed', e); }
+  planFiles = planFiles.filter(x => x.id !== id);
+  savePlanFiles(); renderPlanFiles();
+}
+function pfSet(id, field, val) {
+  const f = planFiles.find(x => x.id === id); if (!f) return;
+  f[field] = val; savePlanFiles();
+}
+
+function renderPlanFiles() {
+  const el = document.getElementById('files-content');
+  if (!el) return;
+  let h = `<div class="bg-hero">
+    <h2>📁 Plan files</h2>
+    <p>Plans you have bought or downloaded — PDFs, templates, cut lists. The file itself lives in private cloud storage, so it opens on any device you are signed in on.</p>
+    <div class="bg-acts">
+      <button class="bg-btn primary" onclick="pfPickFile()"${pfBusy ? ' disabled' : ''}>${pfBusy ? 'Uploading…' : '⬆ Upload a plan'}</button>
+      <span class="bg-own">${planFiles.length} file${planFiles.length === 1 ? '' : 's'} · 25 MB max each</span>
+    </div>
+    ${cloudUser ? '' : '<div class="pf-warn">Sign in (top right) to upload or open files — they are stored in the cloud, not on this device.</div>'}
+  </div>`;
+
+  if (!planFiles.length) {
+    h += `<div class="bg-step bare"><div class="bg-body" style="padding:16px"><div class="bg-empty">Nothing uploaded yet.</div></div></div>`;
+    el.innerHTML = h; return;
+  }
+
+  for (const f of planFiles) {
+    const when = f.createdAt ? new Date(f.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    h += `<div class="pf-card">
+      <div class="pf-top">
+        <span class="pf-icon">${pfIcon(f.mime, f.name)}</span>
+        <div class="pf-meta">
+          <input class="pf-title" value="${escapeHtml(f.title || f.name)}" onchange="pfSet('${f.id}','title',this.value)" aria-label="Plan title">
+          <div class="pf-sub">${escapeHtml(f.name)} · ${pfSize(f.size)}${when ? ' · added ' + when : ''}</div>
+        </div>
+        <button class="bg-btn primary" onclick="pfOpen('${f.id}')">Open</button>
+        <button class="bg-btn warn" onclick="pfDelete('${f.id}')">Delete</button>
+      </div>
+      <div class="pf-fields">
+        <input placeholder="Where it came from (shop, site, maker)" value="${escapeHtml(f.source || '')}" onchange="pfSet('${f.id}','source',this.value)">
+      </div>
+      <textarea class="pf-notes" placeholder="Notes — what you changed, what to watch for next time…" onchange="pfSet('${f.id}','notes',this.value)">${escapeHtml(f.notes || '')}</textarea>
+    </div>`;
+  }
+  el.innerHTML = h;
+}
+
+// ─── Plan Library shell: Designs / Processes / Files in one tab ────────────
+const PLAN_VIEW_KEY = 'woodshop-planview';
+let planView = 'designs';
+const PLAN_VIEWS = [['designs', 'Designs', '📐'], ['processes', 'How to build', '📖'], ['files', 'Plan files', '📁']];
+function setPlanView(v) {
+  planView = v;
+  try { localStorage.setItem(PLAN_VIEW_KEY, v); } catch {}
+  renderPlanLibrary();
+}
+function renderPlanLibrary() {
+  const seg = document.getElementById('pl-seg');
+  if (!seg) return;
+  const counts = { designs: plans.length, processes: bgProjects().length, files: planFiles.length };
+  seg.innerHTML = PLAN_VIEWS.map(([id, label, em]) =>
+    `<button class="pl-seg-btn${planView === id ? ' on' : ''}" onclick="setPlanView('${id}')">${em} ${label}<span class="n">${counts[id]}</span></button>`).join('');
+  for (const [id] of PLAN_VIEWS) {
+    const pane = document.getElementById('pl-' + id);
+    if (pane) pane.style.display = planView === id ? '' : 'none';
+  }
+  if (planView === 'designs') renderPlans();
+  else if (planView === 'processes') renderBuildGuide();
+  else renderPlanFiles();
+}
+
 // ═════════════════════════════ CLOUD SYNC (Supabase) ════════════════════════
 // Optional cross-device sync. The app works fully offline via localStorage even
 // when these are blank — sync just stays disabled until real credentials exist.
@@ -9670,6 +9871,10 @@ const cloudDirty = {};               // collection -> true when a push failed (o
 
 // Map each synced collection to its in-memory state + a local-only writer (no re-push).
 const CLOUD_COLLECTIONS = {
+  planFiles: {
+    get: () => planFiles,
+    set: v => { if (Array.isArray(v)) { planFiles = v; try { localStorage.setItem(PLAN_FILES_KEY, JSON.stringify(planFiles)); } catch {} renderPlanFiles(); } },
+  },
   buildProjects: {
     get: () => buildProjects,
     set: v => { if (Array.isArray(v)) { buildProjects = v; try { localStorage.setItem(BUILD_PROJ_KEY, JSON.stringify(buildProjects)); } catch {} renderBuildGuide(); } },
@@ -10275,9 +10480,11 @@ function init() {
   loadProjects();
   renderProjects();
   loadPlans();
-  renderPlans();
+  renderPlanLibrary();
   loadBuildGuide();
-  renderBuildGuide();
+  loadPlanFiles();
+  try { planView = localStorage.getItem(PLAN_VIEW_KEY) || 'designs'; } catch {}
+  if (!PLAN_VIEWS.some(v => v[0] === planView)) planView = 'designs';
   updateHeaderTimer();
   renderLumberPrices();
   loadHardwarePrices();
