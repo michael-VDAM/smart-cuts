@@ -1280,6 +1280,10 @@
     .bg-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     .bg-btn.warn { color: var(--danger); }
     .bg-own { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted2); }
+    .bg-timerow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 9px 11px; margin-bottom: 11px; background: var(--panel2); border: 1px solid var(--border); border-radius: 7px; }
+    .bg-timerow .lbl { font-size: 11px; color: var(--muted); }
+    .bg-timerow input { width: 84px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 8px; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .bg-min.own { color: var(--accent); }
     .bg-foot { font-size: 11px; color: var(--muted2); line-height: 1.5; margin-top: 4px; }
     @media (max-width: 820px) {
       .bg-body { padding-left: 13px; }
@@ -9341,10 +9345,14 @@ const BUILD_PHASES = [
 ];
 
 const BUILD_STEPS = [
-  { n: 1,  name: 'Cut to 18.75" long',            min: 1.84 },
-  { n: 2,  name: 'Joint 1 edge',                   min: 2.03 },
-  { n: 3,  name: 'Rip down to 1 13/16"',           min: 4.42 },
-  { n: 4,  name: 'Joint saw edge, 4 @ 1/64"',      min: 4.61 },
+  { n: 1,  name: 'Cut to 18.75" long',            min: 1.84, tip: 'Miter saw',
+    body: 'Miter saw.\n\n18.75" is deliberately oversize. Panel Math puts the panel at 18.5" and the finished board at 18", so there is 3/4" of cleanup allowance built in across squaring up and the final edge work.' },
+  { n: 2,  name: 'Joint 1 edge',                   min: 2.03, tip: 'One edge only',
+    body: 'Jointer.\n\nJoint the edge that is flattest and will yield the most usable stock.\n\nONE edge only. The final clean-up cuts the other side off anyway, so jointing both is wasted time.' },
+  { n: 3,  name: 'Rip down to 1 13/16"',           min: 4.42, tip: 'CMT rip blade',
+    body: 'Table saw, CMT rip blade.\n\nThe rip blade rather than a combination blade — fewer teeth clear thick walnut faster with less burning, and the saw marks come off in step 4 regardless.' },
+  { n: 4,  name: 'Joint saw edge, 4 @ 1/64"',      min: 4.61, tip: '4 passes @ 1/64"',
+    body: 'Four passes at 1/64" — two per side, both directions.\n\nTwo jobs at once: clear the saw marks, and get the edges true enough that the panel glue-up closes tight with no gaps.' },
   { n: 5,  name: 'Panel glue-up',                  min: 19.25 },
   { n: 6,  name: 'Plane panel',                    min: 12 },
   { n: 7,  name: 'Square up both sides',           min: 2.25 },
@@ -9387,10 +9395,36 @@ function buildBody(n) {
   return buildStep(n)?.body || '';
 }
 function buildHasOwn(n) { const o = buildGuide[String(n)]; return o != null && String(o).trim() !== ''; }
-function buildPhaseMin(p) {
-  return BUILD_STEPS.filter(s => s.n >= p.from && s.n <= p.to).reduce((a, s) => a + (s.min || 0), 0);
+// Times are a starting point, not a fact — they drop as the run goes on. An
+// override lives in buildGuide._min beside _qty, so the seeded figure stays
+// available to revert to and every total reads through buildMin().
+function buildMin(n) {
+  const o = (buildGuide._min || {})[String(n)];
+  const v = parseFloat(o);
+  if (o != null && o !== '' && !isNaN(v) && v > 0) return v;
+  const seed = buildStep(n)?.min;
+  return seed == null ? null : seed;
 }
-function buildTotalMin() { return BUILD_STEPS.reduce((a, s) => a + (s.min || 0), 0); }
+function buildHasOwnMin(n) {
+  const o = (buildGuide._min || {})[String(n)];
+  const v = parseFloat(o);
+  return o != null && o !== '' && !isNaN(v) && v > 0;
+}
+function buildSetMin(n, val) {
+  buildGuide._min = buildGuide._min || {};
+  const v = parseFloat(val);
+  if (val === '' || isNaN(v) || v <= 0) delete buildGuide._min[String(n)];
+  else buildGuide._min[String(n)] = Math.round(v * 100) / 100;
+  saveBuildGuide(); renderBuildGuide();
+}
+function buildRevertMin(n) {
+  if (buildGuide._min) delete buildGuide._min[String(n)];
+  saveBuildGuide(); renderBuildGuide();
+}
+function buildPhaseMin(p) {
+  return BUILD_STEPS.filter(s => s.n >= p.from && s.n <= p.to).reduce((a, s) => a + (buildMin(s.n) || 0), 0);
+}
+function buildTotalMin() { return BUILD_STEPS.reduce((a, s) => a + (buildMin(s.n) || 0), 0); }
 function buildFmtMin(m) {
   if (!m) return '';
   return m >= 60 ? (m / 60).toFixed(1) + ' hr' : (Math.round(m * 10) / 10) + ' min';
@@ -9433,11 +9467,12 @@ function renderBuildGuide() {
 
   let h = `<div class="bg-hero">
     <h2>End grain cutting board</h2>
-    <p>The whole build, in order. Times are measured from a real run — the steps without one were never clocked.</p>
+    <p>The whole build, in order. Times started from your Time Sheet — edit any of them as you get faster, and fill in the ones never clocked.</p>
     <div class="bg-stats">
       <div class="bg-stat"><b>${BUILD_STEPS.length}</b><span>steps</span></div>
       <div class="bg-stat"><b>${buildFmtMin(total)}</b><span>per board</span></div>
       <div class="bg-stat"><b>${documented}</b><span>documented</span></div>
+      <div class="bg-stat"><b>${BUILD_STEPS.filter(s => buildMin(s.n)).length}</b><span>clocked</span></div>
     </div>
     <div class="bg-batch">
       <label for="bg-qty">Batch of</label>
@@ -9461,10 +9496,18 @@ function renderBuildGuide() {
           <span class="bg-n">${s.n}</span>
           <span class="bg-nm">${escapeHtml(s.name)}</span>
           ${s.tip ? `<span class="bg-tip">${escapeHtml(s.tip)}</span>` : ''}
-          ${s.min ? `<span class="bg-min">${buildFmtMin(s.min)}</span>` : ''}
+          ${buildMin(s.n) ? `<span class="bg-min${buildHasOwnMin(s.n) ? ' own' : ''}">${buildFmtMin(buildMin(s.n))}</span>` : ''}
           <span class="bg-caret">${open ? '▾' : '▸'}</span>
         </button>`;
       if (open) {
+        const m = buildMin(s.n), seedMin = buildStep(s.n)?.min;
+        h += `<div class="bg-timerow">
+          <span class="lbl">⏱ Minutes per board</span>
+          <input type="number" step="0.1" min="0" inputmode="decimal" value="${m != null ? m : ''}" placeholder="not clocked" onchange="buildSetMin(${s.n}, this.value)">
+          ${buildHasOwnMin(s.n)
+            ? `<span class="bg-own">yours${seedMin != null ? ` · was ${seedMin}` : ''}</span><button class="bg-btn" onclick="buildRevertMin(${s.n})" title="Back to the original time">↺</button>`
+            : ''}
+        </div>`;
         if (editing) {
           h += `<div class="bg-body">
             <textarea class="bg-edit" id="bg-edit-${s.n}" placeholder="How this step is done — settings, gotchas, what went wrong last time…">${escapeHtml(body)}</textarea>
