@@ -9936,7 +9936,12 @@ const CLOUD_COLLECTIONS = {
 // Array collections merge by this unique key (union, never drop). Anything NOT
 // listed here is a key→value map (lumberPrices / hardware / shop_photos) and
 // merges by object key. Used by pullAll() to merge instead of overwrite.
-const CLOUD_ARRAY_KEYS = { projects: 'id', plans: 'id', todos: 'id', supplies: 'id', notes: 'id', laser: 'id', laserMaterials: 'id', laserProjects: 'id', customSpecies: 'name' };
+// EVERY array collection must be listed here. Without its key, asKeyed()
+// falls through to the object branch and keys the array by INDEX, so
+// pullAll hands set() an object, the Array.isArray guard refuses it, and
+// the empty local array gets pushed back over good cloud data. That is
+// exactly how planFiles was wiped on 2026-10-22.
+const CLOUD_ARRAY_KEYS = { projects: 'id', plans: 'id', todos: 'id', supplies: 'id', notes: 'id', laser: 'id', laserMaterials: 'id', laserProjects: 'id', customSpecies: 'name', planFiles: 'id', buildProjects: 'id' };
 
 function cloudInit() {
   const btn = document.getElementById('cloud-btn');
