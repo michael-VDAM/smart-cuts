@@ -10479,12 +10479,15 @@ function init() {
   renderShop();
   loadProjects();
   renderProjects();
+  // Every load must finish BEFORE the first render: the segment counts and the
+  // remembered view are read from state the loads populate, so rendering first
+  // paints an empty Files pane and silently resets the view to Designs.
   loadPlans();
-  renderPlanLibrary();
   loadBuildGuide();
   loadPlanFiles();
   try { planView = localStorage.getItem(PLAN_VIEW_KEY) || 'designs'; } catch {}
   if (!PLAN_VIEWS.some(v => v[0] === planView)) planView = 'designs';
+  renderPlanLibrary();
   updateHeaderTimer();
   renderLumberPrices();
   loadHardwarePrices();
