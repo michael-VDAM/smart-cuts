@@ -7892,7 +7892,9 @@ const SHOP_DATA = {
   ]},
 
   tableSawBlades: { cat: 'blades', icon: '🔵', name: 'Table Saw Blades', items: [
-    { name: 'CMT 213.040.10 (40T GP)', brand: '10" General Purpose', meta: '18° hook, ATB · default rip blade · leave in saw' },
+    { name: 'CMT 203.630.10 (30T Glue Line Rip)', brand: '10" Heavy-Duty Ripping', meta: '0.126" kerf · board strips, glue-ready edge · height ~3/8" (1 tooth)' },
+    { name: 'CMT 285.660.10 (60T Fine Finish)', brand: '10" Fine Finishing', meta: '0.126" kerf · crosscuts incl. end-grain sled cuts' },
+    { name: 'CMT 213.040.10 (40T GP)', brand: '10" General Purpose', meta: '18° hook, ATB · general use · leave in saw' },
     { name: 'CMT 215.050.10 (50T Combo)', brand: '10" Combination', meta: '4ATB+1TCG, 10° hook · cleaner crosscuts + plywood' },
     { name: 'CMT 230.012.08 (12T Dado)', brand: '8" Dado Pro Set', meta: 'Width 1/8"-13/16" · stacked w/ shims (0.004-0.020")' },
   ]},
@@ -8015,11 +8017,11 @@ const SHOP_DATA = {
 };
 
 const TOOL_MATRIX = [
-  { op: 'Hardwood ripping', tool: 'Table saw + CMT 213.040.10 (40T GP)', why: '18° hook + large gullets = fast clean rips' },
+  { op: 'Hardwood ripping', tool: 'Table saw + CMT 203.630.10 (30T Glue Line Rip)', why: 'Edge is glue-ready straight off the saw — no jointing board strips' },
   { op: 'Thin strip ripping', tool: 'Goingmake Thin Rip Jig on table saw', why: 'Keeps fingers safe, fence stays out' },
   { op: 'Sheet goods (4×8)', tool: 'WEN CT1274 track saw + guide rail', why: 'Safer than wrestling sheets onto table saw' },
   { op: 'Resawing/veneers', tool: 'WEN BA3959 band saw + 3/8" 4-6 TPI', why: 'Max 3.5" resaw capacity' },
-  { op: 'Precision crosscuts', tool: 'Crosscut sled + 40T or 50T blade', why: 'Sled guarantees 90° every time' },
+  { op: 'Precision crosscuts', tool: 'Crosscut sled + CMT 285.660.10 (60T)', why: 'Sled guarantees 90°; 60T leaves a clean end-grain face' },
   { op: 'Batch crosscuts (many same length)', tool: 'Miter saw + stop block on fence', why: 'Repeatability, no measuring each cut' },
   { op: 'Picture frame 45° miters', tool: '45° Miter Sled + CMT 215.050.10', why: 'Purpose-built for L+R miters, locked angle' },
   { op: 'Tight curves (<2" radius)', tool: 'DeWalt DCS334 jig saw, orbital 0-1', why: 'Precise control for hardwood accuracy' },
