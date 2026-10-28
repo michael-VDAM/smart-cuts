@@ -85,6 +85,26 @@ Michael keeps his own `End Grain Cutting Board Calculator.xlsx` (Desktop, tabs *
 - Data tables have a **"milled to cell"** toggle. With thick stock the milling loss swamps everything and the grid slides one way; matching lumber to the cell exposes the rip-fit sawtooth, which is the optimal-point signal he's actually looking for.
 - No face grain, no juice groove, no edge profile, no buffer %. He cut all of them. Don't reintroduce.
 
+## Plan Library (added 2026-10-21/22, absorbed the old My Plans tab)
+One tab, three segments — `planView` picks which pane shows, and `renderPlanLibrary()` delegates:
+- **Designs** — `renderPlans()`, the saved calculator designs. Unchanged.
+- **How to build** — `renderBuildGuide()`. A library of projects, each an ordered list of steps; a step carries an optional `phase` string and consecutive steps sharing one render as a group, so grouping is data, not a second structure. Two SEEDED projects: `endgrain` (23 steps + real per-step minutes, lifted from the Time Sheet tab of Michael's `End Grain Cutting Board Calculator.xlsx`) and `shaker` (shaker cabinet door arithmetic). Michael's own projects live in `buildProjects`.
+- **Plan files** — `renderPlanFiles()`, third-party plan PDFs.
+
+**Overrides are stored apart from the seed, deliberately.** Anything Michael writes over a seeded step lives in `buildGuide` keyed `bgKey(proj, step)` (`"20"` for endgrain, `"shaker:5"` otherwise), never on the step itself, so editing a seed can't clobber his words and revert always has something to go back to. Times work the same way via `buildGuide._min`. **Promoting his notes into a seed means also clearing his override for that step** or he keeps seeing his old version.
+
+**Plan files go to Supabase STORAGE, not the sync blob.** Private bucket `plan-files`, path `<uid>/<id>/<name>`, which all four RLS policies key on; 25 MB limit. Only the metadata record rides `planFiles`. A 4 MB PDF as base64 would blow both localStorage and the JSONB row — that is the whole reason for the split. Opening one mints a 1-hour signed URL. Uploading needs a signed-in browser session, so an agent cannot do it for him.
+
+## EVERY array collection goes in CLOUD_ARRAY_KEYS (data loss, 2026-10-22)
+`CLOUD_COLLECTIONS` is not the only registry. An array collection missing from **`CLOUD_ARRAY_KEYS`** has no key, so `asKeyed()` falls through to the object branch and keys the array by INDEX. `pullAll()` then hands `set()` a plain object, the `Array.isArray` guard correctly refuses it, the local array stays empty — and because `landed` differs from the cloud row, **the empty array is pushed straight back over good data.**
+
+That is how an uploaded plan file's metadata was wiped ~80 minutes after upload. The file in storage was untouched; only the pointer died.
+
+Object collections guarded by `typeof v === 'object'` (`buildGuide`, `hardware`, `lumberPrices`, `shop_photos`) are correct WITHOUT a key. The rule is only for arrays. When adding a collection, check which guard its `set()` uses and register accordingly.
+
+## Cabinet is hidden, not deleted (2026-10-22)
+Michael doesn't build cabinets. `#furn-cabinet` carries `display:none`, `furnType` defaults to `'shelf'`, and a saved `'cabinet'` coerces to `'shelf'` on load. All the cabinet math still works — one line brings it back. Bookshelf and Drawer Box are untouched. The shaker-door *reference* lives in the Plan Library and is unrelated to this.
+
 ## Scrolling (fixed 2026-09-12 — don't regress)
 - **Phones have exactly ONE scroller: the page.** `.input-body` / `.output-col` are `overflow: visible` under 820px. Never reintroduce a nested scroller or a `max-height` cap there — stacked scrollers trap momentum and make the sticky header flicker.
 - **Anything sized against the header uses `var(--header-h)`**, measured at runtime. The old hardcoded 45px was 14px short of the real 59px and made the whole page overflow.
